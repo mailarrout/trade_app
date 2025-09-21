@@ -1,3 +1,0 @@
-timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
-2025-09-11 09:46:24,VIRTUAL_ACTIVE,Virtual positions opened,24978.80078125,24978.779296875,up,NIFTY16SEP25C25050,85.75,85.75,102.9,0,NIFTY16SEP25P25000,91.8,91.8,110.2,0
-2025-09-11 09:46:24,VIRTUAL_ACTIVE,First monitoring check,24972.5,24978.254231770832,down,NIFTY16SEP25C25050,85.75,85.75,102.9,0,NIFTY16SEP25P25000,91.8,91.8,110.2,0
