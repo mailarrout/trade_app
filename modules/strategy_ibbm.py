@@ -485,6 +485,14 @@ class IBBMStrategy:
         current_time = ISTTimeUtils.current_time()
         strategy_name = self.ui.StrategyNameQComboBox.currentText()
         
+        # Debug logging
+        logger.info(f"Current time: {current_time}")
+        logger.info(f"Selected strategy: '{strategy_name}'")
+        logger.info(f"Expected strategy: '{self.STRATEGY_NAME}'")
+        logger.info(f"Time in entry minutes: {current_time.minute in self.ENTRY_MINUTES}")
+        logger.info(f"Within trading hours: {self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME}")
+        logger.info(f"Strategy name matches: {strategy_name == self.STRATEGY_NAME}")
+        
         # Check if it's a valid entry time FIRST
         if current_time.minute not in self.ENTRY_MINUTES:
             logger.warning("Strategy can only be executed at XX:15 or XX:45")

@@ -731,30 +731,38 @@ class PositionManager:
 
     # ===== Strategy Management =====
     def enhanced_get_strategy_for_position(self, symbol, token, net_qty):
-        """Get strategy with user prompting for unassigned positions"""
+        """Get strategy from mapping - DO NOT auto-prompt user"""
         if not symbol or not token:
             return ""
         
+        # First try to get strategy from existing mapping
         strategy = self.get_strategy_for_position(symbol, token)
         
-        # Prompt user for unassigned active positions
+        # If no strategy found and position is active, return "Update Required"
+        # but DON'T automatically prompt the user
         if not strategy and net_qty != 0:
-            return self.prompt_strategy_selection(symbol, token)
+            return "Update Required"
         
         return strategy
 
     def get_strategy_for_position(self, symbol, token):
-        """Get strategy for a specific symbol-token combination"""
-        if symbol and token:
-            key = self._get_symbol_token_key(symbol, token)
-            strategy_data = self._strategy_symbol_token_map.get(key, {})
-            
-            # Handle both old (string) and new (dict) formats
-            if isinstance(strategy_data, dict):
-                return strategy_data.get('strategy_name', '')
-            else:
-                return strategy_data  # For backward compatibility
-        return ""
+        """Get strategy for a specific symbol-token combination - only if position exists"""
+        if not symbol or not token:
+            return ""
+        
+        # First check if this position exists currently
+        current_positions = self._get_current_positions_symbols()
+        if symbol not in current_positions:
+            return ""  # Don't return strategy for non-existent positions
+        
+        key = self._get_symbol_token_key(symbol, token)
+        strategy_data = self._strategy_symbol_token_map.get(key, {})
+        
+        # Handle both old (string) and new (dict) formats
+        if isinstance(strategy_data, dict):
+            return strategy_data.get('strategy_name', '')
+        else:
+            return strategy_data  # For backward compatibility
 
     def _get_symbol_token_key(self, symbol, token):
         """Create unique key for symbol-token combination"""
@@ -889,53 +897,85 @@ class PositionManager:
             self.ui.log_message("StrategyError", error_msg)
 
     def _load_strategy_mapping(self):
-        """Load strategy mapping from CSV file"""
+        """Load strategy mapping from latest available CSV file"""
         mapping = {}
-        mapping_file = None
         
         try:
             main_app_dir = os.path.dirname(os.path.abspath(__file__))
             logs_dir = os.path.join(main_app_dir, "logs")
             os.makedirs(logs_dir, exist_ok=True)
             
+            # Get ALL strategy mapping files, not just today's
             csv_files = [f for f in os.listdir(logs_dir) if f.endswith('_strategy_mapping.csv')]
             
-            if csv_files:
-                csv_files.sort(reverse=True)
-                latest_file = csv_files[0]
-                mapping_file = os.path.join(logs_dir, latest_file)
+            if not csv_files:
+                logger.info("No strategy mapping files found in logs directory")
+                return mapping
                 
-                df = pd.read_csv(mapping_file)
-                has_spot_price = 'spot_price' in df.columns
+            # Sort files by date (newest first)
+            csv_files.sort(reverse=True)
+            latest_file = csv_files[0]
+            mapping_file = os.path.join(logs_dir, latest_file)
+            
+            logger.info(f"Loading strategy mappings from: {latest_file}")
+            
+            # Read the latest mapping file
+            df = pd.read_csv(mapping_file)
+            has_spot_price = 'spot_price' in df.columns
+            
+            for _, row in df.iterrows():
+                symbol = row['symbol']
+                token = str(row['token'])
+                key = f"{symbol}_{token}"
                 
-                for _, row in df.iterrows():
-                    key = f"{row['symbol']}_{row['token']}"
-                    
-                    if has_spot_price:
-                        mapping[key] = {
-                            'strategy_name': row['strategy'],
-                            'spot_price': float(row.get('spot_price', 0.0)),
-                            'timestamp': row.get('assigned_date', '')
-                        }
-                    else:
-                        mapping[key] = {
-                            'strategy_name': row['strategy'],
-                            'spot_price': 0.0,
-                            'timestamp': row.get('assigned_date', '')
-                        }
-                
-                self._strategy_mapping_file = latest_file
-                log_msg = f"Loaded {len(mapping)} strategy mappings"
-                self.ui.log_message("Strategy", log_msg)
-                
+                if has_spot_price:
+                    mapping[key] = {
+                        'strategy_name': row['strategy'],
+                        'spot_price': float(row.get('spot_price', 0.0)),
+                        'timestamp': row.get('assigned_date', '')
+                    }
+                else:
+                    mapping[key] = {
+                        'strategy_name': row['strategy'],
+                        'spot_price': 0.0,
+                        'timestamp': row.get('assigned_date', '')
+                    }
+            
+            self._strategy_mapping_file = latest_file
+            log_msg = f"Loaded {len(mapping)} strategy mappings from {latest_file}"
+            logger.info(log_msg)
+            self.ui.log_message("Strategy", log_msg)
+            
         except FileNotFoundError:
-            logger.info("No strategy mapping file found")
+            logger.info("Strategy mapping file not found")
         except Exception as e:
             error_msg = f"Failed to load strategy mapping: {str(e)}"
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("StrategyError", error_msg)
         
         return mapping
+    
+    def _get_current_positions_symbols(self):
+        """Get list of symbols from current positions"""
+        current_symbols = set()
+        
+        try:
+            if not self._validate_clients():
+                return current_symbols
+                
+            client = self.client_manager.clients[0][2]
+            positions = client.get_positions() or []
+            
+            for pos in positions:
+                symbol = pos.get("tsym", "")
+                if symbol:
+                    current_symbols.add(symbol)
+                    
+        except Exception as e:
+            logger.error(f"Error getting current positions: {str(e)}")
+        
+        return current_symbols
+
 
     def get_all_strategy_assignments(self):
         """
@@ -996,19 +1036,29 @@ class PositionManager:
             return 0.0
 
     def _show_context_menu(self, position):
-        """Show context menu for strategy updates"""
+        """Show context menu for strategy updates - manual assignment only"""
         try:
             row = self.ui.PositionTable.rowAt(position.y())
             if row < 0:
                 return
                 
             symbol_item = self.ui.PositionTable.item(row, 0)
-            if not symbol_item:
+            token_item = self.ui.PositionTable.item(row, 2)  # Assuming token is in column 2
+            if not symbol_item or not token_item:
                 return
                 
             symbol = symbol_item.text()
+            token = token_item.text()
             
             menu = QMenu()
+            
+            # Add "Assign Strategy" option
+            assign_action = menu.addAction("Assign Strategy...")
+            assign_action.triggered.connect(
+                lambda: self.manually_assign_strategy(symbol, token)
+            )
+            
+            # Add strategy options
             strategies = [
                 "IBBM Intraday", "General", "Intraday Strangle", 
                 "Intraday Straddle", "Strategy920AM", "Monthly Strangle", 
@@ -1018,7 +1068,7 @@ class PositionManager:
             for strategy in strategies:
                 action = menu.addAction(strategy)
                 action.triggered.connect(
-                    lambda checked, s=strategy, sym=symbol: self._update_strategy_for_symbol(sym, s)
+                    lambda checked, s=strategy, sym=symbol, tok=token: self._update_strategy_for_symbol(sym, tok, s)
                 )
             
             menu.exec_(self.ui.PositionTable.viewport().mapToGlobal(position))
@@ -1028,36 +1078,52 @@ class PositionManager:
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("UIError", error_msg)
 
-    def _update_strategy_for_symbol(self, symbol, strategy):
-        """Update strategy for a specific symbol"""
+    def _update_strategy_for_symbol(self, symbol, token, strategy):
+        """Update strategy for a specific symbol-token pair"""
         try:
-            if not self._validate_clients():
-                return
-                
-            client = self.client_manager.clients[0][2]
-            positions = client.get_positions() or []
+            key = self._get_symbol_token_key(symbol, token)
+            self._strategy_symbol_token_map[key] = {
+                'strategy_name': strategy,
+                'spot_price': self._get_current_spot_price(),
+                'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
+            }
+            self._save_strategy_mapping()
             
-            for pos in positions:
-                if pos.get("tsym") == symbol:
-                    token = pos.get("token", "")
-                    if token:
-                        key = self._get_symbol_token_key(symbol, token)
-                        self._strategy_symbol_token_map[key] = {
-                            'strategy_name': strategy,
-                            'spot_price': self._get_current_spot_price(),
-                            'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
-                        }
-                        self._save_strategy_mapping()
-                        
-                        log_msg = f"Updated {symbol} strategy to: {strategy}"
-                        self.ui.log_message("Strategy", log_msg)
-                        
-                        self.update_positions()
-                        return
+            log_msg = f"Updated {symbol} strategy to: {strategy}"
+            self.ui.log_message("Strategy", log_msg)
             
-            logger.warning(f"Could not find token for symbol: {symbol}")
+            # Refresh the table to show updated strategy
+            self.update_positions()
             
         except Exception as e:
             error_msg = f"Failed to update strategy for {symbol}: {str(e)}"
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("StrategyError", error_msg)
+
+
+    def manually_assign_strategy(self, symbol, token):
+        """Manually trigger strategy assignment for a position"""
+        try:
+            if not symbol or not token:
+                return ""
+
+            # Get current net quantity to check if position is active
+            net_qty = 0
+            if self._validate_clients():
+                client = self.client_manager.clients[0][2]
+                positions = client.get_positions() or []
+                for pos in positions:
+                    if pos.get("tsym") == symbol and str(pos.get("token")) == token:
+                        net_qty = int(float(pos.get("netqty", 0)))
+                        break
+
+            # Only prompt if position is active
+            if net_qty != 0:
+                return self.prompt_strategy_selection(symbol, token)
+            else:
+                return "Position not active"
+
+        except Exception as e:
+            error_msg = f"Failed to manually assign strategy: {str(e)}"
+            logger.error(error_msg)
+            return "Error"            
