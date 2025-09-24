@@ -11066,3 +11066,1895 @@ requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.shoonya.com',
 2025-09-22 11:17:36,337 - modules.payoff_graph - INFO - Spot price updated: 25202.35
 2025-09-22 11:17:36,609 - modules.payoff_graph - ERROR - Failed to add payoff labels: wrapped C/C++ object of type QChartView has been deleted
 2025-09-22 11:17:36,796 - __main__ - INFO - Application exited normally
+2025-09-22 12:55:47,268 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 12:55:49,544 - __main__ - INFO - Initializing Trading Application
+2025-09-22 12:55:49,575 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 12:55:50,263 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 17:25:49 IST
+2025-09-22 12:55:50,279 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 12:55:50,279 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 17:25:50 IST
+2025-09-22 12:55:50,279 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 12:55:50,279 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 12:55:50,279 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 12:55:50,279 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 12:55:50,279 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 17:25:50 IST
+2025-09-22 12:55:50,279 - modules.interface_loader - INFO - Client loading initiated at 17:25:50 IST
+2025-09-22 12:55:50,279 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 12:55:50,294 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 12:55:50,732 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 17:25:50 IST
+2025-09-22 12:55:50,732 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.45 seconds
+2025-09-22 12:55:50,732 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 12:55:50,732 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 12:55:51,169 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 12:55:51,185 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 12:55:51,185 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 12:55:51,185 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 12:55:51,185 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:55:57,488 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 12:55:57,488 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 12:55:57,488 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 12:55:57,754 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.27 seconds
+2025-09-22 12:55:57,754 - modules.interface_loader - INFO - Expiry dates loaded in 0.27 seconds
+2025-09-22 12:55:57,754 - modules.interface_loader - INFO - Client loading process completed in 7.47 seconds
+2025-09-22 12:55:57,754 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 12:55:57,816 - __main__ - INFO - UI shown at 2025-09-22 17:25:57 IST
+2025-09-22 12:55:58,269 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 12:55:58,269 - modules.api_status - INFO - API status monitoring started
+2025-09-22 12:55:58,269 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 12:55:58,269 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 12:55:58,269 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 12:55:58,269 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 12:55:58,269 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 12:55:58,285 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 12:55:58,285 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 12:55:58,285 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 12:55:58,285 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 12:55:58,295 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 12:55:58,295 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 12:55:58,296 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 12:55:58,297 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 12:55:58,298 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 12:55:58,302 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 12:55:58,479 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 12:55:58,482 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 12:55:58,656 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 12:55:58,659 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 12:55:58,660 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 12:55:58,660 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 12:55:58,662 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 12:55:58,662 - modules.strategy_ibbm - INFO - Current time: 17:25:58.662266
+2025-09-22 12:55:58,663 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 12:55:58,663 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 12:55:58,664 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 12:55:58,664 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 12:55:58,664 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 12:55:58,664 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 12:55:58,665 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 12:55:58,665 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 12:55:58,666 - __main__ - INFO - Application running at 2025-09-22 17:25:58 IST
+2025-09-22 12:56:14,939 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:56:24,448 - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 12:56:24,449 - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 12:56:24,454 - modules.payoff_graph - INFO - Adjustment values saved to C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 12:56:24,456 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:24,473 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:24,474 - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 12:56:24,475 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:24,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:24,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:24,928 - __main__ - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 12:56:24,929 - __main__ - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 12:56:25,100 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 12:56:25,256 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 12:56:25,259 - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 12:56:25,260 - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 12:56:25,263 - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 12:56:25,263 - __main__ - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 12:56:25,264 - __main__ - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 12:56:25,264 - __main__ - INFO - Strategy recovery completed successfully from state files
+2025-09-22 12:56:25,705 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:25,970 - modules.payoff_graph - ERROR - Failed to add payoff labels: wrapped C/C++ object of type QChartView has been deleted
+2025-09-22 12:56:29,706 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:29,715 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:30,156 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:30,389 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:56:31,176 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:56:39,018 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:39,043 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:39,482 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:41,178 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:56:48,772 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:48,785 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:49,226 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:51,176 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:56:59,259 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:56:59,268 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:56:59,721 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:56:59,922 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:57:01,188 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:08,765 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:08,787 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:09,223 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:11,177 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:18,786 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:18,801 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:19,246 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:21,180 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:29,430 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:29,453 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:29,884 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:30,146 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:57:31,176 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:39,363 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:39,383 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:39,822 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:41,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:49,227 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:49,240 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:49,679 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:51,176 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:57:59,240 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:57:59,261 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:57:59,711 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:57:59,913 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:58:01,175 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:09,659 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:09,676 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:10,770 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:58:11,179 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:19,161 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:19,173 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:19,612 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:58:21,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:29,701 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:29,709 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:30,145 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:58:30,427 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:58:31,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:38,917 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:38,942 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:39,396 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:58:41,186 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:48,927 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:48,938 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:49,379 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:58:51,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:58:59,351 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:58:59,362 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:58:59,802 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:00,066 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:59:01,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:09,863 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:09,895 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:59:10,333 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:11,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:18,980 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:18,991 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:59:19,433 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:21,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:29,561 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:29,572 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:59:30,021 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:30,326 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 12:59:31,180 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:38,916 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:38,931 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:59:39,373 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:41,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:49,108 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:49,116 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 12:59:49,562 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 12:59:51,184 - modules.position_manager - INFO - Starting positions update
+2025-09-22 12:59:59,825 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 12:59:59,837 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:00,276 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:00,481 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:00:01,173 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:08,982 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:08,994 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:09,425 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:11,176 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:19,111 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:19,121 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:19,556 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:21,183 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:29,433 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:29,453 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:29,896 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:30,160 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:00:31,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:38,877 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:38,888 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:39,324 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:41,184 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:48,884 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:48,897 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:00:49,332 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:00:51,183 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:00:59,844 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:00:59,856 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:00,293 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:00,525 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:01:01,183 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:01:09,252 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:09,261 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:09,702 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:11,183 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:01:18,978 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:18,994 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:19,436 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:21,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:01:31,237 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:31,244 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:31,680 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:32,058 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:01:38,332 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:38,347 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:38,787 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:41,184 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:01:48,874 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:48,894 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:49,352 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:51,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:01:59,334 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:01:59,342 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:01:59,779 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:01:59,987 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:02:01,182 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:02:10,451 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:02:10,462 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:02:10,902 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:02:11,181 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:02:18,801 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:02:18,810 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:02:19,277 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:02:19,494 - __main__ - INFO - Application exited normally
+2025-09-22 13:03:41,187 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 13:03:44,015 - __main__ - INFO - Initializing Trading Application
+2025-09-22 13:03:44,048 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 13:03:44,866 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 17:33:44 IST
+2025-09-22 13:03:44,881 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 13:03:44,897 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 17:33:44 IST
+2025-09-22 13:03:44,898 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 13:03:44,901 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 13:03:44,913 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 13:03:44,914 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 13:03:44,916 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 17:33:44 IST
+2025-09-22 13:03:44,918 - modules.interface_loader - INFO - Client loading initiated at 17:33:44 IST
+2025-09-22 13:03:44,918 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 13:03:44,918 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 13:03:45,399 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 17:33:44 IST
+2025-09-22 13:03:45,399 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.48 seconds
+2025-09-22 13:03:45,399 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 13:03:45,415 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 13:03:45,845 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 13:03:45,860 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 13:03:45,860 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 13:03:45,868 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 13:03:45,869 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:03:52,089 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 13:03:52,090 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 13:03:52,091 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 13:03:52,359 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.27 seconds
+2025-09-22 13:03:52,359 - modules.interface_loader - INFO - Expiry dates loaded in 0.27 seconds
+2025-09-22 13:03:52,359 - modules.interface_loader - INFO - Client loading process completed in 7.44 seconds
+2025-09-22 13:03:52,359 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 13:03:52,446 - __main__ - INFO - UI shown at 2025-09-22 17:33:52 IST
+2025-09-22 13:03:52,898 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 13:03:52,898 - modules.api_status - INFO - API status monitoring started
+2025-09-22 13:03:52,898 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 13:03:52,898 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 13:03:52,898 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 13:03:52,898 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 13:03:52,914 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 13:03:52,919 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 13:03:52,926 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 13:03:52,926 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 13:03:52,931 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 13:03:52,932 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 13:03:52,933 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 13:03:52,938 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 13:03:52,939 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 13:03:52,941 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 13:03:52,945 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:03:53,120 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:03:53,124 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 13:03:53,297 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:03:53,301 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 13:03:53,302 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:03:53,304 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 13:03:53,306 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 13:03:53,308 - modules.strategy_ibbm - INFO - Current time: 17:33:53.308576
+2025-09-22 13:03:53,309 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 13:03:53,309 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 13:03:53,311 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 13:03:53,312 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 13:03:53,313 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 13:03:53,314 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 13:03:53,317 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 13:03:53,321 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 13:03:53,322 - __main__ - INFO - Application running at 2025-09-22 17:33:53 IST
+2025-09-22 13:04:10,780 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:04:20,964 - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 13:04:20,966 - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 13:04:20,972 - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 13:04:20,975 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:20,991 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:20,993 - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 13:04:20,995 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:21,013 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:21,454 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:21,455 - __main__ - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 13:04:21,456 - __main__ - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 13:04:21,630 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:04:21,814 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:04:21,817 - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 13:04:21,818 - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 13:04:21,824 - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 13:04:21,826 - __main__ - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 13:04:21,828 - __main__ - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 13:04:21,830 - __main__ - INFO - Strategy recovery completed successfully from state files
+2025-09-22 13:04:22,271 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:22,574 - modules.payoff_graph - ERROR - Failed to add payoff labels: wrapped C/C++ object of type QChartView has been deleted
+2025-09-22 13:04:24,549 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:24,574 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:25,061 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:25,266 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:04:25,872 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:04:34,570 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:34,587 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:35,402 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:35,867 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:04:43,671 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:43,679 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:44,144 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:45,873 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:04:54,008 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:04:54,023 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:04:54,468 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:04:54,675 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:04:55,865 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:03,645 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:03,660 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:04,255 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:05,873 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:13,688 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:13,696 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:14,135 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:15,874 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:24,176 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:24,186 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:24,622 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:24,833 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:05:25,866 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:33,628 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:33,648 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:34,094 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:35,863 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:43,846 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:43,858 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:44,298 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:45,873 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:05:53,991 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:05:54,004 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:05:54,438 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:05:54,640 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:05:55,863 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:06:03,675 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:06:03,684 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:06:04,126 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:06:05,861 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:06:13,528 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:06:13,537 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:06:13,977 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:06:15,875 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:25:00,794 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 13:25:03,185 - __main__ - INFO - Initializing Trading Application
+2025-09-22 13:25:03,216 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 13:25:04,060 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 17:55:03 IST
+2025-09-22 13:25:04,075 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 13:25:04,075 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 17:55:04 IST
+2025-09-22 13:25:04,075 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 13:25:04,075 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 13:25:04,091 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 13:25:04,091 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 13:25:04,091 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 17:55:04 IST
+2025-09-22 13:25:04,091 - modules.interface_loader - INFO - Client loading initiated at 17:55:04 IST
+2025-09-22 13:25:04,091 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 13:25:04,091 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 13:25:04,575 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 17:55:04 IST
+2025-09-22 13:25:04,575 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.48 seconds
+2025-09-22 13:25:04,575 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 13:25:04,575 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 13:25:05,006 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 13:25:05,022 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 13:25:05,022 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 13:25:05,022 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 13:25:05,022 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:25:11,358 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 13:25:11,358 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 13:25:11,358 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 13:25:11,592 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.23 seconds
+2025-09-22 13:25:11,592 - modules.interface_loader - INFO - Expiry dates loaded in 0.23 seconds
+2025-09-22 13:25:11,592 - modules.interface_loader - INFO - Client loading process completed in 7.50 seconds
+2025-09-22 13:25:11,592 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 13:25:11,670 - __main__ - INFO - UI shown at 2025-09-22 17:55:11 IST
+2025-09-22 13:25:12,123 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 13:25:12,123 - modules.api_status - INFO - API status monitoring started
+2025-09-22 13:25:12,123 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 13:25:12,123 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 13:25:12,139 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 13:25:12,139 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 13:25:12,139 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 13:25:12,139 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 13:25:12,154 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 13:25:12,154 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 13:25:12,154 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 13:25:12,167 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 13:25:12,167 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 13:25:12,168 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 13:25:12,169 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 13:25:12,169 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 13:25:12,185 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:25:12,346 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:25:12,349 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 13:25:12,505 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:25:12,507 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 13:25:12,508 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:25:12,508 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 13:25:12,509 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 13:25:12,510 - modules.strategy_ibbm - INFO - Current time: 17:55:12.510372
+2025-09-22 13:25:12,510 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 13:25:12,510 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 13:25:12,511 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 13:25:12,511 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 13:25:12,511 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 13:25:12,512 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 13:25:12,512 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 13:25:12,512 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 13:25:12,512 - __main__ - INFO - Application running at 2025-09-22 17:55:12 IST
+2025-09-22 13:25:30,690 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:25:40,701 - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 13:25:40,701 - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 13:25:40,705 - modules.payoff_graph - INFO - Adjustment values saved to C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 13:25:40,706 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:25:40,720 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:25:40,720 - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 13:25:41,164 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:25:41,165 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:25:41,172 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:25:41,173 - __main__ - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 13:25:41,173 - __main__ - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 13:25:41,346 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:25:41,672 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:25:41,676 - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 13:25:41,676 - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 13:25:41,680 - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 13:25:41,681 - __main__ - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 13:25:41,682 - __main__ - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 13:25:41,683 - __main__ - INFO - Strategy recovery completed successfully from state files
+2025-09-22 13:25:42,582 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:25:43,385 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:25:44,855 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:25:44,866 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:25:45,098 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:25:45,098 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:25:51,404 - __main__ - INFO - Application exited normally
+2025-09-22 13:29:42,451 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 13:29:45,208 - __main__ - INFO - Initializing Trading Application
+2025-09-22 13:29:45,235 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 13:29:46,075 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 17:59:45 IST
+2025-09-22 13:29:46,091 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 13:29:46,093 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 17:59:46 IST
+2025-09-22 13:29:46,095 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 13:29:46,100 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 13:29:46,110 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 13:29:46,112 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 13:29:46,113 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 17:59:46 IST
+2025-09-22 13:29:46,114 - modules.interface_loader - INFO - Client loading initiated at 17:59:46 IST
+2025-09-22 13:29:46,114 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 13:29:46,118 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 13:29:46,600 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 17:59:46 IST
+2025-09-22 13:29:46,602 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.49 seconds
+2025-09-22 13:29:46,603 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 13:29:46,603 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 13:29:47,044 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 13:29:47,048 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 13:29:47,052 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 13:29:47,053 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 13:29:47,054 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:29:54,274 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 13:29:54,276 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 13:29:54,312 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 13:29:54,879 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.57 seconds
+2025-09-22 13:29:54,880 - modules.interface_loader - INFO - Expiry dates loaded in 0.60 seconds
+2025-09-22 13:29:54,881 - modules.interface_loader - INFO - Client loading process completed in 8.77 seconds
+2025-09-22 13:29:54,881 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 13:29:54,980 - __main__ - INFO - UI shown at 2025-09-22 17:59:54 IST
+2025-09-22 13:29:55,428 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 13:29:55,429 - modules.api_status - INFO - API status monitoring started
+2025-09-22 13:29:55,430 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 13:29:55,431 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 13:29:55,443 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 13:29:55,444 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 13:29:55,445 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 13:29:55,449 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 13:29:55,462 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 13:29:55,463 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 13:29:55,464 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 13:29:55,466 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 13:29:55,467 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 13:29:55,467 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 13:29:55,475 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 13:29:55,477 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 13:29:55,481 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:29:55,704 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:29:55,708 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 13:29:55,927 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:29:55,931 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 13:29:55,932 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:29:55,932 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 13:29:55,937 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 13:29:55,940 - modules.strategy_ibbm - INFO - Current time: 17:59:55.940341
+2025-09-22 13:29:55,941 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 13:29:55,942 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 13:29:55,943 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 13:29:55,943 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 13:29:55,944 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 13:29:55,945 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 13:29:55,946 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 13:29:55,947 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 13:29:55,948 - __main__ - INFO - Application running at 2025-09-22 17:59:55 IST
+2025-09-22 13:30:22,878 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:30:34,311 - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 13:30:34,312 - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 13:30:34,316 - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 13:30:34,317 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:30:34,344 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:30:34,345 - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 13:30:34,347 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:30:34,366 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:30:34,816 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:30:34,817 - __main__ - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 13:30:34,818 - __main__ - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 13:30:35,065 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:30:35,315 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:30:35,322 - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 13:30:35,333 - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 13:30:35,347 - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 13:30:35,349 - __main__ - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 13:30:35,351 - __main__ - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 13:30:35,359 - __main__ - INFO - Strategy recovery completed successfully from state files
+2025-09-22 13:30:36,096 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:30:36,535 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:30:36,944 - modules.payoff_graph - ERROR - Failed to add payoff labels: wrapped C/C++ object of type QChartView has been deleted
+2025-09-22 13:30:37,048 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:30:47,531 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:30:47,550 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:30:48,029 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:30:57,492 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:30:57,587 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:30:58,402 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:30:58,639 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:30:58,640 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:06,925 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:06,939 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:07,396 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:07,397 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:15,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:15,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:15,950 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:17,396 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:25,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:25,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:25,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:27,547 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:31:27,547 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:35,456 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:35,479 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:35,936 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:37,377 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:45,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:45,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:45,967 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:47,417 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:31:55,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:31:55,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:31:55,924 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:31:57,578 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:31:57,578 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:05,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:05,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:05,934 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:07,413 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:15,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:15,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:16,327 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:17,832 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:25,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:25,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:25,971 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:27,636 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:32:27,637 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:35,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:35,480 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:35,919 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:37,914 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:45,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:45,485 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:45,976 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:47,408 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:32:55,455 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:32:55,480 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:32:55,921 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:32:57,552 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:32:57,553 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:05,459 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:05,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:05,929 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:07,360 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:15,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:15,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:15,924 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:17,357 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:25,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:25,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:25,931 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:27,573 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:33:27,574 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:35,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:35,518 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:35,964 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:37,401 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:45,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:45,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:45,985 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:47,465 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:33:55,455 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:33:55,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:33:55,917 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:33:57,542 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:33:57,542 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:05,459 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:05,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:05,920 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:07,975 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:15,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:15,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:15,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:17,385 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:25,471 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:25,493 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:25,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:27,595 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:34:27,596 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:35,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:35,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:35,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:37,399 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:45,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:45,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:45,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:47,380 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:34:55,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:34:55,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:34:55,947 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:34:57,599 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:34:57,600 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:35:05,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:35:05,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:35:05,930 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:35:07,465 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:35:15,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:35:15,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:35:15,932 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:35:17,402 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:35:25,993 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:35:26,016 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:35:26,935 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:35:29,334 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:35:29,335 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:35:37,062 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:35:47,378 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:35:47,386 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:35:47,836 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:35:55,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:35:55,474 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:35:55,933 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:35:57,566 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:35:57,567 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:05,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:05,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:05,932 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:07,392 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:15,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:15,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:15,981 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:17,529 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:25,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:25,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:26,012 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:27,677 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:36:27,678 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:35,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:35,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:35,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:37,419 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:45,459 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:45,482 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:45,989 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:47,425 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:36:55,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:36:55,485 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:36:55,920 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:36:57,550 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:36:57,551 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:05,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:05,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:05,930 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:07,434 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:15,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:15,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:15,933 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:17,403 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:25,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:25,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:25,922 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:27,572 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:37:27,573 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:35,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:35,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:35,932 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:37,370 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:45,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:45,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:45,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:47,432 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:37:55,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:37:55,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:37:55,975 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:37:57,611 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:37:57,611 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:05,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:05,480 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:05,932 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:07,371 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:15,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:15,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:15,935 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:17,382 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:25,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:25,506 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:25,949 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:27,587 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:38:27,588 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:35,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:35,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:36,195 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:37,989 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:45,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:45,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:45,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:47,439 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:38:55,456 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:38:55,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:38:55,914 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:38:57,550 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:38:57,550 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:05,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:39:05,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:39:05,921 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:39:07,354 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:15,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:39:15,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:39:15,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:39:17,360 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:25,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:39:25,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:39:25,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:39:27,598 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:39:27,599 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:35,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:39:35,485 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:39:35,965 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:39:37,423 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:47,062 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:39:55,504 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:39:55,514 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:39:55,956 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:39:57,622 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:39:57,623 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:05,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:40:05,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:40:05,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:40:07,396 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:15,455 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:40:15,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:40:15,918 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:40:17,342 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:25,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:40:25,496 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:40:25,936 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:40:27,669 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:40:27,669 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:35,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:40:35,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:40:35,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:40:37,435 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:45,469 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:40:45,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:40:45,933 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:40:49,138 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:40:57,005 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:40:57,082 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:05,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:05,471 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:05,912 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:07,447 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:15,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:15,485 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:15,948 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:17,409 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:25,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:25,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:25,936 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:27,649 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:41:27,650 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:35,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:35,505 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:35,951 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:37,409 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:45,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:45,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:45,934 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:47,408 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:41:55,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:41:55,484 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:41:55,922 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:41:57,591 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:41:57,591 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:05,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:05,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:05,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:07,372 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:15,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:15,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:15,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:17,363 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:25,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:25,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:25,916 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:27,573 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:42:27,573 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:35,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:35,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:35,926 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:37,360 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:45,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:45,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:45,939 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:47,402 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:42:55,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:42:55,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:42:55,930 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:42:57,612 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:42:57,613 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:05,456 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:05,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:05,915 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:07,368 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:15,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:15,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:15,971 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:17,411 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:25,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:25,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:25,931 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:27,604 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:43:27,604 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:35,455 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:35,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:36,444 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:39,068 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:45,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:45,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:45,940 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:47,417 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:43:55,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:43:55,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:43:55,933 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:43:57,662 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:43:57,662 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:05,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:05,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:06,131 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:07,829 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:15,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:15,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:15,929 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:17,401 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:25,463 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:25,485 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:25,922 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:27,585 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:44:27,586 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:35,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:35,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:36,453 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:38,245 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:45,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:45,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:45,983 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:47,416 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:44:55,456 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:44:55,480 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:44:55,923 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:44:57,630 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:44:57,630 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:05,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:05,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:06,311 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:08,354 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:15,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:15,486 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:15,929 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:17,408 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:25,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:25,512 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:25,951 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:27,665 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:45:27,665 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:35,461 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:35,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:35,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:37,385 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:45,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:45,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:45,927 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:47,383 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:45:55,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:45:55,481 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:45:55,925 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:45:59,297 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:45:59,298 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:07,062 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:15,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:46:15,473 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:46:15,909 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:46:17,368 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:25,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:46:25,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:46:25,924 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:46:27,552 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:46:27,553 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:35,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:46:35,487 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:46:35,973 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:46:37,476 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:45,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:46:45,492 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:46:45,937 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:46:47,500 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:46:55,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:46:55,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:46:55,939 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:46:57,621 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:46:57,622 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:05,454 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:47:05,478 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:47:05,919 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:47:07,423 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:15,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:47:15,490 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:47:15,980 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:47:17,425 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:25,648 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:47:25,671 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:47:26,378 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:47:29,336 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:47:29,337 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:37,062 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:45,493 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:47:45,501 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:47:45,942 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:47:47,061 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:47:55,462 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:47:55,471 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:47:55,913 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:47:57,596 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:47:57,596 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:05,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:05,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:05,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:07,383 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:15,467 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:15,491 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:15,928 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:17,424 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:25,478 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:25,498 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:25,930 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:27,594 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:48:27,595 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:35,464 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:35,521 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:36,040 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:37,494 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:45,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:45,488 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:46,360 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:47,817 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:48:55,455 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:48:55,483 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:48:55,917 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:48:57,633 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:48:57,634 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:05,457 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:49:05,482 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:49:05,930 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:49:07,441 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:15,465 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:49:15,489 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:49:15,964 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:49:17,438 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:25,468 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:49:25,508 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:49:25,943 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:49:27,766 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:49:27,767 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:37,052 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:45,503 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:49:45,515 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:49:45,956 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:49:47,052 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:49:55,466 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:49:55,475 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:49:55,922 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:49:57,612 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:49:57,613 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:05,471 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:05,512 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:05,956 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:07,419 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:15,485 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:15,514 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:15,962 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:17,517 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:25,472 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:25,497 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:25,939 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:28,124 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:50:28,126 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:35,506 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:35,541 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:35,995 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:37,661 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:45,487 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:45,525 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:45,985 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:48,151 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:50:55,498 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:50:55,532 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:50:55,973 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:50:59,437 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:50:59,438 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:07,050 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:15,502 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:51:15,510 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:51:15,957 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:51:17,460 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:25,506 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:51:25,543 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:51:26,006 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:51:27,871 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:51:27,871 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:37,049 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:45,506 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:51:45,522 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:51:45,982 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:51:47,583 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:51:55,508 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:51:55,564 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:51:56,028 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:51:57,699 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:51:57,700 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:52:05,502 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:52:05,548 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:52:06,002 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:52:07,466 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:52:15,509 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:52:15,536 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:52:15,980 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:52:17,476 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:52:25,508 - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 13:52:25,534 - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 13:52:25,975 - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 13:52:27,630 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:52:27,631 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:52:33,938 - __main__ - INFO - Application exited normally
+2025-09-22 13:52:39,895 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 13:52:42,319 - __main__ - INFO - Initializing Trading Application
+2025-09-22 13:52:42,360 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 13:52:43,213 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 18:22:42 IST
+2025-09-22 13:52:43,233 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 13:52:43,236 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 18:22:43 IST
+2025-09-22 13:52:43,238 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 13:52:43,243 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 13:52:43,251 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 13:52:43,254 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 13:52:43,257 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 18:22:43 IST
+2025-09-22 13:52:43,260 - modules.interface_loader - INFO - Client loading initiated at 18:22:43 IST
+2025-09-22 13:52:43,261 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 13:52:43,265 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 13:52:43,726 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 18:22:43 IST
+2025-09-22 13:52:43,726 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.47 seconds
+2025-09-22 13:52:43,726 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 13:52:43,742 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 13:52:44,184 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 13:52:44,202 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 13:52:44,203 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 13:52:44,205 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 13:52:44,207 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:52:50,508 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 13:52:50,508 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 13:52:50,508 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 13:52:50,825 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.32 seconds
+2025-09-22 13:52:50,826 - modules.interface_loader - INFO - Expiry dates loaded in 0.32 seconds
+2025-09-22 13:52:50,826 - modules.interface_loader - INFO - Client loading process completed in 7.57 seconds
+2025-09-22 13:52:50,827 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 13:52:50,920 - __main__ - INFO - UI shown at 2025-09-22 18:22:50 IST
+2025-09-22 13:52:51,362 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 13:52:51,362 - modules.api_status - INFO - API status monitoring started
+2025-09-22 13:52:51,362 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 13:52:51,362 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 13:52:51,386 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 13:52:51,386 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 13:52:51,388 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 13:52:51,392 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 13:52:51,406 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 13:52:51,406 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 13:52:51,415 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 13:52:51,416 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 13:52:51,417 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 13:52:51,418 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 13:52:51,420 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 13:52:51,423 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 13:52:51,444 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:52:51,618 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:52:51,622 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 13:52:51,829 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:52:51,834 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 13:52:51,835 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:52:51,835 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 13:52:51,840 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 13:52:51,841 - modules.strategy_ibbm - INFO - Current time: 18:22:51.841397
+2025-09-22 13:52:51,842 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 13:52:51,843 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 13:52:51,844 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 13:52:51,846 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 13:52:51,847 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 13:52:51,848 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 13:52:51,849 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 13:52:51,850 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 13:52:51,852 - __main__ - INFO - Application running at 2025-09-22 18:22:51 IST
+2025-09-22 13:53:12,233 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:57:05,449 - __main__ - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 13:57:07,550 - __main__ - INFO - Initializing Trading Application
+2025-09-22 13:57:07,594 - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 13:57:08,351 - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 18:27:07 IST
+2025-09-22 13:57:08,372 - __main__ - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 13:57:08,375 - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 18:27:08 IST
+2025-09-22 13:57:08,376 - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 13:57:08,381 - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 13:57:08,387 - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 13:57:08,425 - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 13:57:08,431 - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 18:27:08 IST
+2025-09-22 13:57:08,440 - modules.interface_loader - INFO - Client loading initiated at 18:27:08 IST
+2025-09-22 13:57:08,442 - modules.client_manager - INFO - Starting client loading process
+2025-09-22 13:57:08,449 - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 13:57:08,947 - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 18:27:08 IST
+2025-09-22 13:57:08,947 - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.51 seconds
+2025-09-22 13:57:08,947 - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 13:57:08,947 - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 13:57:09,402 - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 13:57:09,418 - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 13:57:09,420 - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 13:57:09,424 - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 13:57:09,426 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:57:15,729 - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 13:57:15,729 - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 13:57:15,729 - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 13:57:15,982 - modules.client_manager - INFO - Loaded 6 expiry dates in 0.25 seconds
+2025-09-22 13:57:15,982 - modules.interface_loader - INFO - Expiry dates loaded in 0.25 seconds
+2025-09-22 13:57:15,982 - modules.interface_loader - INFO - Client loading process completed in 7.54 seconds
+2025-09-22 13:57:15,982 - __main__ - INFO - Clients loaded successfully at startup
+2025-09-22 13:57:16,075 - __main__ - INFO - UI shown at 2025-09-22 18:27:16 IST
+2025-09-22 13:57:16,583 - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 13:57:16,583 - modules.api_status - INFO - API status monitoring started
+2025-09-22 13:57:16,583 - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 13:57:16,583 - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 13:57:16,599 - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 13:57:16,599 - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 13:57:16,611 - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 13:57:16,615 - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 13:57:16,624 - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 13:57:16,624 - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 13:57:16,624 - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 13:57:16,632 - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 13:57:16,633 - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 13:57:16,634 - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 13:57:16,636 - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 13:57:16,637 - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 13:57:16,644 - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:57:16,823 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:57:16,827 - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 13:57:16,995 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:57:16,998 - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 13:57:16,999 - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 13:57:17,000 - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 13:57:17,001 - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 13:57:17,002 - modules.strategy_ibbm - INFO - Current time: 18:27:17.002868
+2025-09-22 13:57:17,004 - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 13:57:17,005 - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 13:57:17,006 - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 13:57:17,007 - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 13:57:17,008 - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 13:57:17,009 - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 13:57:17,010 - __main__ - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 13:57:17,011 - __main__ - INFO - Trading application initialized successfully
+2025-09-22 13:57:17,012 - __main__ - INFO - Application running at 2025-09-22 18:27:17 IST
+2025-09-22 13:57:35,057 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:57:41,648 - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 13:57:41,649 - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 13:57:41,653 - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 13:57:41,655 - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 13:57:41,657 - __main__ - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 13:57:41,658 - __main__ - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 13:57:41,858 - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 13:57:42,060 - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 13:57:42,064 - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 13:57:42,065 - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 13:57:42,069 - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 13:57:42,071 - __main__ - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 13:57:42,073 - __main__ - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 13:57:42,075 - __main__ - INFO - Strategy recovery completed successfully from state files
+2025-09-22 13:57:47,200 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:57:49,425 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:57:59,434 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:09,429 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:17,203 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:58:19,437 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:29,429 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:39,435 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:47,224 - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 13:58:49,434 - modules.position_manager - INFO - Starting positions update
+2025-09-22 13:58:55,983 - __main__ - INFO - Application exited normally
+2025-09-22 18:37:32 IST - root - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 18:37:32 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-09-22 18:37:32 IST - root - INFO - Initializing Trading Application
+2025-09-22 18:37:32 IST - root - CRITICAL - Failed to initialize trading application: name 'TradingUI' is not defined
+2025-09-22 18:37:32 IST - root - CRITICAL - Fatal error: name 'TradingUI' is not defined
+2025-09-22 18:39:44 IST - root - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 18:39:44 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-09-22 18:39:46 IST - root - INFO - Initializing Trading Application
+2025-09-22 18:39:46 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 18:39:47 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 18:39:46 IST
+2025-09-22 18:39:47 IST - root - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 18:39:47 IST - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 18:39:47 IST
+2025-09-22 18:39:47 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 18:39:47 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 18:39:47 IST - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 18:39:47 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 18:39:47 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 18:39:47 IST
+2025-09-22 18:39:47 IST - modules.interface_loader - INFO - Client loading initiated at 18:39:47 IST
+2025-09-22 18:39:47 IST - modules.client_manager - INFO - Starting client loading process
+2025-09-22 18:39:47 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 18:39:47 IST
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.47 seconds
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 18:39:48 IST - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 18:39:48 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 18:39:48 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 18:39:48 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:39:54 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 18:39:54 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 18:39:54 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 18:39:55 IST - modules.client_manager - INFO - Loaded 6 expiry dates in 0.26 seconds
+2025-09-22 18:39:55 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.26 seconds
+2025-09-22 18:39:55 IST - modules.interface_loader - INFO - Client loading process completed in 7.46 seconds
+2025-09-22 18:39:55 IST - root - INFO - Clients loaded successfully at startup
+2025-09-22 18:39:55 IST - root - INFO - UI shown at 2025-09-22 18:39:55 IST
+2025-09-22 18:39:55 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 18:39:55 IST - modules.api_status - INFO - API status monitoring started
+2025-09-22 18:39:55 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 18:39:55 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 18:39:55 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 18:39:55 IST - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 18:39:55 IST - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 18:39:55 IST - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 18:39:55 IST - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:39:55 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:39:55 IST - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:39:56 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 18:39:56 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Current time: 18:39:56.097658
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 18:39:56 IST - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 18:39:56 IST - root - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 18:39:56 IST - root - INFO - Trading application initialized successfully
+2025-09-22 18:39:56 IST - root - INFO - Application running at 2025-09-22 18:39:56 IST
+2025-09-22 18:40:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:40:20 IST - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 18:40:20 IST - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 18:40:20 IST - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 18:40:20 IST - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 18:40:20 IST - root - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 18:40:20 IST - root - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 18:40:20 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:40:20 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:40:20 IST - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 18:40:20 IST - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 18:40:20 IST - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 18:40:20 IST - root - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 18:40:20 IST - root - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 18:40:20 IST - root - INFO - Strategy recovery completed successfully from state files
+2025-09-22 18:40:26 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:40:28 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:40:38 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:40:48 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:40:56 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:40:58 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:08 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:18 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:26 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:41:28 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:38 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:48 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:41:56 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:41:58 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:42:08 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:42:15 IST - modules.opstra_option_loader - INFO - Attempt 1 to fetch option chain for 30SEP2025
+2025-09-22 18:42:19 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-09-22 18:42:31 IST - modules.opstra_option_loader - INFO - Login successful
+2025-09-22 18:44:04 IST - modules.opstra_option_loader - WARNING - 'All Strikes' button not found
+2025-09-22 18:44:04 IST - modules.opstra_option_loader - INFO - Extracted 40 rows from option chain
+2025-09-22 18:44:04 IST - modules.opstra_option_loader - INFO - Option chain saved: logs\20250922-option_chain_30SEP2025_all.csv
+2025-09-22 18:44:07 IST - modules.opstra_option_loader - INFO - Quote: 25202.35, Rounded: 25200
+2025-09-22 18:44:07 IST - modules.opstra_option_loader - INFO - Match found at row 18: StrikePrice 25200.0
+2025-09-22 18:44:07 IST - modules.opstra_option_loader - INFO - Option chain loaded at 2025-09-22 14:14:07 (took 111.62 seconds)
+2025-09-22 18:44:07 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:44:16 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:44:18 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:44:26 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:44:28 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:44:38 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:44:48 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:44:56 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:44:58 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:08 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:18 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:26 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:45:28 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:38 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:48 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:45:56 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:45:58 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:46:05 IST - root - INFO - Application exited normally
+2025-09-22 18:46:42 IST - root - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 18:46:42 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-09-22 18:46:44 IST - root - INFO - Initializing Trading Application
+2025-09-22 18:46:44 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 18:46:45 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 18:46:44 IST
+2025-09-22 18:46:45 IST - root - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 18:46:45 IST
+2025-09-22 18:46:45 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 18:46:45 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 18:46:45 IST - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 18:46:45 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 18:46:45 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 18:46:45 IST
+2025-09-22 18:46:45 IST - modules.interface_loader - INFO - Client loading initiated at 18:46:45 IST
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - Starting client loading process
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 18:46:45 IST
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.47 seconds
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 18:46:45 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 18:46:46 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 18:46:46 IST - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 18:46:46 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 18:46:46 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 18:46:46 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:46:52 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 18:46:52 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 18:46:52 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 18:46:53 IST - modules.client_manager - INFO - Loaded 6 expiry dates in 0.26 seconds
+2025-09-22 18:46:53 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.26 seconds
+2025-09-22 18:46:53 IST - modules.interface_loader - INFO - Client loading process completed in 7.54 seconds
+2025-09-22 18:46:53 IST - root - INFO - Clients loaded successfully at startup
+2025-09-22 18:46:53 IST - root - INFO - UI shown at 2025-09-22 18:46:53 IST
+2025-09-22 18:46:53 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 18:46:53 IST - modules.api_status - INFO - API status monitoring started
+2025-09-22 18:46:53 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 18:46:53 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 18:46:53 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 18:46:53 IST - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 18:46:53 IST - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 18:46:53 IST - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 18:46:53 IST - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:46:53 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:46:53 IST - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:46:54 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 18:46:54 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Current time: 18:46:54.112907
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Time in entry minutes: True
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 18:46:54 IST - modules.strategy_ibbm - WARNING - Invalid strategy name or outside trading hours
+2025-09-22 18:46:54 IST - root - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 18:46:54 IST - root - INFO - Trading application initialized successfully
+2025-09-22 18:46:54 IST - root - INFO - Application running at 2025-09-22 18:46:54 IST
+2025-09-22 18:47:10 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:47:16 IST - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 18:47:16 IST - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 18:47:16 IST - modules.payoff_graph - INFO - Adjustment values saved to C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 18:47:16 IST - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 18:47:16 IST - root - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 18:47:16 IST - root - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 18:47:16 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:47:16 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:47:16 IST - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 18:47:16 IST - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 18:47:16 IST - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 18:47:16 IST - root - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 18:47:16 IST - root - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 18:47:16 IST - root - INFO - Strategy recovery completed successfully from state files
+2025-09-22 18:47:24 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:47:26 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:47:36 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:47:46 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:47:54 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:47:56 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:48:06 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:48:16 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:48:24 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:48:26 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:48:35 IST - root - INFO - Application exited normally
+2025-09-22 18:48:40 IST - root - INFO - Application starting - Logging to logs\2025-09-22_app.log (Mode: INFO)
+2025-09-22 18:48:40 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-09-22 18:48:42 IST - root - INFO - Initializing Trading Application
+2025-09-22 18:48:42 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-09-22 18:48:43 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-09-22 18:48:42 IST
+2025-09-22 18:48:43 IST - root - INFO - UI logging initialized (QPlainTextEdit)
+2025-09-22 18:48:43 IST - modules.client_manager - INFO - ClientManager initialized at 2025-09-22 18:48:43 IST
+2025-09-22 18:48:43 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-09-22 18:48:43 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-09-22_strategy_mapping.csv
+2025-09-22 18:48:43 IST - modules.position_manager - INFO - Loaded 6 strategy mappings from 2025-09-22_strategy_mapping.csv
+2025-09-22 18:48:43 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-09-22 18:48:43 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-09-22 18:48:43 IST
+2025-09-22 18:48:43 IST - modules.interface_loader - INFO - Client loading initiated at 18:48:43 IST
+2025-09-22 18:48:43 IST - modules.client_manager - INFO - Starting client loading process
+2025-09-22 18:48:43 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 18:48:43 IST
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.46 seconds
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-09-22 18:48:44 IST - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-09-22-day_available_margin_detl.csv
+2025-09-22 18:48:44 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-09-22 18:48:44 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-09-22 18:48:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:48:50 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-09-22 18:48:50 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-09-22 18:48:50 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-09-22 18:48:51 IST - modules.client_manager - INFO - Loaded 6 expiry dates in 0.27 seconds
+2025-09-22 18:48:51 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.27 seconds
+2025-09-22 18:48:51 IST - modules.interface_loader - INFO - Client loading process completed in 7.54 seconds
+2025-09-22 18:48:51 IST - root - INFO - Clients loaded successfully at startup
+2025-09-22 18:48:51 IST - root - INFO - UI shown at 2025-09-22 18:48:51 IST
+2025-09-22 18:48:51 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-09-22 18:48:51 IST - modules.api_status - INFO - API status monitoring started
+2025-09-22 18:48:51 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-09-22 18:48:51 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-09-22 18:48:51 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-09-22_adjustment_values.csv
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-09-22_adjustment_values.csv
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Setting up spot price timer
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - Payoff chart timer started
+2025-09-22 18:48:51 IST - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-09-22 18:48:51 IST - modules.strategy_ibbm - INFO - Strategy initialized - Runs at 09:45 and monitors trend/SL till 14:45 IST
+2025-09-22 18:48:51 IST - modules.strategy_ibbm - INFO - Attempting to recover from today's state file: c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_ibbm_strategy_state.csv
+2025-09-22 18:48:51 IST - modules.strategy_ibbm - INFO - Recovering VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:48:51 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:48:51 IST - modules.strategy_ibbm - INFO - Recovered CE position: NIFTY30SEP25C25500
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Recovered PE position: NIFTY30SEP25P25250
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Successfully recovered VIRTUAL_ACTIVE state from today's file
+2025-09-22 18:48:52 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-09-22 18:48:52 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Current time: 18:48:52.176682
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Selected strategy: 'IBBM Intraday'
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Expected strategy: 'IBBM Intraday'
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Time in entry minutes: False
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Within trading hours: False
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - INFO - Strategy name matches: True
+2025-09-22 18:48:52 IST - modules.strategy_ibbm - WARNING - Strategy can only be executed at XX:15 or XX:45
+2025-09-22 18:48:52 IST - root - INFO - Application will auto-close at 2025-09-23 15:31:00 IST
+2025-09-22 18:48:52 IST - root - INFO - Trading application initialized successfully
+2025-09-22 18:48:52 IST - root - INFO - Application running at 2025-09-22 18:48:52 IST
+2025-09-22 18:49:08 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-09-22_adjustment_values.csv
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:15 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:15 IST - root - INFO - Attempting to recover strategy state from existing positions.
+2025-09-22 18:49:15 IST - root - INFO - Attempting to recover IBBM Intraday from state file...
+2025-09-22 18:49:15 IST - modules.strategy_ibbm - INFO - Found token 60499 for symbol NIFTY30SEP25C25500
+2025-09-22 18:49:16 IST - modules.strategy_ibbm - INFO - Found token 60490 for symbol NIFTY30SEP25P25250
+2025-09-22 18:49:16 IST - modules.strategy_ibbm - INFO - Strategy recovered from state file: VIRTUAL_ACTIVE
+2025-09-22 18:49:16 IST - modules.strategy_ibbm - INFO - Recovered 2 positions
+2025-09-22 18:49:16 IST - modules.strategy_ibbm - INFO - State logged: VIRTUAL_ACTIVE - Recovered from state file
+2025-09-22 18:49:16 IST - root - INFO - Successfully recovered IBBM Intraday from state file
+2025-09-22 18:49:16 IST - root - INFO - UI updated for recovered strategy: IBBM Intraday
+2025-09-22 18:49:16 IST - root - INFO - Strategy recovery completed successfully from state files
+2025-09-22 18:49:16 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:16 IST - modules.payoff_graph - ERROR - Failed to add payoff labels: wrapped C/C++ object of type QChartView has been deleted
+2025-09-22 18:49:22 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:22 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:49:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:49:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:49:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:49:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:49:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:49:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:49:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:49:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:50:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:50:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:50:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:50:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:50:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:50:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:51:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:51:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:51:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:51:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:51:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:51:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:52:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:52:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:52:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:52:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:52:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:52:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:53:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:53:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:53:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:53:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:53:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:53:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:54:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:54:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:54:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:54:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:54:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:54:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:55:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:55:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:55:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:55:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:55:53 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:55:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:56:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:56:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:56:52 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:56:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:56:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:56:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:57:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:57:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:57:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:57:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:57:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:57:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:12 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:12 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:58:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:58:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:58:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:58:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:58:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:58:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:22 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:22 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:59:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 18:59:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 18:59:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 18:59:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 18:59:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 18:59:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 19:00:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:41 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:41 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:42 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:44 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:00:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:00:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:00:52 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:00:52 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 19:00:54 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:01:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:01:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:01:02 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:01:04 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:01:11 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:01:11 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:01:12 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:01:14 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:01:21 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:01:21 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:01:22 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:01:22 IST - modules.strategy_monthly_straddle - DEBUG - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-22
+2025-09-22 19:01:24 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:01:31 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-09-22 19:01:31 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-09-22 19:01:32 IST - modules.payoff_graph - INFO - Spot price updated: 25202.35
+2025-09-22 19:01:34 IST - modules.position_manager - INFO - Starting positions update
+2025-09-22 19:01:40 IST - root - INFO - Application exited normally

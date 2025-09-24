@@ -709,34 +709,47 @@ class MonthlyStraddleStrategy:
 
     # Exit & adjust
     def _exit_all_positions(self):
-        """Buy to close the sell legs"""
+        """Buy to close the sell legs and SELL to close the buy legs"""
         try:
             if not self._validate_clients():
                 logger.error("Exit aborted - no client")
                 return False
+                
             client = self._get_primary_client()
             qty = LOT_SIZE
             
             exit_success = True
-            # Exit sell legs
-            for pos_type in ["ce_sell", "pe_sell"]:
-                pos = self.positions.get(pos_type)
+            
+            # Exit ALL positions - both sell legs and buy legs
+            for pos_type, pos in self.positions.items():
                 if pos:
-                    success = self._execute_order(client, pos["symbol"], pos["token"], "BUY", qty, f"Exit {pos_type}")
+                    # Determine exit action based on position type
+                    if "sell" in pos_type:  # Sell legs need BUY to close
+                        action = "BUY"
+                        action_desc = f"Exit {pos_type}"
+                    else:  # Buy legs need SELL to close  
+                        action = "SELL"
+                        action_desc = f"Exit {pos_type}"
+                    
+                    success = self._execute_order(client, pos["symbol"], pos["token"], action, qty, action_desc)
                     if success:
                         logger.info("Exited position %s", pos_type)
                         self.positions[pos_type] = None
                     else:
                         exit_success = False
+                        logger.error("Failed to exit position %s", pos_type)
             
             if exit_success:
                 self.state = "COMPLETED"
-                self._log_state("COMPLETED", "Positions exited")
+                self._log_state("COMPLETED", "ALL positions exited (sell legs + protective buys)")
+                logger.info("ALL positions exited successfully")
                 return True
+                
+            logger.warning("Some positions failed to exit")
             return False
             
-        except Exception:
-            logger.exception("Error exiting positions")
+        except Exception as e:
+            logger.exception("Error exiting positions: %s", e)
             return False
 
     def _adjust_positions(self):

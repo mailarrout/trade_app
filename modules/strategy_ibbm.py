@@ -114,7 +114,7 @@ class IBBMStrategy:
         self.monitor_timer = QTimer()
         self.monitor_timer.timeout.connect(self._monitor_all)
         self.monitor_timer.start(self.MONITORING_INTERVAL)
-
+        logger.info(f"Monitor timer started with {self.MONITORING_INTERVAL}ms interval") 
         logger.info(f"Strategy initialized - Runs at {self.TRADING_START_TIME.strftime('%H:%M')} and monitors trend/SL till {self.TRADING_END_TIME.strftime('%H:%M')} IST")
 
         # WAITING | VIRTUAL_ACTIVE | ACTIVE | STOPPED_OUT | COMPLETED
@@ -587,7 +587,16 @@ class IBBMStrategy:
                 self._run_strategy_cycle()
 
     def _monitor_all(self):
+        logger.info("=== _monitor_all FUNCTION ENTERED ===")
         current_time = ISTTimeUtils.current_time()
+        logger.info(f"=== _monitor_all called at {current_time} ===")
+        logger.info(f"[SL MONITOR] State={self.state}, CE={self.positions['ce']['symbol']}, PE={self.positions['pe']['symbol']}")
+        current_time = ISTTimeUtils.current_time()
+
+        logger.info(f"Trading hours check: {self.TRADING_START_TIME} <= {current_time} <= {self.TRADING_END_TIME}")
+        logger.info(f"Result: {self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME}")
+
+
         if not (self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME):
             logger.debug("Outside trading hours, skipping monitoring")
             return
@@ -595,13 +604,16 @@ class IBBMStrategy:
         if self.state not in ["VIRTUAL_ACTIVE", "ACTIVE"]:
             logger.debug(f"State is {self.state}, skipping monitoring")
             return
-        
+        logger.info("Passed initial checks - proceeding with monitoring")
         # Check API connection before proceeding
         if not self._validate_api_connection():
             logger.warning("Skipping monitoring due to API connection issues")
             return
         
-        self._check_manual_exits()
+        if self.state == "ACTIVE":
+            self._check_manual_exits()
+        else:
+            logger.info("Skipping manual exit check for VIRTUAL_ACTIVE state")
         
         if self.state == "COMPLETED":
             logger.debug("Strategy completed, skipping monitoring")
@@ -958,59 +970,80 @@ class IBBMStrategy:
     # ---------------------- SL / Exit / Entry ----------------------
     def _monitor_stop_losses(self):
         try:
+            logger.info("=== _monitor_stop_losses STARTED ===")
+            
             if self.state not in ["VIRTUAL_ACTIVE", "ACTIVE"]:
-                logger.debug(f"State is {self.state}, skipping SL monitoring")
+                logger.info(f"_monitor_stop_losses: State '{self.state}' not in ['VIRTUAL_ACTIVE', 'ACTIVE'] - EXITING")
                 return
             
+            logger.info(f"_monitor_stop_losses: State '{self.state}' is valid - PROCEEDING")
+            logger.info(f"Checking {len(self.positions)} positions: CE='{self.positions['ce']['symbol']}', PE='{self.positions['pe']['symbol']}'")
+            
             for leg in ["ce", "pe"]:
+                logger.info(f"=== Processing {leg.upper()} leg ===")
                 pos = self.positions[leg]
+                
                 if not pos["symbol"]:
-                    logger.debug(f"No {leg.upper()} position, skipping SL check")
+                    logger.info(f"{leg.upper()}: No symbol found - SKIPPING")
                     continue
+                
+                logger.info(f"{leg.upper()}: Symbol exists = '{pos['symbol']}' - GETTING LTP")
                 
                 ltp = self._get_option_ltp(pos["symbol"])
-                if ltp is None or ltp <= 0:  # Handle None and invalid LTP
-                    logger.warning(f"Invalid LTP for {leg.upper()} {pos['symbol']}, skipping SL check")
+                logger.info(f"{leg.upper()}: LTP retrieved = {ltp}")
+                
+                if ltp is None or ltp <= 0:
+                    logger.warning(f"{leg.upper()}: Invalid LTP ({ltp}) for {pos['symbol']} - SKIPPING SL check")
                     continue
-                    
+
                 pos["ltp"] = ltp
-                
-                # Update max profit price for trailing SL
-                if (self.state == "ACTIVE" and leg in self.positions and 
-                    pos.get('entry_price') is not None):
-                    current_max = pos.get('max_profit_price', float('inf'))
-                    if current_max is None:  # Handle None case
-                        pos['max_profit_price'] = ltp
-                        current_max = ltp
-                    
-                    if ltp < current_max:
-                        pos['max_profit_price'] = ltp
-                        self._update_trailing_sl(leg, ltp)
-                
-                # Virtual -> Real transition - ensure current_sl is not None
+                logger.info(f"{leg.upper()}: LTP updated to {ltp:.2f}")
+
                 current_sl = pos.get("current_sl")
+                logger.info(f"{leg.upper()}: Current SL = {current_sl}")
+                logger.debug(f"{leg.upper()} check → LTP={ltp:.2f}, SL={current_sl}, State={self.state}")
+
                 if current_sl is None:
-                    logger.warning(f"No current SL set for {leg.upper()}, skipping check")
+                    logger.info(f"{leg.upper()}: No current SL set - SKIPPING")
                     continue
-                    
+
+                logger.info(f"{leg.upper()}: SL check conditions - State={self.state}, SL_Hit={pos['sl_hit']}, LTP={ltp:.2f}, SL={current_sl}")
+                logger.info(f"{leg.upper()}: LTP >= SL? {ltp >= current_sl}")
+
+                # Virtual → Real transition
                 if self.state == "VIRTUAL_ACTIVE" and not pos["sl_hit"] and ltp >= current_sl:
-                    logger.info(f"{leg.upper()} virtual SL hit at {ltp}. Taking real opposite leg...")
+                    logger.info(f"{leg.upper()}: VIRTUAL SL TRIGGERED - All conditions met!")
+                    logger.info(f"{leg.upper()} virtual SL HIT → LTP={ltp:.2f}, SL={current_sl}")
                     opposite_leg = "pe" if leg == "ce" else "ce"
+                    logger.info(f"{leg.upper()}: Calling _enter_real_leg for opposite leg: {opposite_leg}")
                     self._enter_real_leg(opposite_leg)
+                    logger.info(f"{leg.upper()}: Returning after virtual SL hit")
                     return
+                else:
+                    logger.info(f"{leg.upper()}: Virtual SL NOT triggered - State check: {self.state == 'VIRTUAL_ACTIVE'}, SL hit check: {not pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
                 
-                # Active stop loss
-                if (self.state == "ACTIVE" and not pos["sl_hit"] and 
-                    ltp >= current_sl):
+                logger.debug(
+                    f"[SL CHECK] Leg={leg.upper()}, Symbol={pos['symbol']}, "
+                    f"LTP={ltp:.2f}, SL={current_sl}, State={self.state}, SL_Hit={pos['sl_hit']}"
+                )
+                
+                # Active SL exit
+                logger.info(f"{leg.upper()}: Checking ACTIVE SL conditions - State={self.state}, SL_Hit={pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
+                if self.state == "ACTIVE" and not pos["sl_hit"] and ltp >= current_sl:
+                    logger.info(f"{leg.upper()}: ACTIVE SL TRIGGERED - All conditions met!")
+                    logger.info(f"{leg.upper()} REAL SL HIT → LTP={ltp:.2f}, SL={current_sl}")
+                    logger.info(f"{leg.upper()}: Calling _exit_position")
                     self._exit_position(leg, ltp)
-            
-            if self.state == "ACTIVE" and not (self.positions['ce']['symbol'] or self.positions['pe']['symbol']):
-                self.state = "STOPPED_OUT"
-                self._log_state(status=self.state, comments="All SELL positions closed from SL")
-                logger.info("All positions stopped out")
-                
+                else:
+                    logger.info(f"{leg.upper()}: Active SL NOT triggered - State check: {self.state == 'ACTIVE'}, SL hit check: {not pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
+
+            logger.info("=== _monitor_stop_losses COMPLETED all legs ===")
+
         except Exception as e:
+            logger.error(f"=== _monitor_stop_losses FAILED with exception ===")
             logger.error(f"SL monitoring failed: {str(e)}")
+            logger.error(f"Exception details: {traceback.format_exc()}")
+
 
     def _exit_position(self, leg: str, ltp: float):
         """Exit only SELL positions, keep hedge positions alive"""
@@ -1257,10 +1290,8 @@ class IBBMStrategy:
                 ltp = 100  # Default fallback
             
             # Adjust price for market orders
-            if action == 'BUY':
-                price = ltp * 1.05  # 5% above LTP for buy
-            else:
-                price = ltp * 0.95  # 5% below LTP for sell
+
+            price = ltp 
             
             price = round(price, 1)
             shoonya_action = 'B' if action.upper() == 'BUY' else 'S'
@@ -1350,32 +1381,76 @@ class IBBMStrategy:
     def _check_manual_exits(self):
         """Check if positions have been manually exited"""
         try:
+            logger.info("=== _check_manual_exits STARTED ===")
+            
             client = self.client_manager.clients[0][2]
+            logger.info("Getting broker positions...")
             broker_positions = client.get_positions()
+            logger.info(f"Raw broker positions response: {type(broker_positions)} - {broker_positions}")
             
             if isinstance(broker_positions, dict) and 'data' in broker_positions:
                 broker_positions = broker_positions['data']
+                logger.info("Extracted positions from 'data' key")
+            else:
+                logger.info("Using broker positions as-is (not a dict with 'data' key)")
+            
+            logger.info(f"Number of broker positions to check: {len(broker_positions)}")
+            
+            # Log all broker positions for debugging
+            for i, bp in enumerate(broker_positions):
+                logger.info(f"Broker position {i}: tsym='{bp.get('tsym')}', token='{bp.get('token')}', netqty='{bp.get('netqty', 0)}'")
             
             for leg in ['ce', 'pe']:
+                logger.info(f"=== Checking {leg.upper()} leg ===")
                 pos = self.positions[leg]
+                
                 if not pos['symbol']:
+                    logger.info(f"{leg.upper()}: No symbol in strategy positions - SKIPPING")
                     continue
                     
+                logger.info(f"{leg.upper()}: Strategy position - symbol='{pos['symbol']}', token='{pos.get('token')}'")
+                
                 found = False
-                for bp in broker_positions:
-                    if (bp.get('tsym') == pos['symbol'] and 
-                        str(bp.get('token')) == str(pos['token']) and
-                        float(bp.get('netqty', 0)) != 0):
+                match_details = []
+                
+                for i, bp in enumerate(broker_positions):
+                    bp_tsym = bp.get('tsym')
+                    bp_token = str(bp.get('token'))
+                    bp_netqty = float(bp.get('netqty', 0))
+                    pos_token = str(pos.get('token'))
+                    
+                    symbol_match = bp_tsym == pos['symbol']
+                    token_match = bp_token == pos_token
+                    netqty_nonzero = bp_netqty != 0
+                    
+                    match_info = f"Broker pos {i}: tsym='{bp_tsym}' vs '{pos['symbol']}'={symbol_match}, "
+                    match_info += f"token='{bp_token}' vs '{pos_token}'={token_match}, "
+                    match_info += f"netqty={bp_netqty} (nonzero={netqty_nonzero})"
+                    
+                    match_details.append(match_info)
+                    
+                    if symbol_match and token_match and netqty_nonzero:
                         found = True
+                        logger.info(f"{leg.upper()}: POSITION FOUND - {match_info}")
                         break
                 
+                # Log all match attempts for this leg
+                for detail in match_details:
+                    logger.debug(f"{leg.upper()}: {detail}")
+                
                 if not found:
-                    logger.warning(f"{leg.upper()} position manually exited: {pos['symbol']}")
+                    logger.warning(f"{leg.upper()}: POSITION NOT FOUND in broker - marking as manually exited: {pos['symbol']}")
+                    logger.warning(f"{leg.upper()}: Strategy had token: {pos.get('token')}")
                     self.positions[leg] = self._empty_position()
-                    
+                else:
+                    logger.info(f"{leg.upper()}: Position validated successfully")
+                        
+            logger.info("=== _check_manual_exits COMPLETED ===")
+            
         except Exception as e:
+            logger.error(f"=== _check_manual_exits FAILED ===")
             logger.error(f"Manual exit check failed: {str(e)}")
-
+            logger.error(f"Exception details: {traceback.format_exc()}")
     def _validate_api_connection(self) -> bool:
         """Validate that API connection is working before making requests"""
         try:

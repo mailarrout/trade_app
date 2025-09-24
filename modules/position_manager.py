@@ -20,6 +20,10 @@ class PositionManager:
     AUTO_REFRESH_INTERVAL = 10000  # 10 seconds
     EXIT_COOLDOWN = 300000  # 5 minutes
     
+    # Market hours constants
+    MARKET_OPEN = time(9, 15)   # 9:15 AM IST
+    MARKET_CLOSE = time(15, 30) # 3:30 PM IST
+    
     def __init__(self, ui, client_manager):
         logger.info("Initializing PositionManager")
         self.ui = ui
@@ -48,12 +52,18 @@ class PositionManager:
         logger.info("PositionManager initialization completed")
 
     def start_updates(self):
-        """Start the auto-refresh timer"""
+        """Start the auto-refresh timer ONLY during market hours"""
         logger.info("Starting auto-refresh timer")
         if not self.timer.isActive():
-            self.timer.start(self.AUTO_REFRESH_INTERVAL)
-            self.auto_refresh()
-            self.ui.log_message("System", f"Auto-refresh started ({self.AUTO_REFRESH_INTERVAL//1000}s interval)")
+            if self._is_market_hours():
+                self.timer.start(self.AUTO_REFRESH_INTERVAL)
+                self.auto_refresh()
+                self.ui.log_message("System", f"Auto-refresh started ({self.AUTO_REFRESH_INTERVAL//1000}s interval)")
+            else:
+                self.ui.log_message("System", "Outside market hours - auto-refresh disabled")
+                # Still show current positions once
+                self.update_positions()
+                self.update_all_clients_mtm()
 
     def stop_updates(self):
         """Stop the auto-refresh timer"""
@@ -65,6 +75,17 @@ class PositionManager:
     def auto_refresh(self):
         """Automatically refresh positions and check for exit conditions"""
         try:
+            # Market hours restriction - only stop auto-refresh, but allow manual updates
+            if not self._is_market_hours():
+                # Only allow market close exit logic outside market hours
+                current_time = datetime.now(IST).time()
+                if self._enable_market_close_exit and time(15, 15) <= current_time <= time(15, 16) and not self._exit_triggered:
+                    logger.info("Market close time reached - triggering exit")
+                    self.ui.log_message("System", "Market close time reached - exiting all positions")
+                    self.exit_all_positions()
+                    self._exit_triggered = True
+                return
+                
             update_time = datetime.now(IST)
             self._last_update = update_time.strftime("%H:%M:%S")
             
@@ -85,7 +106,7 @@ class PositionManager:
             error_msg = f"Auto-refresh failed: {str(e)}"
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("RefreshError", error_msg)
-
+            
     def update_positions(self):
         """Main method to update positions table"""
         try:
@@ -115,15 +136,15 @@ class PositionManager:
                 positions, primary_client
             )
 
-            # Safety check: total sell quantity
+            # Safety check: total sell quantity (always active for safety)
             if total_sell_qty > self.MAX_TOTAL_SELL_QTY:
                 self._handle_trade_limit_violation(total_sell_qty)
                 return
 
-            # Update table with processed data
+            # Update table with processed data (always show data)
             self._update_positions_table(rows_data)
 
-            # Update MTM display and check exit conditions
+            # Update MTM display (always show MTM)
             current_mtm = total_mtm + total_pnl
             self.update_mtm_display(current_mtm, total_raw_mtm)
             
@@ -131,10 +152,15 @@ class PositionManager:
             self.ui.log_message(client_name, log_msg)
 
             self.save_positions_to_csv(rows_data)
-            self.ui.statusBar().showMessage(f"Positions updated for {client_id} ({len(rows_data)} valid)")
+            
+            # Show appropriate status message based on market hours
+            if self._is_market_hours():
+                self.ui.statusBar().showMessage(f"Positions updated for {client_id} ({len(rows_data)} valid)", 5000)
+            else:
+                self.ui.statusBar().showMessage(f"Viewing positions (outside market hours) - {client_id} ({len(rows_data)} valid)", 5000)
 
-            # Check exit conditions
-            if not hasattr(self, '_exited_all') or not self._exited_all:
+            # Check exit conditions ONLY during market hours
+            if self._is_market_hours() and (not hasattr(self, '_exited_all') or not self._exited_all):
                 self._check_exit_conditions(current_mtm, target, sl)
 
         except Exception as e:
@@ -729,39 +755,55 @@ class PositionManager:
         else:
             sys.exit(1)
 
-    # ===== Strategy Management =====
     def enhanced_get_strategy_for_position(self, symbol, token, net_qty):
         """Get strategy from mapping - DO NOT auto-prompt user"""
+        logger.debug(f"enhanced_get_strategy_for_position called - symbol: {symbol}, token: {token}, net_qty: {net_qty}")
+        
         if not symbol or not token:
             return ""
         
         # First try to get strategy from existing mapping
         strategy = self.get_strategy_for_position(symbol, token)
+        logger.debug(f"Strategy from mapping: {strategy}")
         
         # If no strategy found and position is active, return "Update Required"
-        # but DON'T automatically prompt the user
         if not strategy and net_qty != 0:
+            logger.debug("No strategy found, returning 'Update Required'")
             return "Update Required"
         
+        logger.debug(f"Returning strategy: {strategy}")
         return strategy
 
     def get_strategy_for_position(self, symbol, token):
         """Get strategy for a specific symbol-token combination - only if position exists"""
         if not symbol or not token:
+            logger.debug(f"Symbol or token is empty - symbol: {symbol}, token: {token}")
             return ""
         
         # First check if this position exists currently
         current_positions = self._get_current_positions_symbols()
+        logger.debug(f"Current positions from broker: {current_positions}")
+        logger.debug(f"Looking for symbol: {symbol}")
+        
         if symbol not in current_positions:
+            logger.debug(f"SYMBOL NOT FOUND - {symbol} not in current positions")
             return ""  # Don't return strategy for non-existent positions
+        else:
+            logger.debug(f"SYMBOL FOUND - {symbol} exists in current positions")
         
         key = self._get_symbol_token_key(symbol, token)
+        logger.debug(f"Looking up key: {key}")
+        
         strategy_data = self._strategy_symbol_token_map.get(key, {})
+        logger.debug(f"Strategy data found: {strategy_data}")
         
         # Handle both old (string) and new (dict) formats
         if isinstance(strategy_data, dict):
-            return strategy_data.get('strategy_name', '')
+            strategy_name = strategy_data.get('strategy_name', '')
+            logger.debug(f"Returning strategy name: {strategy_name}")
+            return strategy_name
         else:
+            logger.debug(f"Returning legacy strategy data: {strategy_data}")
             return strategy_data  # For backward compatibility
 
     def _get_symbol_token_key(self, symbol, token):
@@ -807,17 +849,23 @@ class PositionManager:
             return "Error"
 
     def _get_current_spot_price(self):
-        """Get current NIFTY spot price"""
+        """Get current NIFTY spot price with better error handling"""
         try:
             if hasattr(self.client_manager, 'clients') and self.client_manager.clients:
                 client = self.client_manager.clients[0][2]
                 quote = client.get_quotes('NSE', '26000')
                 
+                logger.debug(f"Spot price quote response: {quote}")  # ← Add logging
+                
                 if not quote or quote.get('stat') != 'Ok':
-                    logger.error("Failed to get NIFTY quote")
+                    logger.error(f"Failed to get NIFTY quote: {quote}")
                     return 0.0
                     
-                return float(quote.get('lp', 0))
+                spot_price = float(quote.get('lp', 0))
+                logger.info(f"Current NIFTY spot price: {spot_price}")  # ← Log the price
+                return spot_price
+                
+            logger.error("No clients available for spot price")
             return 0.0
                 
         except Exception as e:
@@ -825,26 +873,28 @@ class PositionManager:
             return 0.0
 
     def update_strategy_tracking(self, positions, force_update=False):
-        """Update strategy tracking with current positions"""
-        if not self._current_strategy:
-            return
-            
-        current_spot_price = self._get_current_spot_price()
+        """COMMENT OUT - this causes incorrect auto-assignments"""
+        # if not self._current_strategy:
+        #     return
+        #     
+        # current_spot_price = self._get_current_spot_price()
+        # 
+        # for pos in positions:
+        #     symbol = pos.get("tsym", "")
+        #     token = pos.get("token", "")
+        #     net_qty = int(float(pos.get("netqty", 0)))
+        #     
+        #     if symbol and token and net_qty != 0:
+        #         key = f"{symbol}_{token}"
+        #         self._strategy_symbol_token_map[key] = {
+        #             'strategy_name': self._current_strategy,
+        #             'spot_price': current_spot_price,
+        #             'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
+        #         }
+        # 
+        # self._save_strategy_mapping()
         
-        for pos in positions:
-            symbol = pos.get("tsym", "")
-            token = pos.get("token", "")
-            net_qty = int(float(pos.get("netqty", 0)))
-            
-            if symbol and token and net_qty != 0:
-                key = f"{symbol}_{token}"
-                self._strategy_symbol_token_map[key] = {
-                    'strategy_name': self._current_strategy,
-                    'spot_price': current_spot_price,
-                    'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
-                }
-        
-        self._save_strategy_mapping()
+        logger.debug("Strategy tracking disabled to prevent incorrect auto-assignments")
 
     def _save_strategy_mapping(self):
         """Save strategy mapping to CSV file"""
@@ -971,6 +1021,8 @@ class PositionManager:
                 if symbol:
                     current_symbols.add(symbol)
                     
+            logger.debug(f"_get_current_positions_symbols returning: {current_symbols}")
+                    
         except Exception as e:
             logger.error(f"Error getting current positions: {str(e)}")
         
@@ -1079,17 +1131,22 @@ class PositionManager:
             self.ui.log_message("UIError", error_msg)
 
     def _update_strategy_for_symbol(self, symbol, token, strategy):
-        """Update strategy for a specific symbol-token pair"""
+        """Update strategy for a specific symbol-token pair - FIX SPOT PRICE"""
         try:
             key = self._get_symbol_token_key(symbol, token)
+            
+            # GET SPOT PRICE BEFORE SAVING
+            spot_price = self._get_current_spot_price()
+            logger.info(f"Capturing spot price {spot_price} for {symbol}")
+            
             self._strategy_symbol_token_map[key] = {
                 'strategy_name': strategy,
-                'spot_price': self._get_current_spot_price(),
+                'spot_price': spot_price,  # ← Now this will have actual value
                 'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
             }
             self._save_strategy_mapping()
             
-            log_msg = f"Updated {symbol} strategy to: {strategy}"
+            log_msg = f"Updated {symbol} strategy to: {strategy} (Spot: {spot_price})"
             self.ui.log_message("Strategy", log_msg)
             
             # Refresh the table to show updated strategy
@@ -1127,3 +1184,24 @@ class PositionManager:
             error_msg = f"Failed to manually assign strategy: {str(e)}"
             logger.error(error_msg)
             return "Error"            
+        
+
+    def _is_market_hours(self):
+        """Check if current time is within market hours (9:15 AM - 3:30 PM IST, Monday-Friday)"""
+        try:
+            current_time = datetime.now(IST).time()
+            current_date = datetime.now(IST)
+            is_weekday = current_date.weekday() < 5  # 0-4 = Monday-Friday
+            
+            in_market_hours = is_weekday and (self.MARKET_OPEN <= current_time <= self.MARKET_CLOSE)
+            
+            # Update status bar
+            status = "Market Hours - Auto-refresh Active" if in_market_hours else "Outside Market Hours - View Only"
+            if hasattr(self, '_last_update'):
+                self.ui.statusBar().showMessage(f"{status} | Last update: {self._last_update}", 10000)
+            
+            return in_market_hours
+            
+        except Exception as e:
+            logger.error(f"Error checking market hours: {str(e)}")
+            return False       

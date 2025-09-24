@@ -14,32 +14,48 @@ DEBUG_MODE = False  # True for detailed debugging
 # ==============================
 
 # ===== Logging Configuration =====
-current_date = datetime.now().strftime('%Y-%m-%d')
+IST = timezone("Asia/Kolkata")
+
+class ISTFormatter(logging.Formatter):
+    """Custom formatter that converts timestamps to IST"""
+    def formatTime(self, record, datefmt=None):
+        dt = datetime.fromtimestamp(record.created, tz=IST)
+        if datefmt:
+            return dt.strftime(datefmt)
+        else:
+            return dt.strftime('%Y-%m-%d %H:%M:%S IST')
+
+current_date = datetime.now(IST).strftime('%Y-%m-%d')
 log_dir = os.path.join("logs")
 os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, f"{current_date}_app.log")
 
 log_level = logging.DEBUG if DEBUG_MODE else logging.INFO
 
-logging.basicConfig(
-    level=log_level,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    filename=log_file,
-    filemode="a",
-    encoding="utf-8"
-)
+# Clear any existing handlers
+logging.getLogger().handlers = []
 
-# Console logging
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(log_level)
+
+# File handler (replaces basicConfig)
+file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
+ist_formatter = ISTFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+file_handler.setFormatter(ist_formatter)
+logger.addHandler(file_handler)
+
+# Console handler
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
-console_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-console_handler.setFormatter(console_formatter)
-logging.getLogger().addHandler(console_handler)
+console_handler.setLevel(log_level if DEBUG_MODE else logging.INFO)
+console_handler.setFormatter(ist_formatter)
+logger.addHandler(console_handler)
 
-logger = logging.getLogger(__name__)
 logger.info(f"Application starting - Logging to {log_file} (Mode: {'DEBUG' if DEBUG_MODE else 'INFO'})")
+logger.info(f"Logging timezone: IST (Asia/Kolkata)")
 
 # ===== Import Modules =====
+
 from modules.interface_loader import TradingUI
 from modules.client_manager import ClientManager
 from modules.position_manager import PositionManager
@@ -52,8 +68,6 @@ from modules.api_status import ApiStatus
 from modules.price_chart import GraphPlotTab
 from modules.payoff_graph import PayoffGraphTab
 
-IST = timezone("Asia/Kolkata")
-
 # ===== Custom UI Logging Handler =====
 class QPlainTextEditHandler(logging.Handler):
     """Send logs to QPlainTextEdit"""
@@ -63,7 +77,9 @@ class QPlainTextEditHandler(logging.Handler):
 
     def emit(self, record):
         try:
-            msg = self.format(record)
+            # Use IST formatter for UI logs too
+            formatter = ISTFormatter("%(asctime)s - %(levelname)s - %(message)s")
+            msg = formatter.format(record)
             self.text_edit.appendPlainText(msg)
         except Exception:
             pass

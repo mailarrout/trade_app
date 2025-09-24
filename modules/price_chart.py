@@ -9,6 +9,7 @@ from PyQt5.QtChart import QChart, QChartView, QLineSeries, QDateTimeAxis, QValue
 from PyQt5.QtCore import Qt, QTimer, QDateTime, QPointF, QMargins
 from PyQt5.QtGui import QPainter, QColor, QPen, QBrush, QFont
 from PyQt5.QtWidgets import QVBoxLayout, QGraphicsSimpleTextItem, QMessageBox, QFileDialog
+from datetime import time as dt_time
 
 logger = logging.getLogger(__name__)
 symbol_cache = {}
@@ -174,6 +175,10 @@ class GraphPlotTab:
     # ----------------- CORE CHART LOGIC -----------------
     def _update_chart(self):
         """Update chart with latest LTPs"""
+        current_time = datetime.now(self.ist).time()
+        if current_time < dt_time(9, 15) or current_time > dt_time(15, 30):
+            return  # Stop chart updates outside 9:15am-3:30pm IST
+        
         try:
             if not self._validate_clients():
                 return
