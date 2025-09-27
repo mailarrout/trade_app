@@ -63,7 +63,7 @@ from modules.option_loader import OptionLoader
 from modules.opstra_option_loader import OpstraOptionLoader
 from modules.strategy_ibbm import IBBMStrategy
 # from modules.strategy_ibbm_actual import IBBMStrategy
-from modules.strategy_monthly_straddle import MonthlyStraddleStrategy
+# from modules.strategy_monthly_straddle import MonthlyStraddleStrategy
 from modules.api_status import ApiStatus
 from modules.price_chart import GraphPlotTab
 from modules.payoff_graph import PayoffGraphTab
@@ -137,7 +137,7 @@ class TradingApp:
             # --- Strategies ---
             self.strategies = {
                 "IBBM Intraday": IBBMStrategy(self.ui, self.client_manager),
-                "Monthly Straddle": MonthlyStraddleStrategy(self.ui, self.client_manager, self.position_manager,"NFO_symbols.txt"),
+                # "Monthly Straddle": MonthlyStraddleStrategy(self.ui, self.client_manager, self.position_manager,"NFO_symbols.txt"),
             }
 
             self.current_strategy = "IBBM Intraday"

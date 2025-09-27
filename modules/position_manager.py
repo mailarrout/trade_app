@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class PositionManager:
     # Configuration constants
-    MAX_TOTAL_SELL_QTY = 900
+    MAX_TOTAL_SELL_QTY = 450
     DEFAULT_TARGET = 30000.0
     DEFAULT_SL = -30000.0
     AUTO_REFRESH_INTERVAL = 10000  # 10 seconds

@@ -1,1509 +1,945 @@
-# strategy_ibbm.py - Updated with comprehensive recovery functionality
+# strategy_ibbm.py
+"""
+IBBMStrategy - Expanded, production-ready module.
 
+Behavior summary:
+ - Virtual CE & PE created at entry (PREMIUM_RANGE)
+ - No hedges placed at entry
+ - When a virtual leg hits its SL:
+     1) Re-scan the option chain for a fresh main symbol on the OPPOSITE leg in PREMIUM_RANGE
+        - If not found -> ABORT (no hedge, no sell)
+     2) Find hedge (HEDGE_RANGE) on the same opposite leg
+        - If no hedge found -> ABORT (no hedge, no sell)
+     3) Place hedge BUY (real) and then place main SELL (real) back-to-back
+        - If hedge succeeds and SELL fails -> immediately exit hedge (SELL hedge) to avoid naked hedge
+ - Trailing SL, EOD exit, state logging, detailed recovery
+ - All configuration constants at top for easy editing
+"""
+
+# Standard libs
 import os
+import sys
 import logging
-from datetime import datetime, time
-from PyQt5.QtCore import QTimer
-from pytz import timezone
-import yfinance as yf
-import pandas as pd
 import math
-from functools import wraps
-from typing import Optional, Dict, Any, Tuple, List
 import traceback
+from datetime import datetime, time, timedelta
+from functools import wraps
+from typing import Optional, Dict, Any, Tuple, List, Union
+from PyQt5.QtCore import QTimer
+# Third-party
+import pandas as pd
+from pytz import timezone
 
+# ----------------------------- CONFIGURATION / CONSTANTS -----------------------------
 IST = timezone('Asia/Kolkata')
+LOGGER_NAME = __name__
 
-# Get logger for this module
-logger = logging.getLogger(__name__)
+# Strategy identity
+STRATEGY_NAME = "IBBM Intraday"
 
-# ---------------------- Utility Decorators ----------------------
+# Trading windows (IST)
+TRADING_START_TIME = time(9, 45)
+TRADING_END_TIME = time(14, 45)
+EOD_EXIT_TIME = time(15, 15)
+
+# Entry minute tolerance (xx:15 and xx:45 +/-1 minute)
+ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
+MONITORING_MINUTES = [15, 45]
+
+# Option selection ranges
+STRIKE_RANGE = 1000                    # +/- near ATM if used in other logic
+PREMIUM_RANGE = (70.0, 100.0)          # Desired premium band for main options (virtual & real SELL)
+HEDGE_RANGE = (5.0, 15.0)              # Hedge price band for real BUYs when activating
+
+# Stop-loss & trailing SL
+INITIAL_SL_MULTIPLIER = 1.20  # 20% SL         
+SL_ROUNDING_FACTOR = 20                # to round SL to nearest 1/20 (0.05)
+TRAILING_SL_STEPS = [0.10, 0.20, 0.30, 0.40, 0.50]  # trailing thresholds (fractions of profit)
+
+# Hedge search limits
+HEDGE_MAX_SEARCH_DISTANCE = 1000       # max strike distance to search for hedge
+
+# Timers (ms)
+STRATEGY_CHECK_INTERVAL = 60_000       # 1 minute
+MONITORING_INTERVAL = 10_000           # 10 seconds
+
+# Files
+NFO_SYMBOLS_FILE = "NFO_symbols.txt"   # expected CSV of option chain
+LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Order config
+LOT_SIZE = 75
+ORDER_PRODUCT_TYPE = 'M'
+ORDER_EXCHANGE = 'NFO'
+
+# Re-entry policy after STOPPED_OUT/ACTIVE with no broker positions
+ALLOW_REENTRY_AFTER_STOP = True        # True -> auto-reset to WAITING if recovery shows no positions
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(LOGGER_NAME)
+
+# -------------------------------------------------------------------------------
+
+# ----------------------------- UTILS / DECORATORS --------------------------------
 def safe_log(context: str):
-    """Decorator to log errors gracefully without crashing."""
+    """Decorator to wrap functions with try/except and log exceptions."""
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            logger.debug(f"[{context}] Entering {func.__name__}")
             try:
-                logger.info(f"Starting {func.__name__} - {context}")
-                result = func(*args, **kwargs)
-                logger.info(f"Completed {func.__name__} successfully")
-                return result
+                return func(*args, **kwargs)
             except Exception as e:
-                error_msg = f"{context}: {str(e)}\n{traceback.format_exc()}"
-                logger.error(error_msg)
+                logger.error(f"[{context}] Exception in {func.__name__}: {e}\n{traceback.format_exc()}")
                 return None
         return wrapper
     return decorator
 
-# ---------------------- Time Utils ----------------------
+
 class ISTTimeUtils:
-    """Utility class for Indian Standard Time operations"""
     @staticmethod
     def now() -> datetime:
         return datetime.now(IST)
-    
+
     @staticmethod
     def current_time() -> time:
         return ISTTimeUtils.now().time()
-    
+
     @staticmethod
     def current_date_str() -> str:
         return ISTTimeUtils.now().strftime("%Y-%m-%d")
 
-# ---------------------- Strategy ----------------------
+
+def round_sl(price: float) -> float:
+    """Round SL to nearest tick defined by SL_ROUNDING_FACTOR."""
+    return math.ceil(price * SL_ROUNDING_FACTOR) / SL_ROUNDING_FACTOR
+# -------------------------------------------------------------------------------
+
+
+# ----------------------------- STRATEGY CLASS ------------------------------------
 class IBBMStrategy:
-    # ===================== CONFIGURATION CONSTANTS =====================
-    STRATEGY_NAME = "IBBM Intraday"
-    TRADING_START_TIME = time(9, 45)
-    TRADING_END_TIME = time(14, 45)
-    EOD_EXIT_TIME = time(15, 15)
+    """
+    IBBMStrategy (expanded)
 
-    # Entry time pattern (15/45 minutes with ±1 minute tolerance)
-    ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
-    MONITORING_MINUTES = [15, 45]
+    Use:
+      strategy = IBBMStrategy(ui, client_manager)
+      - ui: optional object providing ExecuteStrategyQPushButton and ExpiryListDropDown
+      - client_manager: object providing .clients with broker client at [0][2]
+    """
 
-    # Monitoring time windows
-    TREND_MONITORING_START = time(9, 46)  # Start monitoring 1 minute after trading starts
-    TREND_MONITORING_END = time(14, 45)   # End monitoring at trading end time
-
-    # Timer intervals
-    STRATEGY_CHECK_INTERVAL = 60000  # 1 minute in milliseconds
-    MONITORING_INTERVAL = 10000      # 10 seconds in milliseconds
-    # ===================== END CONFIGURATION CONSTANTS =====================
-    
-    # Option selection parameters
-    STRIKE_RANGE = 1000  # +/- around ATM
-    MIN_PREMIUM = 70
-    MAX_PREMIUM = 100
-    
-    # Stop loss parameters - UPDATED WITH TRAILING SL LOGIC
-    INITIAL_SL_MULTIPLIER = 1.20  # 20% SL
-    SL_ROUNDING_FACTOR = 20       # Round to nearest 0.05
-    TRAILING_SL_STEPS = [0.90, 0.80, 0.70, 0.60, 0.50]  # 10%, 20%, 30%, 40%, 50% profit steps
-    
-    # Hedge parameters
-    HEDGE_PRICE_RANGE = (5, 15)   # Price range for hedge positions
-    HEDGE_MAX_SEARCH_DISTANCE = 1000  # Max points to search for hedge strikes
-    
-    # Market data parameters
-    YFINANCE_SYMBOL = '^NSEI'
-    DATA_PERIOD = '2d'
-    DATA_INTERVAL = '30m'
-    MA_WINDOW = 12
-    # ===================== END CONFIGURATION CONSTANTS =====================
-    
-    def __init__(self, ui, client_manager):
+    def __init__(self, ui: Optional[Any], client_manager: Optional[Any]):
         self.ui = ui
         self.client_manager = client_manager
-        self.current_close: Optional[float] = None
-        self.current_ma12: Optional[float] = None
-        self.current_trend: Optional[str] = None
 
-        self.log_dir = os.path.join(os.path.dirname(__file__), 'logs')
-        os.makedirs(self.log_dir, exist_ok=True)
+        # state file path
+        self.current_state_file = os.path.join(LOG_DIR, f"{ISTTimeUtils.current_date_str()}_ibbm_strategy_state.csv")
 
-        self.current_state_file = os.path.join(
-            self.log_dir, f"{ISTTimeUtils.current_date_str()}_ibbm_strategy_state.csv"
-        )
+        # possible states: WAITING | WAIT_FOR_MAIN | VIRTUAL | ACTIVE | STOPPED_OUT | COMPLETED
+        self.state: str = "WAITING"
 
-        # Setup timers
-        self.strategy_timer = QTimer()
-        self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
-        self.strategy_timer.start(self.STRATEGY_CHECK_INTERVAL)
-
-        self.monitor_timer = QTimer()
-        self.monitor_timer.timeout.connect(self._monitor_all)
-        self.monitor_timer.start(self.MONITORING_INTERVAL)
-        logger.info(f"Monitor timer started with {self.MONITORING_INTERVAL}ms interval") 
-        logger.info(f"Strategy initialized - Runs at {self.TRADING_START_TIME.strftime('%H:%M')} and monitors trend/SL till {self.TRADING_END_TIME.strftime('%H:%M')} IST")
-
-        # WAITING | VIRTUAL_ACTIVE | ACTIVE | STOPPED_OUT | COMPLETED
-        self.state = "WAITING"
+        # positions - main legs (virtual or real), hedges separately
         self.positions: Dict[str, Dict[str, Any]] = {
             'ce': self._empty_position(),
             'pe': self._empty_position()
         }
-        
-        # Store hedge positions
-        self.hedge_positions: Dict[str, Dict[str, Any]] = {
+        self.hedges: Dict[str, Dict[str, Any]] = {
             'ce': self._empty_position(),
             'pe': self._empty_position()
         }
 
-        self.ui.ExecuteStrategyQPushButton.clicked.connect(self.on_execute_strategy_clicked)
-        self._first_monitoring_logged = False 
+        # internal flags
         self._positions_validated = False
-        # Try to recover from state file on initialization
+        self._first_monitoring_logged = False
+
+        # Setup timers (QTimer if available)
+        self.strategy_timer = QTimer()
+        try:
+            self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
+            self.strategy_timer.start(STRATEGY_CHECK_INTERVAL)
+            logger.debug("Strategy timer started.")
+        except Exception:
+            logger.debug("Strategy timer could not be started (QTimer not available).")
+
+        self.monitor_timer = QTimer()
+        try:
+            self.monitor_timer.timeout.connect(self._monitor_all)
+            self.monitor_timer.start(MONITORING_INTERVAL)
+            logger.debug("Monitor timer started.")
+        except Exception:
+            logger.debug("Monitor timer could not be started (QTimer not available).")
+
+        # bind UI button if present
+        try:
+            if hasattr(self.ui, 'ExecuteStrategyQPushButton'):
+                self.ui.ExecuteStrategyQPushButton.clicked.connect(self.on_execute_strategy_clicked)
+        except Exception:
+            logger.debug("Could not bind UI execute button (UI may be absent).")
+
+        # attempt recovery from state file on start
         self._try_recover_from_state_file()
 
-    # ---------------------- Helpers ----------------------
+        logger.info("IBBMStrategy initialized; state=%s", self.state)
+
+    # -------------------- small helpers --------------------
     def _empty_position(self) -> Dict[str, Any]:
         return {
             'symbol': None, 'token': None, 'ltp': 0.0,
-            'sl': None, 'sl_hit': False, 'entry_price': 0.0,
-            'max_profit_price': 0.0, 'trailing_step': 0,
-            'initial_sl': 0.0, 'current_sl': 0.0  # Added default values
+            'entry_price': 0.0, 'initial_sl': 0.0, 'current_sl': 0.0,
+            'sl_hit': False, 'max_profit_price': 0.0, 'trailing_step': 0,
+            'real_entered': False
         }
+
+    # -------------------- Recovery & State --------------------
+    @safe_log("recovery")
+    def _try_recover_from_state_file(self):
+        """
+        Recover minimal state from today's CSV file.
+        If last state was ACTIVE/STOPPED_OUT but broker shows no positions,
+        auto-reset to WAITING if ALLOW_REENTRY_AFTER_STOP True, otherwise stay STOPPED_OUT.
+        """
+        if not os.path.exists(self.current_state_file):
+            logger.info("No state file for today; starting fresh.")
+            return
+
+        try:
+            df = pd.read_csv(self.current_state_file, on_bad_lines='skip')
+        except Exception as e:
+            logger.warning("Failed to read state file for recovery: %s", e)
+            return
+
+        if df.empty:
+            logger.info("State file empty for today.")
+            return
+
+        last = df.iloc[-1]
+        last_status = str(last.get('status', 'WAITING')).strip()
+        logger.info("Recovered last status from file: %s", last_status)
+
+        # If state is ACTIVE or STOPPED_OUT, check with broker to see if positions exist
+        if last_status in ['ACTIVE', 'STOPPED_OUT']:
+            broker_positions = self._get_broker_positions()
+            ce_sym = last.get('ce_symbol', None)
+            pe_sym = last.get('pe_symbol', None)
+            found_ce = False
+            found_pe = False
+
+            if broker_positions:
+                try:
+                    if ce_sym and not pd.isna(ce_sym):
+                        found_ce = any(self._is_symbol_in_pos(ce_sym, bp) for bp in broker_positions)
+                    if pe_sym and not pd.isna(pe_sym):
+                        found_pe = any(self._is_symbol_in_pos(pe_sym, bp) for bp in broker_positions)
+                except Exception:
+                    found_ce = found_pe = False
+
+            if not found_ce and not found_pe:
+                # no broker positions exist - decide based on ALLOW_REENTRY_AFTER_STOP
+                if ALLOW_REENTRY_AFTER_STOP:
+                    logger.info("No broker positions detected for recovered ACTIVE/STOPPED_OUT -> resetting to WAITING (ALLOW_REENTRY_AFTER_STOP=True)")
+                    self._reset_all_positions()
+                    self.state = "WAITING"
+                    # do not remove the state file, just continue
+                    return
+                else:
+                    logger.info("No broker positions detected -> remain STOPPED_OUT (ALLOW_REENTRY_AFTER_STOP=False)")
+                    self._reset_all_positions()
+                    self.state = "STOPPED_OUT"
+                    return
+
+        # otherwise try to recover fields for convenience
+        self.state = last_status
+
+        # recover stored fields per leg if present
+        for leg in ['ce', 'pe']:
+            try:
+                sym = last.get(f'{leg}_symbol', None)
+                if pd.notna(sym) and str(sym).strip():
+                    self.positions[leg]['symbol'] = str(sym).strip()
+                    self.positions[leg]['entry_price'] = float(last.get(f'{leg}_entry_price', 0.0))
+                    self.positions[leg]['ltp'] = float(last.get(f'{leg}_ltp', self.positions[leg]['entry_price']))
+                    self.positions[leg]['initial_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                    self.positions[leg]['current_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                    self.positions[leg]['real_entered'] = bool(last.get(f'{leg}_real_entered', False))
+                    logger.info("Recovered %s main: %s", leg.upper(), self.positions[leg]['symbol'])
+            except Exception:
+                logger.debug("Failed to recover main leg %s from file.", leg)
+
+            try:
+                hed_sym = last.get(f'{leg}_hedge_symbol', None)
+                if pd.notna(hed_sym) and str(hed_sym).strip():
+                    self.hedges[leg]['symbol'] = str(hed_sym).strip()
+                    self.hedges[leg]['entry_price'] = float(last.get(f'{leg}_hedge_entry', 0.0))
+                    logger.info("Recovered hedge %s: %s", leg.upper(), self.hedges[leg]['symbol'])
+            except Exception:
+                logger.debug("Failed to recover hedge for %s", leg)
 
     def _reset_all_positions(self):
         self.positions = {'ce': self._empty_position(), 'pe': self._empty_position()}
-        self.hedge_positions = {'ce': self._empty_position(), 'pe': self._empty_position()}
+        self.hedges = {'ce': self._empty_position(), 'pe': self._empty_position()}
 
-    # ---------------------- Recovery ----------------------
-    def _try_recover_from_state_file(self):
-        """Try to recover strategy state from today's state file only"""
-        try:
-            if not os.path.exists(self.current_state_file):
-                logger.info("No state file found for today - starting fresh")
-                return
-                
-            logger.info(f"Attempting to recover from today's state file: {self.current_state_file}")
-            
-            # Read CSV with proper error handling for inconsistent fields
-            try:
-                df = pd.read_csv(self.current_state_file, on_bad_lines='skip')
-            except:
-                # Fallback: read manually if pandas fails
-                with open(self.current_state_file, 'r') as f:
-                    lines = f.readlines()
-                
-                if len(lines) <= 1:  # Only header or empty
-                    logger.info("State file is empty or has only header")
-                    return
-                    
-                # Get the last valid line (skip header)
-                last_line = lines[-1].strip()
-                if last_line.count(',') < 15:  # Minimum expected fields
-                    logger.warning("Invalid last line in state file - skipping recovery")
-                    return
-                    
-                # Manual parsing as fallback
-                fields = last_line.split(',')
-                if len(fields) < 16:
-                    logger.warning(f"Insufficient fields in state file: {len(fields)}")
-                    return
-                    
-                # Create minimal dataframe from last line
-                df = pd.DataFrame([fields[:16]], columns=[
-                    'timestamp', 'status', 'comments', 'nifty_price', 'nifty_ma12', 'trend',
-                    'ce_symbol', 'ce_entry_price', 'ce_ltp', 'ce_sl_price', 'ce_trailing_step',
-                    'pe_symbol', 'pe_entry_price', 'pe_ltp', 'pe_sl_price', 'pe_trailing_step'
-                ])
-            
-            if len(df) == 0:
-                logger.info("State file is empty - starting fresh")
-                return
-                
-            # Get the latest state
-            last_row = df.iloc[-1]
-            status = last_row.get('status', 'WAITING')
-            
-            if status in ['COMPLETED', 'STOPPED_OUT']:
-                logger.info(f"Strategy already {status} for today - waiting for tomorrow")
-                self.state = status
-                return
-                
-            if status in ['VIRTUAL_ACTIVE', 'ACTIVE']:
-                logger.info(f"Recovering {status} state from today's file")
-                self.state = status
-                
-                # Recover positions
-                for leg in ['ce', 'pe']:
-                    symbol_col = f"{leg}_symbol"
-                    entry_price_col = f"{leg}_entry_price"
-                    sl_col = f"{leg}_sl_price"
-                    trailing_step_col = f"{leg}_trailing_step"
-                    
-                    if symbol_col in last_row and pd.notna(last_row[symbol_col]):
-                        self.positions[leg]['symbol'] = last_row[symbol_col]
-                        self.positions[leg]['entry_price'] = last_row.get(entry_price_col, 0)
-                        self.positions[leg]['current_sl'] = last_row.get(sl_col, 0)
-                        self.positions[leg]['initial_sl'] = last_row.get(sl_col, 0)
-                        self.positions[leg]['trailing_step'] = last_row.get(trailing_step_col, 0)
-                        self.positions[leg]['sl_hit'] = False
-                        
-                        # Try to get token from symbol
-                        token = self._get_token_from_symbol(self.positions[leg]['symbol'])
-                        if token:
-                            self.positions[leg]['token'] = token
-                            logger.info(f"Recovered {leg.upper()} position: {self.positions[leg]['symbol']}")
-                
-                # Validate positions with broker
-                if self.state == "ACTIVE":
-                    try:
-                        self._validate_positions(update_prices=True)
-                        logger.info("Positions validated with broker after recovery")
-                    except ValueError as e:
-                        logger.warning(f"Position validation failed after recovery: {str(e)}")
-                        # Reset if positions don't exist in broker
-                        self._reset_all_positions()
-                        self.state = "WAITING"
-                        
-                logger.info(f"Successfully recovered {status} state from today's file")
-                
-        except Exception as e:
-            logger.error(f"Failed to recover from today's state file: {str(e)}")
-            self.state = "WAITING"
-
-    def _get_token_from_symbol(self, symbol: str) -> Optional[str]:
-        """Get token from symbol using NFO symbols file"""
-        try:
-            if not os.path.exists("NFO_symbols.txt"):
-                logger.error("NFO_symbols.txt file not found")
-                return None
-                
-            df = pd.read_csv("NFO_symbols.txt")
-            symbol_data = df[df['TradingSymbol'] == symbol]
-            
-            if not symbol_data.empty:
-                token = str(symbol_data.iloc[0]['Token'])
-                logger.info(f"Found token {token} for symbol {symbol}")
-                return token
-                
-            logger.warning(f"Token not found for symbol {symbol}")
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error getting token from symbol: {str(e)}")
-            return None
-
-    def _find_latest_state_file(self):
-        """Find the latest state file if today's file doesn't exist"""
-        try:
-            # First check if today's file exists
-            if os.path.exists(self.current_state_file):
-                return self.current_state_file
-                
-            # Look for any IBBM strategy state files
-            state_files = []
-            for file in os.listdir(self.log_dir):
-                if file.endswith('_ibbm_strategy_state.csv'):
-                    state_files.append(file)
-            
-            if not state_files:
-                logger.info("No IBBM strategy state files found")
-                return None
-                
-            # Sort by date (newest first)
-            state_files.sort(reverse=True)
-            latest_file = state_files[0]
-            latest_file_path = os.path.join(self.log_dir, latest_file)
-            
-            logger.info(f"Using latest state file: {latest_file}")
-            return latest_file_path
-            
-        except Exception as e:
-            logger.error(f"Error finding latest state file: {e}")
-            return None
-
-    def recover_from_state_file(self):
-        """Recover strategy state from today's state CSV file only"""
-        try:
-            # Only use today's file
-            if not os.path.exists(self.current_state_file):
-                logger.info("No state file found for today - no recovery needed")
-                return False
-                
-            # Read with error handling
-            try:
-                df = pd.read_csv(self.current_state_file, on_bad_lines='skip')
-            except:
-                logger.warning("Failed to read state file with pandas, trying manual recovery")
-                return self._manual_state_file_recovery()
-            
-            if df.empty:
-                return False
-                
-            latest_state = df.iloc[-1]
-            if pd.isna(latest_state.get('comments')) or str(latest_state.get('comments')).strip() == "":
-                logger.warning("Last row has missing comments, skipping it")
-                if len(df) > 1:
-                    latest_state = df.iloc[-2]
-                else:
-                    return False
-            
-            # Only recover if status was ACTIVE or VIRTUAL_ACTIVE
-            if latest_state.get('status') not in ['ACTIVE', 'VIRTUAL_ACTIVE']:
-                logger.info(f"Last state was {latest_state.get('status')}, not recovering")
-                return False
-            
-
-            def safe_float(val, default=0.0):
-                try:
-                    return float(val)
-                except Exception:
-                    return default
-
-            # Recover basic strategy state
-            self.state = latest_state.get('status', 'WAITING')
-            self.current_close = safe_float(latest_state.get('nifty_price'))
-            self.current_ma12 = safe_float(latest_state.get('nifty_ma12'))
-            self.current_trend = str(latest_state.get('trend', 'unknown'))
-            
-            # Recover positions
-            for leg in ['ce', 'pe']:
-                symbol_col = f"{leg}_symbol"
-                entry_price_col = f"{leg}_entry_price"
-                sl_col = f"{leg}_sl_price"
-                trailing_step_col = f"{leg}_trailing_step"
-                
-                symbol = latest_state.get(symbol_col)
-                if pd.notna(symbol) and symbol:
-                    self.positions[leg] = {
-                        'symbol': symbol,
-                        'entry_price': float(latest_state.get(entry_price_col, 0.0)),
-                        'current_sl': float(latest_state.get(sl_col, 0.0)),
-                        'initial_sl': float(latest_state.get(sl_col, 0.0)),
-                        'trailing_step': int(latest_state.get(trailing_step_col, 0)),
-                        'sl_hit': False,
-                        'max_profit_price': float(latest_state.get(entry_price_col, 0.0)),
-                        'ltp': float(latest_state.get(entry_price_col, 0.0))
-                    }
-                    
-                    # Try to get token from symbol
-                    token = self._get_token_from_symbol(symbol)
-                    if token:
-                        self.positions[leg]['token'] = token
-            
-            logger.info(f"Strategy recovered from state file: {self.state}")
-            logger.info(f"Recovered {sum(1 for p in self.positions.values() if p['symbol'])} positions")
-            
-            # Log the successful recovery
-            self._log_state(
-                self.state, 
-                "Recovered from state file"
-            )
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"State file recovery failed: {e}")
+    def _is_symbol_in_pos(self, symbol: Optional[str], broker_pos: Dict[str, Any]) -> bool:
+        """Check if symbol or token matches a broker pos entry across common fields."""
+        if not symbol or not broker_pos:
             return False
-
-    def _ensure_state_consistency(self):
-        """Ensure state is consistent with current positions"""
         try:
-            # Check if we have active positions but no state file
-            has_active_positions = any(pos['symbol'] for pos in self.positions.values())
-            state_file_exists = os.path.exists(self.current_state_file)
-            
-            if has_active_positions and not state_file_exists:
-                logger.warning("Active positions found but no state file - creating one")
-                self._log_state("ACTIVE", "State file created from active positions")
-                
-            elif state_file_exists and not has_active_positions:
-                logger.warning("State file exists but no active positions - cleaning up")
-                os.remove(self.current_state_file)
-                self.state = "WAITING"
-                
-        except Exception as e:
-            logger.error(f"State consistency check failed: {e}")
-
-    def recover_from_positions(self, positions_list: List[Dict[str, Any]]) -> bool:
-        """
-        Recover strategy from existing positions using the original average sell price AND entry spot price
-        """
-        try:
-            logger.info(f"{self.__class__.__name__} recovering from positions: {len(positions_list)} positions")
-            client = self._get_primary_client()
-            if not client:
-                return False
-
-            sell_ce = None
-            sell_pe = None
-            self.total_premium_received = 0.0
-            self.entry_spot_price = None  # Initialize
-
-            for pos in positions_list:
-                symbol = pos['symbol']
-                avg_sell_price = pos['avg_price']
-                net_qty = pos['net_qty']
-                entry_spot_price = pos['entry_spot_price']  # GET THE SAVED SPOT PRICE
-
-                # Store the first valid entry spot price we find
-                if entry_spot_price and self.entry_spot_price is None:
-                    self.entry_spot_price = entry_spot_price
-
-                if 'CE' in symbol and net_qty < 0:
-                    sell_ce = {'symbol': symbol, 'token': pos['token'], 'avg_price': avg_sell_price, 'net_qty': net_qty}
-                    self.total_premium_received += (avg_sell_price * abs(net_qty))
-                    logger.info(f"Found short CE: Sold at {avg_sell_price}, Qty: {abs(net_qty)}")
-                elif 'PE' in symbol and net_qty < 0:
-                    sell_pe = {'symbol': symbol, 'token': pos['token'], 'avg_price': avg_sell_price, 'net_qty': net_qty}
-                    self.total_premium_received += (avg_sell_price * abs(net_qty))
-                    logger.info(f"Found short PE: Sold at {avg_sell_price}, Qty: {abs(net_qty)}")
-
-            # Check if we found the core positions
-            if sell_ce and sell_pe and self.entry_spot_price:
-                self.state = "ACTIVE"
-                self.positions["ce"] = {
-                    'symbol': sell_ce['symbol'],
-                    'token': sell_ce['token'],
-                    'entry_price': sell_ce['avg_price'],
-                    'ltp': sell_ce['avg_price'],
-                    'initial_sl': math.ceil(sell_ce['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                    'current_sl': math.ceil(sell_ce['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                    'sl_hit': False,
-                    'max_profit_price': sell_ce['avg_price'],
-                    'trailing_step': 0
-                }
-                self.positions["pe"] = {
-                    'symbol': sell_pe['symbol'],
-                    'token': sell_pe['token'],
-                    'entry_price': sell_pe['avg_price'],
-                    'ltp': sell_pe['avg_price'],
-                    'initial_sl': math.ceil(sell_pe['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                    'current_sl': math.ceil(sell_pe['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                    'sl_hit': False,
-                    'max_profit_price': sell_pe['avg_price'],
-                    'trailing_step': 0
-                }
-
-                logger.info(f"Strategy RECOVERED. Original Premium: {self.total_premium_received:.2f}")
-                logger.info(f"Original Spot: {self.entry_spot_price:.2f}")
-                self._log_state("ACTIVE", "State recovered with original entry prices and spot")
+            norm = str(symbol).strip().upper()
+            for key in ['tradingsymbol', 'TradingSymbol', 'symbol', 'Trading_Symbol', 'instrument']:
+                if key in broker_pos and str(broker_pos[key]).strip().upper() == norm:
+                    return True
+            # token matching
+            if 'token' in broker_pos:
+                if str(broker_pos.get('token')).strip() == str(broker_pos.get('Token', '')).strip():
+                    return True
+            # sometimes the client returns instrument_token or similar
+            if 'instrumentToken' in broker_pos and str(broker_pos['instrumentToken']) == norm:
                 return True
-            else:
-                logger.warning("Recovery failed: Could not find both short CE and PE or entry spot price.")
-                return False
-
-        except Exception as e:
-            logger.error(f"Error during strategy recovery: {e}", exc_info=True)
-            return False
-
-    def _get_primary_client(self):
-        """Return the primary trading client"""
-        try:
-            if self.client_manager and hasattr(self.client_manager, "clients") and self.client_manager.clients:
-                return self.client_manager.clients[0][2]
         except Exception:
-            logger.exception("Error getting primary client")
-        return None
-
-    # ---------------------- Strategy Execution ----------------------
-    def on_execute_strategy_clicked(self):
-        current_time = ISTTimeUtils.current_time()
-        strategy_name = self.ui.StrategyNameQComboBox.currentText()
-        
-        # Debug logging
-        logger.info(f"Current time: {current_time}")
-        logger.info(f"Selected strategy: '{strategy_name}'")
-        logger.info(f"Expected strategy: '{self.STRATEGY_NAME}'")
-        logger.info(f"Time in entry minutes: {current_time.minute in self.ENTRY_MINUTES}")
-        logger.info(f"Within trading hours: {self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME}")
-        logger.info(f"Strategy name matches: {strategy_name == self.STRATEGY_NAME}")
-        
-        # Check if it's a valid entry time FIRST
-        if current_time.minute not in self.ENTRY_MINUTES:
-            logger.warning("Strategy can only be executed at XX:15 or XX:45")
-            return
-
-        # THEN check trading hours and strategy name
-        if not (strategy_name == self.STRATEGY_NAME and
-                current_time >= self.TRADING_START_TIME and 
-                current_time <= self.TRADING_END_TIME):
-            logger.warning("Invalid strategy name or outside trading hours")
-            return
-
-        # ONLY NOW set the strategy name (when we're actually going to execute)
-        if hasattr(self.ui, 'position_manager'):
-            self.ui.position_manager._current_strategy = strategy_name
-            logger.info(f"Strategy '{strategy_name}' set for manual execution")
-
-        # Check if we're already in an active state from recovery
-        if self.state in ['VIRTUAL_ACTIVE', 'ACTIVE']:
-            logger.info(f"Strategy already in {self.state} state - resuming monitoring")
-            return
-
-        date_str = ISTTimeUtils.current_date_str()
-        positions_file = os.path.join(self.log_dir, f"{date_str}_positions.csv")
-
-        if os.path.exists(positions_file):
-            try:
-                df = pd.read_csv(positions_file)
-                ibbm_positions = df[
-                    (df['Strategy'] == self.STRATEGY_NAME) & 
-                    (df['NetQty'].astype(float) < 0)
-                ]
-
-                if not ibbm_positions.empty:
-                    logger.info("Existing IBBM positions found - Starting monitoring")
-                    try:
-                        self._validate_positions(update_prices=True)
-                        self.state = "ACTIVE"
-                        logger.info("Resumed monitoring existing positions")
-                        return
-                    except Exception as e:
-                        logger.error(f"Failed to validate existing positions: {str(e)}")
-            except Exception as e:
-                logger.error(f"Error reading positions file: {str(e)}")
-
-        if self.state != "WAITING":
-            logger.warning("Cannot execute strategy - not in WAITING state")
-            return
-
-        logger.info("Manually executing IBBM strategy")
-        self._run_strategy_cycle()
-
-    def _check_and_execute_strategy(self):
-        current_time = ISTTimeUtils.current_time()
-
-        # 1. End of day exit logic
-        if (current_time.hour == self.EOD_EXIT_TIME.hour and 
-            current_time.minute == self.EOD_EXIT_TIME.minute and 
-            self.state == "ACTIVE"):
-            self._exit_all_positions(reason="End of trading day")
-            return
-
-        # 2. Regular monitoring for active positions
-        if ((current_time.minute in self.MONITORING_MINUTES) and 
-            self.TREND_MONITORING_START <= current_time <= self.TREND_MONITORING_END and 
-            self.state == "ACTIVE"):
-            self._monitor_trend_and_positions()
-
-        # 3. Strategy entry logic
-        if (self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME and 
-            self.state == "WAITING"):
-            if current_time.minute in self.ENTRY_MINUTES:
-                # Check state file for today's status
-                if os.path.exists(self.current_state_file):
-                    try:
-                        df = pd.read_csv(self.current_state_file)
-                        if len(df) > 0:
-                            last_state = df.iloc[-1]
-                            
-                            if last_state['status'] in ['COMPLETED', 'STOPPED_OUT']:
-                                logger.info("Strategy already completed for today - waiting for tomorrow")
-                                return
-                                
-                            if last_state['status'] in ['VIRTUAL_ACTIVE', 'ACTIVE']:
-                                logger.info("Resuming monitoring of existing positions after restart")
-                              
-                                return
-                    except Exception as e:
-                        logger.error(f"Error reading state file: {str(e)}")
-                
-                logger.info("=== Running Strategy Cycle (Restart) ===")
-                self._run_strategy_cycle()
-
-    def _monitor_all(self):
-        logger.info("=== _monitor_all FUNCTION ENTERED ===")
-        current_time = ISTTimeUtils.current_time()
-        logger.info(f"=== _monitor_all called at {current_time} ===")
-        logger.info(f"[SL MONITOR] State={self.state}, CE={self.positions['ce']['symbol']}, PE={self.positions['pe']['symbol']}")
-        current_time = ISTTimeUtils.current_time()
-
-        logger.info(f"Trading hours check: {self.TRADING_START_TIME} <= {current_time} <= {self.TRADING_END_TIME}")
-        logger.info(f"Result: {self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME}")
-
-
-        if not (self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME):
-            logger.debug("Outside trading hours, skipping monitoring")
-            return
-            
-        if self.state not in ["VIRTUAL_ACTIVE", "ACTIVE"]:
-            logger.debug(f"State is {self.state}, skipping monitoring")
-            return
-        logger.info("Passed initial checks - proceeding with monitoring")
-        # Check API connection before proceeding
-        if not self._validate_api_connection():
-            logger.warning("Skipping monitoring due to API connection issues")
-            return
-        
-        if self.state == "ACTIVE":
-            self._check_manual_exits()
-        else:
-            logger.info("Skipping manual exit check for VIRTUAL_ACTIVE state")
-        
-        if self.state == "COMPLETED":
-            logger.debug("Strategy completed, skipping monitoring")
-            return
-        
-        self._monitor_stop_losses()
-        
-        if self.state == "ACTIVE" and not hasattr(self, '_positions_validated') and self.positions['ce']['symbol']:
-            try:
-                self._validate_positions(update_prices=False)
-                self._positions_validated = True
-            except ValueError as e:
-                logger.error(f"Position validation error: {str(e)}")
-                self.state = "WAITING"
-
-    def _run_strategy_cycle(self):
-        logger.info("=== Running Strategy Cycle ===")
-        
-        if not self._get_market_data():
-            logger.error("Failed to get market data for strategy cycle")
-            return
-        
-        if self.state == "WAITING":
-            if not self._take_positions():
-                logger.error("Failed to take positions in strategy cycle")
-                return
-        elif self.state in ["VIRTUAL_ACTIVE", "ACTIVE"]:
-            logger.info(f"Resuming strategy in {self.state} state")
-        
-        self._monitor_trend_and_positions()
-
-    # ---------------------- Market Data ----------------------
-    @safe_log("Data fetch failed")
-    def _get_market_data(self) -> bool:
-        try:
-            logger.info(f"Fetching market data for {self.YFINANCE_SYMBOL}")
-            data = yf.download(self.YFINANCE_SYMBOL, period=self.DATA_PERIOD, 
-                          interval=self.DATA_INTERVAL, progress=False, auto_adjust=True)
-            
-            if len(data) == 0:
-                logger.error("No data returned from yfinance")
-                return False
-                
-            if len(data) < self.MA_WINDOW:
-                logger.error(f"Insufficient data points for MA{self.MA_WINDOW} calculation. Got {len(data)}, need {self.MA_WINDOW}")
-                return False
-                
-            data[f'MA{self.MA_WINDOW}'] = data['Close'].rolling(window=self.MA_WINDOW).mean()
-            last_row = data.iloc[-1]
-            self.current_close = last_row['Close'].values[0]
-            self.current_ma12 = last_row[f'MA{self.MA_WINDOW}'].values[0]
-            self.current_trend = 'up' if self.current_close > self.current_ma12 else 'down'
-            logger.info(f"Market data: Close={self.current_close:.2f}, MA{self.MA_WINDOW}={self.current_ma12:.2f}, Trend={self.current_trend.upper()}")
-            return True
-        except Exception as e:
-            logger.error(f"Market data fetch failed: {str(e)}")
             return False
+        return False
 
-    # ---------------------- Entry Logic ----------------------
-    def _take_positions(self) -> bool:
-        """Take initial positions virtually at 9:45"""
-        logger.info("Starting virtual position taking process")
-        
-        # ===== ADD THIS CODE FIRST =====
-        # SET STRATEGY NAME BEFORE ANY POSITIONS
-        if hasattr(self.ui, 'position_manager'):
-            self.ui.position_manager._current_strategy = self.STRATEGY_NAME
-            logger.info(f"Strategy '{self.STRATEGY_NAME}' set before virtual positions")
-        # ===== END ADDITION =====
-        
+    # -------------------- Manual UI trigger --------------------
+    def on_execute_strategy_clicked(self):
+        """Manual execution via UI button - allowed only at entry minutes and trading hours."""
+        now = ISTTimeUtils.current_time()
+        logger.info("Manual execute clicked at %s", now)
+        if now.minute not in ENTRY_MINUTES:
+            logger.warning("Manual execute allowed only in entry minutes.")
+            return
+        if not (TRADING_START_TIME <= now <= TRADING_END_TIME):
+            logger.warning("Manual execute outside trading hours.")
+            return
+        if self.state not in ['WAITING']:
+            logger.info("Manual execute ignored; current state=%s", self.state)
+            return
+        logger.info("Manual start accepted; running entry cycle.")
+        self._run_entry_cycle()
+
+    # -------------------- Periodic checks --------------------
+    def _check_and_execute_strategy(self):
+        """
+        Called by strategy_timer periodically (every minute).
+        Handles:
+         - EOD forced exit
+         - Entry window check
+        """
+        now = ISTTimeUtils.current_time()
+
+        # EOD exit - force-close any open legs/hedges at EOD_EXIT_TIME
+        if (now.hour == EOD_EXIT_TIME.hour and now.minute == EOD_EXIT_TIME.minute) and self.state in ['VIRTUAL', 'WAIT_FOR_MAIN', 'ACTIVE']:
+            logger.info("EOD exit time hit - attempting to exit all positions")
+            self._exit_all_positions(reason="EOD Exit")
+            return
+
+        # Entry logic: only start entry cycle in WAITING and inside trading hours at allowed minute
+        if self.state == "WAITING" and TRADING_START_TIME <= now <= TRADING_END_TIME and now.minute in ENTRY_MINUTES:
+            logger.info("Entry window detected - starting entry cycle")
+            self._run_entry_cycle()
+
+    def _run_entry_cycle(self):
+        """
+        Main entry cycle:
+         - Determine expiry
+         - Create virtual CE and PE in PREMIUM_RANGE (not placing real orders)
+         - If not both found, set WAIT_FOR_MAIN (hedges not placed).
+        """
         expiry_date = self._get_current_expiry()
         if not expiry_date:
-            logger.error("No valid expiry date found")
-            return False
-        
-        try:
-            ce_data, pe_data = self._select_options(expiry_date)
-            if not ce_data or not pe_data:
-                logger.error("Could not find valid options")
-                return False
-            
-            (ce_symbol, ce_token, ce_ltp), (pe_symbol, pe_token, pe_ltp) = ce_data, pe_data
-            
-            for leg, sym, tok, ltp in [("ce", ce_symbol, ce_token, ce_ltp), ("pe", pe_symbol, pe_token, pe_ltp)]:
-                initial_sl = math.ceil(ltp * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR
-                self.positions[leg].update({
-                    'symbol': sym,
-                    'token': tok,
-                    'entry_price': ltp,
-                    'ltp': ltp,
-                    'initial_sl': initial_sl,
-                    'current_sl': initial_sl,
-                    'sl_hit': False,
-                    'max_profit_price': ltp,
-                    'trailing_step': 0
-                })
-                logger.info(f"Virtual {leg.upper()} position: {sym} @ {ltp:.2f}, SL={initial_sl:.2f}")
-            
-            self.state = "VIRTUAL_ACTIVE"
-            ce_sl = self.positions['ce']['current_sl']
-            pe_sl = self.positions['pe']['current_sl']
-            
-            self._log_state(
-                status='VIRTUAL_ACTIVE',
-                comments='Virtual positions opened',
-                ce_sl_price=ce_sl,
-                pe_sl_price=pe_sl
-            )
-            
-            logger.info(f"Virtual positions opened: CE={ce_symbol} (SL={ce_sl:.2f}), PE={pe_symbol} (SL={pe_sl:.2f})")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Virtual position setup failed: {str(e)}")
-            return False
-
-    def _find_hedge_strike_directional(self, main_strike, option_type, expiry_date_str):
-        """Find hedge strike by searching directionally from main strike"""
-        try:
-            logger.info(f"Finding hedge strike for {option_type} from main strike {main_strike}")
-            if not os.path.exists("NFO_symbols.txt"):
-                logger.error("NFO_symbols.txt file not found")
-                return None, None
-            
-            df = pd.read_csv("NFO_symbols.txt")
-            
-            df = df[
-                (df["Instrument"].str.strip() == "OPTIDX") & 
-                (df["Symbol"].str.strip() == "NIFTY") & 
-                (df["Expiry"].str.strip().str.upper() == expiry_date_str)
-            ]
-            
-            if df.empty:
-                logger.error(f"No NIFTY options found for expiry {expiry_date_str}")
-                return None, None
-            
-            all_strikes = df[df['OptionType'] == option_type]['StrikePrice'].unique()
-            all_strikes = sorted(all_strikes)
-            
-            if option_type == 'CE':
-                search_strikes = [s for s in all_strikes if s > main_strike]
-                search_strikes.sort()
-                search_direction = "upward"
-            else:
-                search_strikes = [s for s in all_strikes if s < main_strike]
-                search_strikes.sort(reverse=True)
-                search_direction = "downward"
-            
-            logger.info(f"Searching {search_direction} from {main_strike} for {option_type} hedge")
-            
-            search_strikes = [s for s in search_strikes if abs(s - main_strike) <= self.HEDGE_MAX_SEARCH_DISTANCE]
-            
-            best_strike = None
-            best_ltp = float('inf')
-            
-            for strike in search_strikes:
-                option_data = df[(df['StrikePrice'] == strike) & (df['OptionType'] == option_type)]
-                if not option_data.empty:
-                    symbol = option_data.iloc[0]['TradingSymbol']
-                    token = option_data.iloc[0]['Token']
-                    ltp = self._get_option_ltp(symbol)
-                    
-                    if self.HEDGE_PRICE_RANGE[0] <= ltp <= self.HEDGE_PRICE_RANGE[1]:
-                        if ltp < best_ltp:
-                            best_ltp = ltp
-                            best_strike = strike
-                            logger.debug(f"Found better {option_type} hedge strike: {strike} @ {ltp}")
-                    else:
-                        logger.debug(f"Strike {strike} {option_type}: {ltp} (outside range)")
-            
-            if best_strike:
-                logger.info(f"Selected {option_type} hedge strike: {best_strike} @ {best_ltp} (lowest price)")
-                return best_strike, best_ltp
-            else:
-                logger.warning(f"No {option_type} hedge strike found in price range {self.HEDGE_PRICE_RANGE}")
-                return None, None
-            
-        except Exception as e:
-            logger.error(f"Error finding {option_type} hedge strike: {str(e)}")
-            return None, None
-
-    def _get_option_symbol_from_chain(self, strike, option_type, expiry_date_str):
-        """Get the correct trading symbol from option chain"""
-        try:
-            logger.info(f"Getting symbol for {option_type} strike {strike}")
-            if not os.path.exists("NFO_symbols.txt"):
-                logger.error("NFO_symbols.txt file not found")
-                return None, None
-            
-            df = pd.read_csv("NFO_symbols.txt")
-            
-            strike_float = float(strike)
-            
-            option_data = df[
-                (df['StrikePrice'] == strike_float) & 
-                (df['OptionType'] == option_type) &
-                (df["Instrument"].str.strip() == "OPTIDX") & 
-                (df["Symbol"].str.strip() == "NIFTY") & 
-                (df["Expiry"].str.strip().str.upper() == expiry_date_str)
-            ]
-            
-            if not option_data.empty:
-                symbol = option_data.iloc[0]['TradingSymbol']
-                token = option_data.iloc[0]['Token']
-                logger.info(f"Found symbol {symbol} for {option_type} strike {strike}")
-                return symbol, token
-            
-            logger.warning(f"No symbol found for {option_type} strike {strike}")
-            return None, None
-            
-        except Exception as e:
-            logger.error(f"Error getting symbol from chain: {str(e)}")
-            return None, None
-
-    def _get_current_expiry(self):
-        """Get current or next week expiry based on today and dropdown list"""
-        try:
-            today = datetime.now().date()
-            expiry_dates = []
-            logger.info(f"Getting expiry dates from dropdown, today is {today}")
-            
-            for i in range(self.ui.ExpiryListDropDown.count()):
-                expiry_str = self.ui.ExpiryListDropDown.itemText(i)
-                try:
-                    expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
-                    if expiry_date >= today:
-                        expiry_dates.append(expiry_date)
-                        logger.debug(f"Found valid expiry date: {expiry_date}")
-                except ValueError:
-                    logger.warning(f"Could not parse expiry date: {expiry_str}")
-                    continue
-                    
-            if not expiry_dates:
-                logger.error("No valid expiry dates found in dropdown")
-                return None
-                
-            expiry_dates.sort()
-            weekday = today.weekday()
-            
-            if weekday in [2, 3]:
-                selected_expiry = expiry_dates[0]
-                logger.info(f"Wednesday/Thursday detected, selecting current week expiry: {selected_expiry}")
-            else:
-                if len(expiry_dates) > 1:
-                    selected_expiry = expiry_dates[1]
-                    logger.info(f"Other weekday detected, selecting next week expiry: {selected_expiry}")
-                else:
-                    logger.warning("No next week expiry available, using current week")
-                    selected_expiry = expiry_dates[0]
-                    
-            return selected_expiry
-            
-        except Exception as e:
-            logger.error(f"Error getting current expiry: {str(e)}")
-            return None
-
-    # ---------------------- Option Selection ----------------------
-    @safe_log("Option selection failed")
-    def _select_options(self, expiry_date) -> Tuple[Optional[tuple], Optional[tuple]]:
-        expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
-        logger.info(f"Selecting options for expiry: {expiry_str}")
-        
-        try:
-            df = pd.read_csv("NFO_symbols.txt")
-            nifty_options = df[(df["Instrument"] == "OPTIDX") & (df["Symbol"] == "NIFTY") & (df["Expiry"].str.strip().str.upper() == expiry_str)].copy()
-            
-            if len(nifty_options) == 0:
-                logger.error("No NIFTY options found")
-                return None, None
-            
-            current_strike = round(self.current_close/100)*100
-            lower_strike = current_strike - self.STRIKE_RANGE
-            upper_strike = current_strike + self.STRIKE_RANGE
-            
-            logger.info(f"Looking for options in strike range: {lower_strike} to {upper_strike}, premium range: {self.MIN_PREMIUM} to {self.MAX_PREMIUM}")
-            
-            filtered_options = nifty_options[(nifty_options["StrikePrice"] >= lower_strike) & (nifty_options["StrikePrice"] <= upper_strike)]
-            valid_ce, valid_pe = [], []
-            
-            for _, row in filtered_options.iterrows():
-                symbol, token, opt_type = row["TradingSymbol"], str(row["Token"]), row["OptionType"].strip().upper()
-                try:
-                    # FIX: Use the token directly instead of relying on positions lookup
-                    client = self.client_manager.clients[0][2]
-                    quote = client.get_quotes('NFO', token)
-                    if not quote or quote.get('stat') != 'Ok':
-                        logger.warning(f"[SELECT] Invalid quote response for token={token}, response={quote}")
-                        continue
-                        
-                    ltp = float(quote.get('lp', 0))
-                    if not self.MIN_PREMIUM <= ltp <= self.MAX_PREMIUM:
-                        logger.debug(f"Skipping {symbol} - premium {ltp} outside range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
-                        continue
-                        
-                    (valid_ce if opt_type == "CE" else valid_pe).append((symbol, token, ltp))
-                    logger.debug(f"Valid {opt_type} found: {symbol} @ {ltp:.2f}")
-                except Exception as e:
-                    logger.warning(f"Failed to get quote for {symbol}: {str(e)}")
-                    continue
-            
-            if not valid_ce:
-                logger.error(f"No valid CE options found in premium range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
-            if not valid_pe:
-                logger.error(f"No valid PE options found in premium range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
-                
-            if not valid_ce or not valid_pe:
-                return None, None
-            
-            ce_selected = max(valid_ce, key=lambda x: x[2])
-            pe_selected = max(valid_pe, key=lambda x: x[2])
-            logger.info(f"Selected CE: {ce_selected[0]} @ {ce_selected[2]:.2f}, PE: {pe_selected[0]} @ {pe_selected[2]:.2f}")
-            return ce_selected, pe_selected
-            
-        except Exception as e:
-            logger.error(f"Option selection failed: {str(e)}")
-            return None, None
-
-    # ---------------------- Monitoring ----------------------
-    def _monitor_trend_and_positions(self):
-        if not self._get_market_data():
-            logger.error("Failed to get market data for trend monitoring")
+            logger.error("No expiry available for entry cycle.")
             return
-            
-        current_time = ISTTimeUtils.current_time()
-        current_trend = 'up' if self.current_close > self.current_ma12 else 'down'
-        
-        if ((current_time.minute in self.MONITORING_MINUTES) and 
-            time(10, 0) <= current_time <= time(15, 15) and current_time.second < 10):
-            self._log_state(
-                status=self.state,
-                comments=f"Scheduled monitoring at {current_time.strftime('%H:%M')}",
-                ce_sl_price=self.positions['ce'].get('current_sl'),
-                pe_sl_price=self.positions['pe'].get('current_sl'),
-                trend=current_trend
-            )
-            
-        if current_trend != self.current_trend:
-            logger.info(f"Trend changed from {self.current_trend} to {current_trend}")
-            self._exit_all_positions(reason="Trend reversal")
-            self.state = "WAITING"
-            self._log_state(status=self.state, comments=f"Trend changed to {current_trend}", trend=current_trend)
-            if self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME:
-                self._run_strategy_cycle()
-        elif not self._first_monitoring_logged:
-            self._log_state(
-                status=self.state,
-                comments="First monitoring check",
-                ce_sl_price=self.positions['ce'].get('current_sl'),
-                pe_sl_price=self.positions['pe'].get('current_sl'),
-                trend=current_trend
-            )
-            self._first_monitoring_logged = True
 
-    # ---------------------- SL / Exit / Entry ----------------------
-    def _monitor_stop_losses(self):
-        try:
-            logger.info("=== _monitor_stop_losses STARTED ===")
-            
-            if self.state not in ["VIRTUAL_ACTIVE", "ACTIVE"]:
-                logger.info(f"_monitor_stop_losses: State '{self.state}' not in ['VIRTUAL_ACTIVE', 'ACTIVE'] - EXITING")
-                return
-            
-            logger.info(f"_monitor_stop_losses: State '{self.state}' is valid - PROCEEDING")
-            logger.info(f"Checking {len(self.positions)} positions: CE='{self.positions['ce']['symbol']}', PE='{self.positions['pe']['symbol']}'")
-            
-            for leg in ["ce", "pe"]:
-                logger.info(f"=== Processing {leg.upper()} leg ===")
-                pos = self.positions[leg]
-                
-                if not pos["symbol"]:
-                    logger.info(f"{leg.upper()}: No symbol found - SKIPPING")
-                    continue
-                
-                logger.info(f"{leg.upper()}: Symbol exists = '{pos['symbol']}' - GETTING LTP")
-                
-                ltp = self._get_option_ltp(pos["symbol"])
-                logger.info(f"{leg.upper()}: LTP retrieved = {ltp}")
-                
-                if ltp is None or ltp <= 0:
-                    logger.warning(f"{leg.upper()}: Invalid LTP ({ltp}) for {pos['symbol']} - SKIPPING SL check")
-                    continue
-
-                pos["ltp"] = ltp
-                logger.info(f"{leg.upper()}: LTP updated to {ltp:.2f}")
-
-                current_sl = pos.get("current_sl")
-                logger.info(f"{leg.upper()}: Current SL = {current_sl}")
-                logger.debug(f"{leg.upper()} check → LTP={ltp:.2f}, SL={current_sl}, State={self.state}")
-
-                if current_sl is None:
-                    logger.info(f"{leg.upper()}: No current SL set - SKIPPING")
-                    continue
-
-                logger.info(f"{leg.upper()}: SL check conditions - State={self.state}, SL_Hit={pos['sl_hit']}, LTP={ltp:.2f}, SL={current_sl}")
-                logger.info(f"{leg.upper()}: LTP >= SL? {ltp >= current_sl}")
-
-                # Virtual → Real transition
-                if self.state == "VIRTUAL_ACTIVE" and not pos["sl_hit"] and ltp >= current_sl:
-                    logger.info(f"{leg.upper()}: VIRTUAL SL TRIGGERED - All conditions met!")
-                    logger.info(f"{leg.upper()} virtual SL HIT → LTP={ltp:.2f}, SL={current_sl}")
-                    opposite_leg = "pe" if leg == "ce" else "ce"
-                    logger.info(f"{leg.upper()}: Calling _enter_real_leg for opposite leg: {opposite_leg}")
-                    self._enter_real_leg(opposite_leg)
-                    logger.info(f"{leg.upper()}: Returning after virtual SL hit")
-                    return
-                else:
-                    logger.info(f"{leg.upper()}: Virtual SL NOT triggered - State check: {self.state == 'VIRTUAL_ACTIVE'}, SL hit check: {not pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
-                
-                logger.debug(
-                    f"[SL CHECK] Leg={leg.upper()}, Symbol={pos['symbol']}, "
-                    f"LTP={ltp:.2f}, SL={current_sl}, State={self.state}, SL_Hit={pos['sl_hit']}"
-                )
-                
-                # Active SL exit
-                logger.info(f"{leg.upper()}: Checking ACTIVE SL conditions - State={self.state}, SL_Hit={pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
-                if self.state == "ACTIVE" and not pos["sl_hit"] and ltp >= current_sl:
-                    logger.info(f"{leg.upper()}: ACTIVE SL TRIGGERED - All conditions met!")
-                    logger.info(f"{leg.upper()} REAL SL HIT → LTP={ltp:.2f}, SL={current_sl}")
-                    logger.info(f"{leg.upper()}: Calling _exit_position")
-                    self._exit_position(leg, ltp)
-                else:
-                    logger.info(f"{leg.upper()}: Active SL NOT triggered - State check: {self.state == 'ACTIVE'}, SL hit check: {not pos['sl_hit']}, LTP>=SL: {ltp >= current_sl}")
-
-            logger.info("=== _monitor_stop_losses COMPLETED all legs ===")
-
-        except Exception as e:
-            logger.error(f"=== _monitor_stop_losses FAILED with exception ===")
-            logger.error(f"SL monitoring failed: {str(e)}")
-            logger.error(f"Exception details: {traceback.format_exc()}")
-
-
-    def _exit_position(self, leg: str, ltp: float):
-        """Exit only SELL positions, keep hedge positions alive"""
-        pos = self.positions[leg]
-        if not pos['symbol']:
-            logger.warning(f"No {leg.upper()} position to exit")
-            return
-            
-        try:
-            if self._place_order(pos['symbol'], pos['token'], 'BUY'):
-                logger.info(f"{leg.upper()} SL Hit at {ltp:.2f}")
-                self.positions[leg] = self._empty_position()
-                self._log_state(
-                    status="ACTIVE",
-                    comments=f"{leg.upper()} SL Hit at {ltp:.2f}",
-                    **{f"{leg}_monitoring": 'Stopped'}
-                )
-            else:
-                logger.error(f"Failed to exit {leg} position")
-        except Exception as e:
-            logger.error(f"Error exiting {leg} position: {str(e)}")
-
-    def _exit_all_positions(self, reason: str = ""):
-        """Exit all positions including hedge positions at market end"""
-        logger.info(f"Exiting all positions: {reason}")
-        all_closed = True
-        
-        try:
-            client = self.client_manager.clients[0][2]
-            broker_positions = client.get_positions()
-            
-            # Handle different response formats
-            if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                broker_positions_data = broker_positions.get('data', [])
-            elif isinstance(broker_positions, list):
-                broker_positions_data = broker_positions  # Direct list response
-            else:
-                broker_positions_data = []
-        except Exception as e:
-            logger.error(f"Failed to get broker positions: {str(e)}")
-            broker_positions_data = []
-        
-        for leg in ['ce', 'pe']:
-            pos = self.positions[leg]
-            if not pos['symbol']:
-                logger.debug(f"No {leg.upper()} position to exit")
-                continue
-                
-            position_exists = False
-            for bp in broker_positions_data:
-                if (bp.get('tsym') == pos['symbol'] and 
-                    str(bp.get('token')) == str(pos['token']) and
-                    float(bp.get('netqty', 0)) != 0):
-                    position_exists = True
-                    break
-            
-            if not position_exists:
-                logger.info(f"{leg.upper()} position not found in broker - already closed?")
-                self.positions[leg] = self._empty_position()
-                continue
-                
-            try:
-                if self._place_order(pos['symbol'], pos['token'], 'BUY'):
-                    logger.info(f"Successfully exited {leg.upper()} position")
-                    self.positions[leg] = self._empty_position()
-                else:
-                    logger.error(f"Failed to exit {leg.upper()} position")
-                    all_closed = False
-            except Exception as e:
-                logger.error(f"Error exiting {leg.upper()} position: {str(e)}")
-                all_closed = False
-        
-        # Exit hedge positions
-        for leg in ['ce', 'pe']:
-            pos = self.hedge_positions[leg]
-            if not pos['symbol']:
-                continue
-                
-            try:
-                if self._place_order(pos['symbol'], pos['token'], 'SELL'):
-                    logger.info(f"Successfully exited {leg.upper()} hedge position")
-                    self.hedge_positions[leg] = self._empty_position()
-                else:
-                    logger.error(f"Failed to exit {leg.upper()} hedge position")
-                    all_closed = False
-            except Exception as e:
-                logger.error(f"Error exiting {leg.upper()} hedge position: {str(e)}")
-                all_closed = False
-        
-        if all_closed:
-            self.state = "COMPLETED"
-            self._log_state(status=self.state, comments=f"All positions closed: {reason}")
-            logger.info(f"All positions closed successfully: {reason}")
+        # 1) Setup virtual main positions
+        ok = self._setup_virtual_positions(expiry_date)
+        if ok:
+            self.state = "VIRTUAL"
+            self._log_state("VIRTUAL", "Virtual CE & PE created")
+            logger.info("Virtual CE & PE created. Now monitoring for virtual SL hit.")
         else:
-            logger.warning("Some positions may not have been closed properly")
+            # If not found both, remain WAIT_FOR_MAIN, hedges not placed
+            self.state = "WAIT_FOR_MAIN"
+            self._log_state("WAIT_FOR_MAIN", "Hedges not taken; waiting for main legs to satisfy premium range")
+            logger.info("Could not create both virtual legs; state WAIT_FOR_MAIN.")
 
-    def _enter_real_leg(self, leg: str):
-        """Enter real position for the opposite leg when virtual SL is hit"""
+    # -------------------- Virtual setup --------------------
+    def _setup_virtual_positions(self, expiry_date) -> bool:
+        """
+        Find CE & PE in PREMIUM_RANGE and set them as virtual SELL legs (internal only).
+        Returns True when both CE & PE virtual legs are present.
+        """
         try:
-            pos = self.positions[leg]
-            if not pos['symbol']:
-                logger.error(f"No virtual position found for {leg.upper()}")
-                return False
-                
-            # Place SELL order for the opposite leg
-            if self._place_order(pos['symbol'], pos['token'], 'SELL'):
-                logger.info(f"Real {leg.upper()} position entered: {pos['symbol']}")
-                self.state = "ACTIVE"
-                
-                # Enter hedge position for the same leg
-                hedge_symbol, hedge_token, hedge_ltp = self._find_hedge_option(leg, pos['symbol'])
-                if hedge_symbol and hedge_token:
-                    if self._place_order(hedge_symbol, hedge_token, 'BUY'):
-                        self.hedge_positions[leg].update({
-                            'symbol': hedge_symbol,
-                            'token': hedge_token,
-                            'entry_price': hedge_ltp,
-                            'ltp': hedge_ltp
-                        })
-                        logger.info(f"Hedge {leg.upper()} position entered: {hedge_symbol} @ {hedge_ltp}")
-                
-                self._log_state(
-                    status=self.state,
-                    comments=f"Real {leg.upper()} position entered",
-                    **{f"{leg}_monitoring": 'Active'}
-                )
-                return True
-            else:
-                logger.error(f"Failed to enter real {leg.upper()} position")
-                return False
-                
+            logger.info("Searching for main options in premium range %s for expiry %s", PREMIUM_RANGE, expiry_date)
+            found = {}
+            for opt_type, leg in [('CE', 'ce'), ('PE', 'pe')]:
+                symbol, token, ltp = self._find_option_by_price(expiry_date, opt_type, PREMIUM_RANGE)
+                if symbol:
+                    initial_sl = round_sl(ltp * INITIAL_SL_MULTIPLIER)
+                    self.positions[leg].update({
+                        'symbol': symbol, 'token': token, 'entry_price': ltp,
+                        'ltp': ltp, 'initial_sl': initial_sl, 'current_sl': initial_sl,
+                        'max_profit_price': ltp, 'trailing_step': 0, 'real_entered': False, 'sl_hit': False
+                    })
+                    logger.info("Virtual %s prepared: %s @ %s, SL=%s", leg.upper(), symbol, ltp, initial_sl)
+                    found[leg] = True
+                else:
+                    logger.debug("No %s found in premium range yet.", opt_type)
+                    found[leg] = False
+            return bool(found.get('ce') and found.get('pe'))
         except Exception as e:
-            logger.error(f"Error entering real {leg.upper()} position: {str(e)}")
+            logger.error("_setup_virtual_positions failed: %s\n%s", e, traceback.format_exc())
             return False
 
-    def _find_hedge_option(self, leg: str, main_symbol: str):
-        """Find hedge option for the given leg"""
+    # -------------------- Monitor --------------------
+    def _monitor_all(self):
+        """
+        Frequent monitoring loop invoked by monitor_timer (~every 10 seconds).
+        - Checks virtual SL triggers
+        - If ACTIVE, checks real positions and trailing SL
+        - If WAIT_FOR_MAIN, attempts to find main legs again
+        """
+        now = ISTTimeUtils.current_time()
+        # If outside trading hours skip most checks; let EOD handle exit in main timer
+        if not (TRADING_START_TIME <= now <= TRADING_END_TIME):
+            return
+
+        if self.state == "WAIT_FOR_MAIN":
+            # attempt to find main legs repeatedly while hedges not taken
+            expiry_date = self._get_current_expiry()
+            if expiry_date:
+                ok = self._setup_virtual_positions(expiry_date)
+                if ok:
+                    self.state = "VIRTUAL"
+                    self._log_state("VIRTUAL", "Main legs found during WAIT_FOR_MAIN")
+                    logger.info("Main legs found during WAIT_FOR_MAIN; state -> VIRTUAL")
+
+        elif self.state == "VIRTUAL":
+            self._monitor_virtual_sl()
+
+        elif self.state == "ACTIVE":
+            # monitor active real positions for SL/trailing
+            self._monitor_active_positions()
+            # also validate broker positions existence and reconcile
+            self._validate_active_positions_exist()
+
+    def _monitor_virtual_sl(self):
+        """
+        Examine LTP for virtual legs. If LTP >= current SL for any virtual leg:
+         - determine opposite leg (if PE virtual hit -> opposite CE)
+         - attempt to activate opposite side real position using _activate_opposite_real_position
+        """
         try:
-            if not os.path.exists("NFO_symbols.txt"):
-                logger.error("NFO_symbols.txt file not found")
-                return None, None, None
-                
-            df = pd.read_csv("NFO_symbols.txt")
-            
-            # Extract strike from main symbol
-            main_strike = None
-            for part in main_symbol.split('-'):
-                if part.isdigit():
-                    main_strike = int(part)
-                    break
-                    
-            if not main_strike:
-                logger.error(f"Could not extract strike from {main_symbol}")
-                return None, None, None
-                
+            for leg in ['ce', 'pe']:
+                pos = self.positions[leg]
+                if not pos['symbol']:
+                    continue
+                ltp = self._get_option_ltp(pos['symbol'])
+                if ltp is None:
+                    continue
+                pos['ltp'] = ltp
+                logger.debug("Virtual %s LTP=%s SL=%s", leg.upper(), ltp, pos['current_sl'])
+                if not pos.get('sl_hit', False) and ltp >= pos.get('current_sl', float('inf')):
+                    logger.info("Virtual %s SL hit: LTP=%s >= SL=%s - preparing to activate opposite side real position", leg.upper(), ltp, pos.get('current_sl'))
+                    opposite_leg = 'pe' if leg == 'ce' else 'ce'
+                    # Activation will re-scan for fresh main symbol in PREMIUM_RANGE, find hedge in HEDGE_RANGE,
+                    # and place hedge BUY & main SELL in a safe paired manner.
+                    self._activate_opposite_real_position(opposite_leg)
+                    # once we handled one virtual SL, stop processing until next monitor tick
+                    return
+        except Exception as e:
+            logger.error("_monitor_virtual_sl failed: %s\n%s", e, traceback.format_exc())
+
+    # -------------------- Activation: re-scan + hedge + sell --------------------
+    def _activate_opposite_real_position(self, leg: str) -> bool:
+        """
+        When one virtual leg's SL triggers, activate opposite-side real position.
+        Steps:
+            1) Re-scan for a fresh main symbol for 'leg' in PREMIUM_RANGE.
+               If not found -> abort.
+            2) Find hedge for 'leg' in HEDGE_RANGE (5-15).
+               If not found -> abort.
+            3) Place hedge BUY then place main SELL back-to-back.
+               If SELL fails after hedge placed -> exit hedge immediately (SELL hedge).
+        Returns True if activation succeeded (hedge placed & main sell placed), False otherwise.
+        """
+        try:
             expiry_date = self._get_current_expiry()
             if not expiry_date:
-                return None, None, None
-                
-            expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
-            
-            # Find hedge strike
-            hedge_strike, hedge_ltp = self._find_hedge_strike_directional(
-                main_strike, leg.upper(), expiry_str
-            )
-            
-            if not hedge_strike:
-                logger.error(f"Could not find hedge strike for {leg.upper()}")
-                return None, None, None
-                
-            # Get hedge symbol
-            hedge_symbol, hedge_token = self._get_option_symbol_from_chain(
-                hedge_strike, leg.upper(), expiry_str
-            )
-            
-            if not hedge_symbol:
-                logger.error(f"Could not find hedge symbol for strike {hedge_strike}")
-                return None, None, None
-                
-            return hedge_symbol, hedge_token, hedge_ltp
-            
-        except Exception as e:
-            logger.error(f"Error finding hedge option: {str(e)}")
-            return None, None, None
+                logger.error("No expiry available; cannot activate real position.")
+                return False
 
-    def _update_trailing_sl(self, leg: str, current_ltp: float):
-        """Update trailing stop loss based on profit percentage"""
+            # Step 1: Re-scan for fresh main (70-100) for this leg
+            main_symbol, main_token, main_ltp = self._find_option_by_price(expiry_date, leg.upper(), PREMIUM_RANGE)
+            if not main_symbol:
+                logger.warning("No fresh main %s found in PREMIUM_RANGE %s - abort activation", leg.upper(), PREMIUM_RANGE)
+                # Do NOT place hedge if no main is available
+                return False
+
+            # Step 2: Find hedge (5-15) on same leg
+            hedge_symbol, hedge_token, hedge_ltp = self._find_option_by_price(expiry_date, leg.upper(), HEDGE_RANGE)
+            if not hedge_symbol:
+                logger.warning("No hedge %s found in HEDGE_RANGE %s - abort activation", leg.upper(), HEDGE_RANGE)
+                return False
+
+            logger.info("Activation plan for %s: hedge=%s@%s, main(new)=%s@%s", leg.upper(), hedge_symbol, hedge_ltp, main_symbol, main_ltp)
+
+            # Step 3: Place orders back-to-back: hedge BUY then main SELL
+            hedge_ok = self._place_order(hedge_symbol, hedge_token, 'BUY')
+            sell_ok = False
+            if hedge_ok:
+                logger.info("Hedge BUY placed for %s (%s)", leg.upper(), hedge_symbol)
+                # place main SELL
+                sell_ok = self._place_order(main_symbol, main_token, 'SELL')
+                if sell_ok:
+                    logger.info("Main SELL placed for %s (%s)", leg.upper(), main_symbol)
+                else:
+                    logger.error("Main SELL failed for %s (%s) after hedge placed. Attempting to unwind hedge.", leg.upper(), main_symbol)
+                    # unwind hedge to avoid naked hedge
+                    try:
+                        unwind_ok = self._place_order(hedge_symbol, hedge_token, 'SELL')
+                        if unwind_ok:
+                            logger.info("Unwound hedge %s (%s) after failed main SELL.", leg.upper(), hedge_symbol)
+                        else:
+                            logger.error("Failed to unwind hedge %s after failed main SELL. Manual intervention may be required.", hedge_symbol)
+                    except Exception as e:
+                        logger.exception("Exception while trying to unwind hedge: %s", e)
+            else:
+                logger.error("Hedge BUY failed for %s (%s) - activation aborted", leg.upper(), hedge_symbol)
+
+            # record results and update positions if both succeeded
+            if hedge_ok and sell_ok:
+                # update hedge record
+                self.hedges[leg].update({'symbol': hedge_symbol, 'token': hedge_token, 'entry_price': hedge_ltp, 'ltp': hedge_ltp})
+                # update main record to reflect fresh main symbol
+                new_sl = round_sl(main_ltp * INITIAL_SL_MULTIPLIER)
+                self.positions[leg].update({
+                    'symbol': main_symbol, 'token': main_token, 'entry_price': main_ltp, 'ltp': main_ltp,
+                    'initial_sl': new_sl, 'current_sl': new_sl, 'max_profit_price': main_ltp, 'trailing_step': 0, 'real_entered': True, 'sl_hit': False
+                })
+                self.state = "ACTIVE"
+                self._log_state("ACTIVE", f"Activated real {leg.upper()} with hedge + main SELL", activated_leg=leg.upper(), main_symbol=main_symbol, hedge_symbol=hedge_symbol)
+                logger.info("Activation successful for %s: hedge and main SELL placed.", leg.upper())
+                return True
+            else:
+                logger.warning("Activation incomplete: hedge_ok=%s sell_ok=%s", hedge_ok, sell_ok)
+                return False
+
+        except Exception as e:
+            logger.error("_activate_opposite_real_position exception: %s\n%s", e, traceback.format_exc())
+            return False
+
+    # -------------------- Active monitoring --------------------
+    def _monitor_active_positions(self):
+        """
+        Monitor real-entered positions (real_entered True) for SL/trailing logic.
+        Exits position if SL hit, updates trailing SL when profit accrues.
+        """
+        try:
+            for leg in ['ce', 'pe']:
+                pos = self.positions[leg]
+                if not pos['symbol'] or not pos.get('real_entered', False):
+                    continue
+                ltp = self._get_option_ltp(pos['symbol'])
+                if ltp is None:
+                    logger.debug("No LTP for active %s (%s) - skipping SL check", leg.upper(), pos['symbol'])
+                    continue
+                pos['ltp'] = ltp
+
+                # Update max_profit_price for short position (profit when LTP falls)
+                if pos.get('max_profit_price', 0.0) == 0.0:
+                    pos['max_profit_price'] = pos['entry_price']
+                if ltp < pos.get('max_profit_price', pos['entry_price']):
+                    pos['max_profit_price'] = ltp
+
+                # trailing SL updates
+                self._update_trailing_sl(leg)
+
+                current_sl = pos.get('current_sl', None)
+                if current_sl and not pos.get('sl_hit', False) and ltp >= current_sl:
+                    logger.info("Real %s SL hit: LTP=%s >= SL=%s — exiting position", leg.upper(), ltp, current_sl)
+                    self._exit_real_position(leg, ltp)
+
+        except Exception as e:
+            logger.error("_monitor_active_positions failed: %s\n%s", e, traceback.format_exc())
+
+    def _update_trailing_sl(self, leg: str):
+        """
+        Update trailing SL for a short position based on profit thresholds.
+        For short positions, profit increases as LTP decreases.
+        """
         try:
             pos = self.positions[leg]
             if not pos['symbol'] or pos['entry_price'] <= 0:
                 return
-                
             entry_price = pos['entry_price']
             max_profit_price = pos.get('max_profit_price', entry_price)
-            
-            if max_profit_price is None:
-                return
-                
-            profit_pct = (entry_price - max_profit_price) / entry_price
-            
-            # Find the appropriate trailing step
+            profit_frac = (entry_price - max_profit_price) / entry_price
             new_step = 0
-            for i, step_pct in enumerate(self.TRAILING_SL_STEPS):
-                if profit_pct >= step_pct:
+            for i, threshold in enumerate(TRAILING_SL_STEPS):
+                if profit_frac >= threshold:
                     new_step = i + 1
-            
             current_step = pos.get('trailing_step', 0)
-            
             if new_step > current_step:
-                # Calculate new SL based on step
-                sl_multiplier = 1.0 - (0.05 * new_step)  # 5% reduction per step
-                new_sl = math.ceil(entry_price * sl_multiplier * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR
-                
+                sl_multiplier = 1.0 - (0.05 * new_step)
+                new_sl = round_sl(entry_price * sl_multiplier)
                 pos['current_sl'] = new_sl
                 pos['trailing_step'] = new_step
-                
-                logger.info(f"{leg.upper()} trailing SL updated to step {new_step}: {new_sl:.2f}")
-                self._log_state(
-                    status=self.state,
-                    comments=f"{leg.upper()} trailing SL updated to {new_sl:.2f}",
-                    **{f"{leg}_sl_price": new_sl}
-                )
-                
+                logger.info("Trailing SL updated for %s to %s at step %s", leg.upper(), new_sl, new_step)
+                self._log_state("ACTIVE", f"{leg.upper()} trailing SL updated to {new_sl}", trailing_step=new_step)
         except Exception as e:
-            logger.error(f"Error updating trailing SL for {leg}: {str(e)}")
+            logger.error("_update_trailing_sl error for %s: %s\n%s", leg, e, traceback.format_exc())
 
-    # ---------------------- Order Placement ----------------------
-    def _place_order(self, symbol: str, token: str, action: str) -> bool:
-        """Place order through client manager"""
+    def _exit_real_position(self, leg: str, ltp: float):
+        """
+        Exit only the real main SELL position (buy to close). Hedge remains unless user chooses to close it.
+        """
         try:
-            if not symbol or not token:
-                logger.error("Invalid symbol or token for order placement")
+            pos = self.positions[leg]
+            if not pos['symbol']:
+                logger.warning("No real %s position to exit", leg)
                 return False
-                
-            client = self.client_manager.clients[0][2]
-            if not client:
-                logger.error("No client available for order placement")
-                return False
-                
-            # Get current LTP for better order placement
-            ltp = self._get_option_ltp(symbol)
-            if not ltp:
-                logger.warning(f"Could not get LTP for {symbol}, using default price")
-                ltp = 100  # Default fallback
-            
-            # Adjust price for market orders
-
-            price = ltp 
-            
-            price = round(price, 1)
-            shoonya_action = 'B' if action.upper() == 'BUY' else 'S'
-            
-            client = self.client_manager.clients[0][2]
-            logger.info(f"Placing {action} order for {symbol}")
-            
-            order_result = client.place_order(
-                            buy_or_sell=shoonya_action,
-                            product_type='M',
-                            exchange='NFO',
-                            tradingsymbol=symbol,
-                            quantity=75,
-                            discloseqty=0,
-                            price_type='MKT',
-                            price=0.0,
-                            trigger_price=None,
-                            retention='DAY',
-                            remarks=f"IBBM_{action.upper()}_{symbol}"
-                        )
-            
-            if order_result and order_result.get('stat') == 'Ok':
-                logger.info(f"Order placed successfully: {action} {symbol} @ {price}")
+            ok = self._place_order(pos['symbol'], pos['token'], 'BUY')
+            if ok:
+                pos['sl_hit'] = True
+                pos['real_entered'] = False
+                logger.info("%s real position exited @ %s", leg.upper(), ltp)
+                self._log_state("STOPPED_OUT", f"{leg.upper()} SL hit at {ltp}", leg=leg.upper(), exit_ltp=ltp)
+                # if both real legs closed -> state STOPPED_OUT
+                both_closed = all(not self.positions[l]['real_entered'] for l in ['ce', 'pe'])
+                if both_closed:
+                    self.state = "STOPPED_OUT"
+                    logger.info("Both real legs closed -> STATE STOPPED_OUT")
                 return True
             else:
-                logger.error(f"Order failed: {order_result}")
+                logger.error("Failed to exit real position %s via BUY", pos['symbol'])
                 return False
-                
         except Exception as e:
-            logger.error(f"Order placement error for {symbol}: {str(e)}")
+            logger.error("_exit_real_position exception: %s\n%s", e, traceback.format_exc())
             return False
 
-    # ---------------------- Utility Methods ----------------------
-    def _get_option_ltp(self, symbol: str) -> Optional[float]:
-        """Get LTP for an option symbol"""
+    # -------------------- Exit all positions (EOD / manual) --------------------
+    def _exit_all_positions(self, reason: str = ""):
+        """
+        Exit every open main and hedge position. Used at EOD or for final shutdown.
+        Main real positions are bought to close; hedges are sold to close.
+        """
+        logger.info("Exiting all positions: %s", reason)
+        all_closed_successfully = True
+
+        # exit main legs (BUY)
+        for leg in ['ce', 'pe']:
+            pos = self.positions[leg]
+            if pos['symbol'] and pos.get('real_entered', False):
+                try:
+                    ok = self._place_order(pos['symbol'], pos['token'], 'BUY')
+                    if ok:
+                        logger.info("Exited main %s %s", leg.upper(), pos['symbol'])
+                        self.positions[leg] = self._empty_position()
+                    else:
+                        logger.error("Failed to exit main %s %s", leg.upper(), pos['symbol'])
+                        all_closed_successfully = False
+                except Exception as e:
+                    logger.error("Exception exiting main %s: %s", leg, e)
+                    all_closed_successfully = False
+
+        # exit hedges (SELL)
+        for leg in ['ce', 'pe']:
+            hedge = self.hedges[leg]
+            if hedge['symbol']:
+                try:
+                    ok = self._place_order(hedge['symbol'], hedge['token'], 'SELL')
+                    if ok:
+                        logger.info("Exited hedge %s %s", leg.upper(), hedge['symbol'])
+                        self.hedges[leg] = self._empty_position()
+                    else:
+                        logger.error("Failed to exit hedge %s %s", leg.upper(), hedge['symbol'])
+                        all_closed_successfully = False
+                except Exception as e:
+                    logger.error("Exception exiting hedge %s: %s", leg, e)
+                    all_closed_successfully = False
+
+        if all_closed_successfully:
+            self.state = "COMPLETED"
+            self._log_state("COMPLETED", f"All closed: {reason}")
+            logger.info("All positions closed successfully.")
+        else:
+            self._log_state(self.state, f"Exit attempted but some positions may remain: {reason}")
+            logger.warning("Some positions may remain after attempted exit.")
+
+    # -------------------- Broker / Quote / Order wrappers --------------------
+    def _find_option_by_price(self, expiry_date, option_type: str, price_range: Tuple[float, float]) -> Tuple[Optional[str], Optional[str], Optional[float]]:
+        """
+        Search NFO_SYMBOLS_FILE for a symbol matching option_type and expiry, whose LTP is within price_range.
+        Returns (symbol, token, ltp) or (None, None, None)
+        """
         try:
-            if not symbol:
-                return None
-                
-            client = self.client_manager.clients[0][2]
-            if not client:
-                return None
-                
-            quote = client.get_quotes('NFO', symbol)
-            if not quote or quote.get('stat') != 'Ok':
-                return None
-                
-            ltp = float(quote.get('lp', 0))
-            return ltp if ltp > 0 else None
-            
+            if not os.path.exists(NFO_SYMBOLS_FILE):
+                logger.error("%s not found", NFO_SYMBOLS_FILE)
+                return None, None, None
+
+            expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
+            df = pd.read_csv(NFO_SYMBOLS_FILE)
+
+            opts = df[
+                (df['Instrument'].str.strip() == "OPTIDX") &
+                (df['Symbol'].str.strip() == "NIFTY") &
+                (df['Expiry'].str.strip().str.upper() == expiry_str) &
+                (df['OptionType'].str.strip().str.upper() == option_type.upper())
+            ]
+
+            if opts.empty:
+                logger.debug("No options in chain for %s expiry %s", option_type, expiry_str)
+                return None, None, None
+
+            # iterate options and find first with LTP in range
+            for _, row in opts.iterrows():
+                symbol = str(row.get('TradingSymbol', '')).strip()
+                token = str(row.get('Token', '')).strip()
+                if not symbol:
+                    continue
+                ltp = self._get_option_ltp(symbol)
+                if ltp is None:
+                    continue
+                if price_range[0] <= ltp <= price_range[1]:
+                    return symbol, token, ltp
+
+            return None, None, None
+
         except Exception as e:
-            logger.error(f"Error getting LTP for {symbol}: {str(e)}")
+            logger.error("_find_option_by_price error: %s\n%s", e, traceback.format_exc())
+            return None, None, None
+
+    def _get_option_ltp(self, symbol_or_token: str) -> Optional[float]:
+        """
+        Fetch LTP from broker get_quotes. Handle multiple shapes: direct lp, nested data, etc.
+        Return float or None.
+        """
+        try:
+            client = self._get_primary_client()
+            if not client or not symbol_or_token:
+                return None
+
+            q = None
+            try:
+                q = client.get_quotes('NFO', symbol_or_token)
+            except Exception:
+                # Some clients might require token or symbol; try as best-effort
+                try:
+                    q = client.get_quotes('NFO', symbol_or_token)
+                except Exception:
+                    q = None
+
+            if not q:
+                return None
+
+            # Shape 1: {'stat':'Ok', 'lp': 12.34}
+            if isinstance(q, dict):
+                if q.get('stat') in ['Ok', 'OK', 'ok'] and 'lp' in q and q.get('lp') is not None:
+                    try:
+                        return float(q.get('lp'))
+                    except Exception:
+                        pass
+                # Shape 2: {'data': {'TOKEN': {'lp': x, ...}}}
+                if 'data' in q and isinstance(q['data'], dict):
+                    if symbol_or_token in q['data'] and isinstance(q['data'][symbol_or_token], dict):
+                        inner = q['data'][symbol_or_token]
+                        if 'lp' in inner and inner.get('lp') is not None:
+                            return float(inner.get('lp'))
+                    # fallback: pick first nested entry with lp
+                    for v in q['data'].values():
+                        if isinstance(v, dict) and 'lp' in v and v.get('lp') is not None:
+                            return float(v.get('lp'))
+
             return None
 
-    def _validate_positions(self, update_prices: bool = False):
-        """Validate positions with broker and update if needed"""
-        try:
-            client = self.client_manager.clients[0][2]
-            broker_positions = client.get_positions()
-            
-            if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                broker_positions = broker_positions['data']
-            
-            for leg in ['ce', 'pe']:
-                pos = self.positions[leg]
-                if not pos['symbol']:
-                    continue
-                    
-                found = False
-                for bp in broker_positions:
-                    if (bp.get('tsym') == pos['symbol'] and 
-                        str(bp.get('token')) == str(pos['token']) and
-                        float(bp.get('netqty', 0)) != 0):
-                        found = True
-                        if update_prices:
-                            pos['entry_price'] = float(bp.get('avgprc', 0))
-                            pos['ltp'] = self._get_option_ltp(pos['symbol']) or pos['ltp']
-                        break
-                
-                if not found:
-                    raise ValueError(f"{leg.upper()} position not found in broker: {pos['symbol']}")
-                    
         except Exception as e:
-            logger.error(f"Position validation failed: {str(e)}")
-            raise
+            logger.debug("_get_option_ltp error for %s: %s", symbol_or_token, e)
+            return None
 
-    def _check_manual_exits(self):
-        """Check if positions have been manually exited"""
+    def _place_order(self, symbol: str, token: str, action: str) -> bool:
+        """
+        Place a market order. For Shoonya-like API: buy_or_sell 'B' or 'S'.
+        Accept different success shapes in response.
+        Returns True on success, False on failure.
+        """
         try:
-            logger.info("=== _check_manual_exits STARTED ===")
-            
-            client = self.client_manager.clients[0][2]
-            logger.info("Getting broker positions...")
-            broker_positions = client.get_positions()
-            logger.info(f"Raw broker positions response: {type(broker_positions)} - {broker_positions}")
-            
-            if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                broker_positions = broker_positions['data']
-                logger.info("Extracted positions from 'data' key")
-            else:
-                logger.info("Using broker positions as-is (not a dict with 'data' key)")
-            
-            logger.info(f"Number of broker positions to check: {len(broker_positions)}")
-            
-            # Log all broker positions for debugging
-            for i, bp in enumerate(broker_positions):
-                logger.info(f"Broker position {i}: tsym='{bp.get('tsym')}', token='{bp.get('token')}', netqty='{bp.get('netqty', 0)}'")
-            
-            for leg in ['ce', 'pe']:
-                logger.info(f"=== Checking {leg.upper()} leg ===")
-                pos = self.positions[leg]
-                
-                if not pos['symbol']:
-                    logger.info(f"{leg.upper()}: No symbol in strategy positions - SKIPPING")
-                    continue
-                    
-                logger.info(f"{leg.upper()}: Strategy position - symbol='{pos['symbol']}', token='{pos.get('token')}'")
-                
-                found = False
-                match_details = []
-                
-                for i, bp in enumerate(broker_positions):
-                    bp_tsym = bp.get('tsym')
-                    bp_token = str(bp.get('token'))
-                    bp_netqty = float(bp.get('netqty', 0))
-                    pos_token = str(pos.get('token'))
-                    
-                    symbol_match = bp_tsym == pos['symbol']
-                    token_match = bp_token == pos_token
-                    netqty_nonzero = bp_netqty != 0
-                    
-                    match_info = f"Broker pos {i}: tsym='{bp_tsym}' vs '{pos['symbol']}'={symbol_match}, "
-                    match_info += f"token='{bp_token}' vs '{pos_token}'={token_match}, "
-                    match_info += f"netqty={bp_netqty} (nonzero={netqty_nonzero})"
-                    
-                    match_details.append(match_info)
-                    
-                    if symbol_match and token_match and netqty_nonzero:
-                        found = True
-                        logger.info(f"{leg.upper()}: POSITION FOUND - {match_info}")
-                        break
-                
-                # Log all match attempts for this leg
-                for detail in match_details:
-                    logger.debug(f"{leg.upper()}: {detail}")
-                
-                if not found:
-                    logger.warning(f"{leg.upper()}: POSITION NOT FOUND in broker - marking as manually exited: {pos['symbol']}")
-                    logger.warning(f"{leg.upper()}: Strategy had token: {pos.get('token')}")
-                    self.positions[leg] = self._empty_position()
-                else:
-                    logger.info(f"{leg.upper()}: Position validated successfully")
-                        
-            logger.info("=== _check_manual_exits COMPLETED ===")
-            
-        except Exception as e:
-            logger.error(f"=== _check_manual_exits FAILED ===")
-            logger.error(f"Manual exit check failed: {str(e)}")
-            logger.error(f"Exception details: {traceback.format_exc()}")
-    def _validate_api_connection(self) -> bool:
-        """Validate that API connection is working before making requests"""
-        try:
-            logger.debug("Validating API connection")
-            client = self.client_manager.clients[0][2]
-            # Simple test call to check connectivity
-            test_quote = client.get_quotes('NSE', '26000')
-            if test_quote is None:
-                logger.error("API connection failed - no response")
+            client = self._get_primary_client()
+            if not client:
+                logger.error("No trading client available to place order")
                 return False
-            logger.debug("API connection validated successfully")
+
+            sh_action = 'B' if action.upper() == 'BUY' else 'S'
+            try:
+                order_res = client.place_order(
+                    buy_or_sell=sh_action,
+                    product_type=ORDER_PRODUCT_TYPE,
+                    exchange=ORDER_EXCHANGE,
+                    tradingsymbol=symbol,
+                    quantity=LOT_SIZE,
+                    discloseqty=0,
+                    price_type='MKT',
+                    price=0.0,
+                    trigger_price=None,
+                    retention='DAY',
+                    remarks=f"{STRATEGY_NAME}_{action.upper()}_{symbol}"
+                )
+            except Exception as e:
+                logger.error("Broker place_order raised exception: %s", e)
+                return False
+
+            if not order_res:
+                return False
+
+            # Interpret common success shapes
+            if isinstance(order_res, dict):
+                if order_res.get('stat') in ['Ok', 'OK', 'ok']:
+                    return True
+                if order_res.get('status', '').lower() in ['success', 'ok']:
+                    return True
+                # Some clients return nested 'data' => accept as success
+                return True
+            if isinstance(order_res, bool):
+                return order_res
+            # default: treat truthy response as success
             return True
+
         except Exception as e:
-            logger.error(f"API connection validation failed: {str(e)}")
+            logger.error("_place_order failed: %s\n%s", e, traceback.format_exc())
             return False
 
-    # ---------------------- Logging ----------------------
-    def _log_state(self, status: str, comments: str = "", **kwargs):
-        """Log strategy state to CSV file"""
+    def _get_broker_positions(self) -> List[Dict[str, Any]]:
+        """
+        Get positions from broker client and return as a list of dicts, tolerant to shapes.
+        """
         try:
-            current_time = ISTTimeUtils.now()
-            log_data = {
-                'timestamp': current_time.strftime("%Y-%m-%d %H:%M:%S"),
+            client = self._get_primary_client()
+            if not client:
+                return []
+            res = client.get_positions()
+            if not res:
+                return []
+            if isinstance(res, dict) and 'data' in res:
+                data = res['data']
+                if isinstance(data, list):
+                    return data
+                if isinstance(data, dict):
+                    # convert dict values to list
+                    return list(data.values())
+            if isinstance(res, list):
+                return res
+            return []
+        except Exception as e:
+            logger.warning("Failed to get broker positions: %s", e)
+            return []
+
+
+
+    def _get_primary_client(self):
+        """Return primary trading client if configured and accessible."""
+        try:
+            if self.client_manager and hasattr(self.client_manager, "clients") and self.client_manager.clients:
+                return self.client_manager.clients[0][2]
+        except Exception:
+            logger.exception("Error fetching primary client")
+        return None
+
+    # -------------------- Validation & reconciliation --------------------
+    def _validate_active_positions_exist(self):
+        """
+        If we are in ACTIVE but broker shows no positions for our main legs,
+        reset to WAITING or STOPPED_OUT based on ALLOW_REENTRY_AFTER_STOP.
+        """
+        try:
+            if self.state != "ACTIVE":
+                return
+            broker_positions = self._get_broker_positions()
+            found_ce = any(self._is_symbol_in_pos(self.positions['ce']['symbol'], bp) for bp in broker_positions) if self.positions['ce']['symbol'] else False
+            found_pe = any(self._is_symbol_in_pos(self.positions['pe']['symbol'], bp) for bp in broker_positions) if self.positions['pe']['symbol'] else False
+
+            if not found_ce and not found_pe:
+                logger.info("ACTIVE state but no broker positions found for CE/PE.")
+                if ALLOW_REENTRY_AFTER_STOP:
+                    logger.info("ALLOW_REENTRY_AFTER_STOP True -> resetting to WAITING.")
+                    self._reset_all_positions()
+                    self.state = "WAITING"
+                    self._log_state("WAITING", "Auto-reset: ACTIVE but no broker positions")
+                else:
+                    logger.info("ALLOW_REENTRY_AFTER_STOP False -> marking STOPPED_OUT.")
+                    self._reset_all_positions()
+                    self.state = "STOPPED_OUT"
+                    self._log_state("STOPPED_OUT", "No broker positions found; staying STOPPED_OUT")
+        except Exception as e:
+            logger.error("_validate_active_positions_exist error: %s\n%s", e, traceback.format_exc())
+
+    # -------------------- Expiry helper --------------------
+    def _get_current_expiry(self):
+        """
+        Get current expiry from UI dropdown. The UI dropdown is expected to have entries in 'DD-Mon-YYYY'.
+        If UI is absent, returns None (caller should provide expiry in that case).
+        """
+        try:
+            if not self.ui or not hasattr(self.ui, 'ExpiryListDropDown'):
+                logger.debug("ExpiryListDropDown not available in UI.")
+                return None
+            expiry_dates = []
+            try:
+                for i in range(self.ui.ExpiryListDropDown.count()):
+                    txt = self.ui.ExpiryListDropDown.itemText(i)
+                    try:
+                        d = datetime.strptime(txt, "%d-%b-%Y").date()
+                        expiry_dates.append(d)
+                    except Exception:
+                        logger.debug("Could not parse expiry dropdown item: %s", txt)
+                expiry_dates.sort()
+                today = datetime.now().date()
+                for d in expiry_dates:
+                    if d >= today:
+                        return d
+                return expiry_dates[-1] if expiry_dates else None
+            except Exception as e:
+                logger.exception("_get_current_expiry encountered an exception: %s", e)
+                return None
+        except Exception:
+            return None
+
+    # -------------------- State logging --------------------
+    def _log_state(self, status: str, comments: str = "", **extra):
+        """
+        Append a detailed row to today's state CSV for auditing & recovery.
+        Fields captured include both main legs, hedges, and any extra metadata.
+        """
+        try:
+            now = ISTTimeUtils.now().strftime("%Y-%m-%d %H:%M:%S")
+            row = {
+                'timestamp': now,
                 'status': status,
-                'comments': str(comments).replace(",", ";"),
-                'nifty_price': self.current_close,
-                'nifty_ma12': self.current_ma12,
-                'trend': self.current_trend,
+                'comments': comments,
+                # main CE
                 'ce_symbol': self.positions['ce'].get('symbol'),
                 'ce_entry_price': self.positions['ce'].get('entry_price'),
                 'ce_ltp': self.positions['ce'].get('ltp'),
                 'ce_sl_price': self.positions['ce'].get('current_sl'),
-                'ce_trailing_step': self.positions['ce'].get('trailing_step', 0),
+                'ce_real_entered': self.positions['ce'].get('real_entered'),
+                # main PE
                 'pe_symbol': self.positions['pe'].get('symbol'),
                 'pe_entry_price': self.positions['pe'].get('entry_price'),
                 'pe_ltp': self.positions['pe'].get('ltp'),
                 'pe_sl_price': self.positions['pe'].get('current_sl'),
-                'pe_trailing_step': self.positions['pe'].get('trailing_step', 0),
-                **kwargs
+                'pe_real_entered': self.positions['pe'].get('real_entered'),
+                # hedges
+                'ce_hedge_symbol': self.hedges['ce'].get('symbol'),
+                'ce_hedge_entry': self.hedges['ce'].get('entry_price'),
+                'pe_hedge_symbol': self.hedges['pe'].get('symbol'),
+                'pe_hedge_entry': self.hedges['pe'].get('entry_price'),
             }
-            
-            df = pd.DataFrame([log_data])
-            file_exists = os.path.exists(self.current_state_file)
-            
-            df.to_csv(
-                self.current_state_file,
-                mode='a',
-                header=not file_exists,
-                index=False
-            )
-            
-            logger.info(f"State logged: {status} - {comments}")
-            
+            row.update(extra)
+            df = pd.DataFrame([row])
+            write_header = not os.path.exists(self.current_state_file)
+            df.to_csv(self.current_state_file, mode='a', header=write_header, index=False)
+            logger.debug("State logged: %s", status)
         except Exception as e:
-            logger.error(f"Failed to log state: {str(e)}")
+            logger.error("_log_state failed: %s\n%s", e, traceback.format_exc())
+
+    # Convenience wrapper for logging short rows
+    def _log(self, status: str, comments: str = ""):
+        self._log_state(status, comments)
 

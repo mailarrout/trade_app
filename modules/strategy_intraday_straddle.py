@@ -1,1046 +1,784 @@
-import pandas as pd
-import numpy as np
-from datetime import datetime, time, timedelta
-import time as sleep_time
-import threading
-import csv
+"""
+intraday_straddle_strategy.py
+
+Intraday Straddle strategy (enhanced):
+ - Straddle selection: finds CE+PE at SAME strike using 50-step offsets around spot.
+   Checks in order: round down/up to 50, then ±50, ±100, ±150 ... until a best candidate is found.
+   Chooses strike whose |CE_ltp - PE_ltp| is smallest among candidates (both LTPs available).
+ - Virtual CE+PE created at 09:20 IST.
+ - When any virtual leg's virtual SL is hit, take a real SELL on the OPPOSITE leg (same strike).
+ - INITIAL_SL_MULTIPLIER = 1.20 (20%).
+ - When activating the real trade, also place a hedge BUY (opposite side) on a far OTM option whose premium is in HEDGE_RANGE.
+ - State file & logs prefixed with intraday_straddle_
+"""
+
 import os
-from modules.option_loader import OptionLoader
-import winsound
-import pytz
-from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtWidgets import QTableWidgetItem, QPushButton, QMessageBox
-from PyQt5.QtGui import QColor, QFont
-import requests
-import math
-from scipy.stats import norm
-from zoneinfo import ZoneInfo
+import sys
 import logging
+import math
+import traceback
+from datetime import datetime, time, timedelta
+from functools import wraps
+from typing import Optional, Dict, Any, Tuple, List, Union
+from PyQt5.QtCore import QTimer
+import pandas as pd
+from pytz import timezone
 
-# Constants
+# ----------------------------- CONFIGURATION / CONSTANTS -----------------------------
+IST = timezone('Asia/Kolkata')
+LOGGER_NAME = __name__
+
+# Strategy identity
+STRATEGY_NAME = "intraday_straddle"
+
+# Trading windows (IST)
+TRADING_START_TIME = time(9, 20)
+TRADING_END_TIME = time(15, 15)
+VIRTUAL_ENTRY_MINUTE = 20
+
+# Strike step (user requested 50-step)
+STRIKE_STEP = 50
+
+# Stop-loss & trailing SL
+INITIAL_SL_MULTIPLIER = 1.20   # 20% as requested
+SL_ROUNDING_FACTOR = 20
+TRAILING_SL_STEPS = [0.10, 0.20, 0.30, 0.40, 0.50]
+
+# Premium selection ranges
+PREMIUM_RANGE = (1.0, 9999.0)     # for evaluating straddle candidates we accept any positive premium; actual selection is by diff
+HEDGE_RANGE = (5.0, 15.0)         # user requested 5-15 price for hedge
+
+# How far to search for candidate strikes (steps of 50)
+MAX_STRIKE_DISTANCE = 500   # i.e., search up to ±500 from rounded strikes (change if you want deeper search)
+
+# Timers (ms)
+STRATEGY_CHECK_INTERVAL = 60_000
+MONITORING_INTERVAL = 10_000
+
+# Files & directories (prefixed)
+LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+STATE_FILE_TEMPLATE = os.path.join(LOG_DIR, "intraday_straddle_{date}_state.csv")
+
+# Order config
 LOT_SIZE = 75
-IST_TIMEZONE = pytz.timezone('Asia/Kolkata')
-DELTA_THRESHOLD = 20
-MAX_STRIKE_SEARCH_RANGE = 200  # ±200 points from spot for optimal strike
-HEDGE_PRICE_RANGE = (10, 25)   # Price range for hedge positions
-HEDGE_MAX_SEARCH_DISTANCE = 1000  # Max points to search for hedge strikes
-DELTA_UPDATE_MINUTES = 5  # Update delta every 5 minutes
-ENTRY_TIME = time(1, 15)  # 9:15 AM IST
-EXIT_TIME = time(15, 30)  # 3:30 PM IST
-STRATEGY_CHECK_INTERVAL_MS = 60000  # Check every minute
-GREEK_UPDATE_INTERVAL_MS = 300000  # Update every 5 seconds
-RISK_FREE_RATE = 0.07  # 7% risk-free rate
-DEFAULT_TIME_TO_EXPIRY = 0.08  # ~1 month
+ORDER_PRODUCT_TYPE = 'M'
+ORDER_EXCHANGE = 'NFO'
+
+# NFO symbols file (expects columns like Instrument, Symbol (underlying), Expiry, Strike, OptionType, TradingSymbol, Token)
 NFO_SYMBOLS_FILE = "NFO_symbols.txt"
-INDEX_SYMBOL = "NIFTY"
-INSTRUMENT_TYPE = "OPTIDX"
-FUTURES_TYPE = "FUTIDX"
-ORDER_PRODUCT_TYPE = "M"
-ORDER_EXCHANGE = "NFO"
-ORDER_PRICE_TYPE = "MKT"
-ORDER_RETENTION = "DAY"
-ORDER_REMARKS = "StraddleStrategy"
 
-# Get logger for this module
-logger = logging.getLogger(__name__)
+# Logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(LOGGER_NAME)
 
-class DailyStraddleStrategy:
-    
-    def __init__(self, ui, client_manager, option_loader):
-        logger.info("Initializing DailyStraddleStrategy")
+# ----------------------------- UTILITIES --------------------------------
+def safe_log(context: str):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            logger.debug(f"[{context}] Entering {func.__name__}")
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"[{context}] Exception in {func.__name__}: {e}\n{traceback.format_exc()}")
+                return None
+        return wrapper
+    return decorator
+
+class ISTTimeUtils:
+    @staticmethod
+    def now() -> datetime:
+        return datetime.now(IST)
+
+    @staticmethod
+    def current_time() -> time:
+        return ISTTimeUtils.now().time()
+
+    @staticmethod
+    def current_date_str() -> str:
+        return ISTTimeUtils.now().strftime("%Y-%m-%d")
+
+def round_sl(price: float) -> float:
+    """Round SL to nearest tick defined by SL_ROUNDING_FACTOR."""
+    return math.ceil(price * SL_ROUNDING_FACTOR) / SL_ROUNDING_FACTOR
+
+def nearest_50_floor(spot: float) -> int:
+    return int(math.floor(spot / STRIKE_STEP) * STRIKE_STEP)
+
+def nearest_50_ceil(spot: float) -> int:
+    return int(math.ceil(spot / STRIKE_STEP) * STRIKE_STEP)
+
+# ----------------------------- STRATEGY CLASS ------------------------------------
+class IntradayStraddleStrategy:
+    def __init__(self, ui: Optional[Any] = None, client_manager: Optional[Any] = None):
         self.ui = ui
         self.client_manager = client_manager
-        self.option_loader = option_loader
-        self.positions = {}
-        self.is_running = False
-        self.strategy_executed = False
-        self.monitor_thread = None
-        
-        # Set up log directory
-        self.log_dir = os.path.join(os.path.dirname(__file__), 'logs')
-        os.makedirs(self.log_dir, exist_ok=True)
-        
-        # Strategy data file in log directory
-        today_str = datetime.now(IST_TIMEZONE).strftime('%Y%m%d')
-        self.strategy_data_file = os.path.join(
-            self.log_dir, 
-            f"{today_str}-strategy-intraday-straddle.csv"
-        )
-        
-        # Reset strategy_executed if it's a new day
-        self.strategy_executed_today = today_str
-        
-        # Set up periodic strategy check timer
+
+        self.intraday_straddle_state_file = STATE_FILE_TEMPLATE.format(date=ISTTimeUtils.current_date_str())
+        self.intraday_straddle_state: str = "WAITING"
+        self.intraday_straddle_positions = {
+            'ce': self._empty_position(),
+            'pe': self._empty_position()
+        }
+        self.intraday_straddle_hedge_info: Dict[str, Any] = {}
+
+        # timers
         self.strategy_timer = QTimer()
-        self.strategy_timer.timeout.connect(self.check_and_start_strategy)
-        self.strategy_timer.start(STRATEGY_CHECK_INTERVAL_MS)
-        
-        logger.info("Daily straddle strategy initialized with periodic checking")
-
-        self.greek_timer = QTimer()
-        self.greek_timer.timeout.connect(self._update_positions_greek)
-        self.greek_timer.start(GREEK_UPDATE_INTERVAL_MS)
-        
-        logger.debug("Timers setup completed")
-    
-    def check_and_start_strategy(self):
-        """Check every minute if strategy should be started"""
         try:
-            today_str = datetime.now(IST_TIMEZONE).strftime('%Y%m%d')
-            if today_str != self.strategy_executed_today:
-                self.strategy_executed = False
-                self.strategy_executed_today = today_str
-                logger.info(f"New trading day detected: {today_str}, resetting strategy flag")
-            
-            if self.is_running or self.strategy_executed:
-                logger.debug("Strategy already running or executed today - skipping")
+            self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
+            self.strategy_timer.start(STRATEGY_CHECK_INTERVAL)
+        except Exception:
+            logger.debug("QTimer unavailable to start strategy_timer.")
+
+        self.monitor_timer = QTimer()
+        try:
+            self.monitor_timer.timeout.connect(self._monitor_all)
+            self.monitor_timer.start(MONITORING_INTERVAL)
+        except Exception:
+            logger.debug("QTimer unavailable to start monitor_timer.")
+
+        # recover
+        self._try_recover_from_state_file()
+
+    def _empty_position(self) -> Dict[str, Any]:
+        return {
+            'symbol': None, 'token': None, 'strike': None, 'ltp': 0.0,
+            'entry_price': 0.0, 'initial_sl': 0.0, 'current_sl': 0.0,
+            'sl_hit': False, 'max_profit_price': 0.0, 'trailing_step': 0,
+            'real_entered': False, 'virtual': True
+        }
+
+    @safe_log("recovery")
+    def _try_recover_from_state_file(self):
+        if not os.path.exists(self.intraday_straddle_state_file):
+            logger.info("No intraday_straddle state file to recover.")
+            return
+        try:
+            df = pd.read_csv(self.intraday_straddle_state_file, on_bad_lines='skip')
+            if df.empty:
                 return
-                
-            current_time = datetime.now(IST_TIMEZONE).time()
-            if ENTRY_TIME <= current_time <= EXIT_TIME:
-                logger.info(f"Strategy time window active ({current_time.strftime('%H:%M')} IST)")
-                if self.execute_strategy():
-                    self.strategy_executed = True
-            else:
-                logger.debug(f"Outside strategy time window: {current_time.strftime('%H:%M')} IST")
-                
+            last = df.iloc[-1]
+            self.intraday_straddle_state = str(last.get('status', 'WAITING'))
+            for leg in ['ce','pe']:
+                sym = last.get(f'{leg}_symbol', None)
+                if pd.notna(sym) and str(sym).strip():
+                    self.intraday_straddle_positions[leg]['symbol'] = str(sym).strip()
+                    self.intraday_straddle_positions[leg]['entry_price'] = float(last.get(f'{leg}_entry_price', 0.0))
+                    self.intraday_straddle_positions[leg]['ltp'] = float(last.get(f'{leg}_ltp', 0.0))
+                    self.intraday_straddle_positions[leg]['initial_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                    self.intraday_straddle_positions[leg]['current_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                    self.intraday_straddle_positions[leg]['real_entered'] = bool(last.get(f'{leg}_real_entered', False))
+                    self.intraday_straddle_positions[leg]['strike'] = last.get(f'{leg}_strike', None)
+            logger.info("Recovered intraday_straddle_state=%s", self.intraday_straddle_state)
         except Exception as e:
-            logger.error(f"Error in strategy check: {str(e)}")
-    
-    def get_spot_price(self):
-        """Get current NIFTY spot price from futures data"""
-        try:
-            logger.debug("Fetching spot price")
-            
-            if not os.path.exists(NFO_SYMBOLS_FILE):
-                logger.error(f"{NFO_SYMBOLS_FILE} file not found")
-                return 0
-            
-            df = pd.read_csv(NFO_SYMBOLS_FILE)
-            df = df[(df["Instrument"].str.strip() == FUTURES_TYPE) & 
-                    (df["Symbol"].str.strip() == INDEX_SYMBOL)]
-            
-            if df.empty:
-                logger.error(f"No futures data found for {INDEX_SYMBOL}")
-                return 0
-            
-            token = str(df.iloc[0]['Token'])
-            client = self.client_manager.clients[0][2]
-            quote = client.get_quotes(ORDER_EXCHANGE, token)
+            logger.warning("Recovery reading failed: %s", e)
 
-            if not quote or quote.get('stat') != 'Ok':
-                logger.error(f"Failed to get {INDEX_SYMBOL} futures quote")
-                return 0
+    # -------------------- Entry cycle --------------------
+    def _check_and_execute_strategy(self):
+        now = ISTTimeUtils.current_time()
+        # EOD forced exit
+        if (now.hour == TRADING_END_TIME.hour and now.minute == TRADING_END_TIME.minute) and self.intraday_straddle_state in ['VIRTUAL', 'ACTIVE']:
+            self._exit_all_positions(reason="EOD Exit")
+            return
 
-            spot_price = float(quote.get('lp', 0))
-            
-            if spot_price > 0:
-                logger.info(f"Spot price retrieved: {spot_price:.2f}")
-                return spot_price
-            else:
-                logger.error("Invalid spot price received")
-                return 0
-                
-        except Exception as e:
-            logger.error(f"Error getting spot price: {str(e)}")
-            return 0
-    
-    def get_expiry_date(self):
-        """Get the current expiry date from UI"""
-        expiry_date = self.ui.ExpiryListDropDown.currentText()
-        logger.debug(f"Retrieved expiry date from UI: {expiry_date}")
-        return expiry_date
-    
-    def get_option_ltp(self, symbol, token):
-        """Get LTP for a specific option symbol"""
+        if self.intraday_straddle_state == "WAITING" and TRADING_START_TIME <= now <= TRADING_END_TIME and now.minute == VIRTUAL_ENTRY_MINUTE:
+            logger.info("Virtual entry minute hit -> prepare virtual straddle")
+            self._run_virtual_entry()
+
+    def _run_virtual_entry(self):
+        expiry_date = self._get_current_expiry()
+        if not expiry_date:
+            logger.error("Expiry not found. Cannot run virtual entry.")
+            return
+        # get spot price (NIFTY underlying)
+        spot = self._get_spot_ltp()
+        if spot is None:
+            logger.error("Could not fetch spot LTP (NIFTY). Aborting virtual entry.")
+            return
+
+        best = self._find_best_straddle(expiry_date, spot)
+        if not best:
+            logger.info("No suitable straddle found at virtual entry minute.")
+            return
+
+        strike, ce_sym, ce_token, ce_ltp, pe_sym, pe_token, pe_ltp = best
+        # set both legs as virtual shorts
+        initial_sl_ce = round_sl(ce_ltp * INITIAL_SL_MULTIPLIER)
+        initial_sl_pe = round_sl(pe_ltp * INITIAL_SL_MULTIPLIER)
+        self.intraday_straddle_positions['ce'].update({
+            'symbol': ce_sym, 'token': ce_token, 'strike': strike,
+            'entry_price': ce_ltp, 'ltp': ce_ltp, 'initial_sl': initial_sl_ce,
+            'current_sl': initial_sl_ce, 'real_entered': False, 'virtual': True
+        })
+        self.intraday_straddle_positions['pe'].update({
+            'symbol': pe_sym, 'token': pe_token, 'strike': strike,
+            'entry_price': pe_ltp, 'ltp': pe_ltp, 'initial_sl': initial_sl_pe,
+            'current_sl': initial_sl_pe, 'real_entered': False, 'virtual': True
+        })
+        self.intraday_straddle_state = "VIRTUAL"
+        self._log_state("VIRTUAL", f"Virtual straddle created at strike {strike}")
+        logger.info("Virtual straddle (strike=%s) prepared: CE=%s(%s) PE=%s(%s)", strike, ce_sym, ce_ltp, pe_sym, pe_ltp)
+
+    def _find_best_straddle(self, expiry_date, spot: float):
+        """
+        Search strike candidates around spot with 50-step increments as user requested:
+        order: floor/ceil, then ±50, ±100, ±150...
+        For each candidate, get CE and PE LTPs (from NFO_symbols file & broker quotes).
+        Choose the candidate where both LTPs exist and |CE_ltp - PE_ltp| is smallest.
+        """
         try:
-            logger.debug(f"Getting LTP for {symbol}")
-            client = self.client_manager.clients[0][2]
-            quote = client.get_quotes(ORDER_EXCHANGE, str(token))
-            if quote and quote.get('stat') == 'Ok':
-                ltp = float(quote.get('lp', 0))
-                logger.debug(f"LTP for {symbol}: {ltp:.2f}")
-                return ltp
-            logger.warning(f"No valid quote for {symbol}")
-            return 0
-        except Exception as e:
-            logger.error(f"Error getting LTP for {symbol}: {str(e)}")
-            return 0
-    
-    def find_optimal_straddle_strike(self, spot_price, expiry_date):
-        """Find strike with minimum CE-PE price difference within ±200 range"""
-        try:
-            logger.info(f"Finding optimal straddle strike for spot: {spot_price}, expiry: {expiry_date}")
-            
             if not os.path.exists(NFO_SYMBOLS_FILE):
-                logger.error(f"{NFO_SYMBOLS_FILE} file not found")
-                return None, None, None
-            
+                logger.error("%s missing", NFO_SYMBOLS_FILE)
+                return None
             df = pd.read_csv(NFO_SYMBOLS_FILE)
-            
-            expiry_dt = datetime.strptime(expiry_date, '%d-%b-%Y')
-            expiry_str_file = expiry_dt.strftime("%d-%b-%Y").upper()
-            
-            df = df[
-                (df["Instrument"].str.strip() == INSTRUMENT_TYPE) & 
-                (df["Symbol"].str.strip() == INDEX_SYMBOL) & 
-                (df["Expiry"].str.strip().str.upper() == expiry_str_file)
-            ]
-            
-            if df.empty:
-                logger.error(f"No {INDEX_SYMBOL} options found for expiry {expiry_str_file}")
-                return None, None, None
-            
-            rounded_spot = round(spot_price / 50) * 50
-            logger.info(f"Rounded spot price: {rounded_spot}")
-            
-            optimal_strike = None
-            min_difference = float('inf')
-            ce_ltp = None
-            pe_ltp = None
-            
-            min_strike = rounded_spot - MAX_STRIKE_SEARCH_RANGE
-            max_strike = rounded_spot + MAX_STRIKE_SEARCH_RANGE
-            
-            logger.info(f"Searching strikes between {min_strike} and {max_strike} (±{MAX_STRIKE_SEARCH_RANGE} points)")
-            
-            strikes_in_range = df[
-                (df['StrikePrice'] >= min_strike) & 
-                (df['StrikePrice'] <= max_strike)
-            ]['StrikePrice'].unique()
-            
-            strikes_in_range = sorted(strikes_in_range)
-            logger.info(f"Found {len(strikes_in_range)} strikes in range")
-            
-            for strike in strikes_in_range:
-                ce_data = df[(df['StrikePrice'] == strike) & (df['OptionType'] == 'CE')]
-                pe_data = df[(df['StrikePrice'] == strike) & (df['OptionType'] == 'PE')]
-                
-                if not ce_data.empty and not pe_data.empty:
-                    ce_symbol = ce_data.iloc[0]['TradingSymbol']
-                    pe_symbol = pe_data.iloc[0]['TradingSymbol']
-                    ce_token = ce_data.iloc[0]['Token']
-                    pe_token = pe_data.iloc[0]['Token']
-                    
-                    ce_current_ltp = self.get_option_ltp(ce_symbol, ce_token)
-                    pe_current_ltp = self.get_option_ltp(pe_symbol, pe_token)
-                    
-                    if ce_current_ltp > 0 and pe_current_ltp > 0:
-                        difference = abs(ce_current_ltp - pe_current_ltp)
-                        
-                        if difference < min_difference:
-                            min_difference = difference
-                            optimal_strike = strike
-                            ce_ltp = ce_current_ltp
-                            pe_ltp = pe_current_ltp
-            
-            if optimal_strike:
-                logger.info(f"Selected optimal strike: {optimal_strike}")
-                logger.info(f"CE LTP: {ce_ltp:.2f}, PE LTP: {pe_ltp:.2f}, Difference: {min_difference:.2f}")
-            else:
-                logger.warning("No optimal strike found in range")
-                
-            return optimal_strike, ce_ltp, pe_ltp
-            
+            expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
+
+            floor = nearest_50_floor(spot)
+            ceil = nearest_50_ceil(spot)
+            # generate candidate strikes in requested order:
+            candidates = []
+            # start with floor then ceil
+            candidates.append(floor)
+            if ceil != floor:
+                candidates.append(ceil)
+            # then expand +/-50, +/-100...
+            steps = list(range(STRIKE_STEP, MAX_STRIKE_DISTANCE + STRIKE_STEP, STRIKE_STEP))
+            for s in steps:
+                lower = floor - s
+                upper = ceil + s
+                if lower > 0:
+                    candidates.append(lower)
+                candidates.append(upper)
+
+            best = None
+            best_diff = float('inf')
+            for strike in candidates:
+                # find CE and PE rows
+                ce_row = df[
+                    (df['Instrument'].str.strip() == "OPTIDX") &
+                    (df['Symbol'].str.strip() == "NIFTY") &
+                    (df['Expiry'].str.strip().str.upper() == expiry_str) &
+                    (df['OptionType'].str.strip().str.upper() == "CE") &
+                    (pd.to_numeric(df['Strike'], errors='coerce') == strike)
+                ]
+                pe_row = df[
+                    (df['Instrument'].str.strip() == "OPTIDX") &
+                    (df['Symbol'].str.strip() == "NIFTY") &
+                    (df['Expiry'].str.strip().str.upper() == expiry_str) &
+                    (df['OptionType'].str.strip().str.upper() == "PE") &
+                    (pd.to_numeric(df['Strike'], errors='coerce') == strike)
+                ]
+                if ce_row.empty or pe_row.empty:
+                    continue
+                # take first candidates
+                ce_row = ce_row.iloc[0]
+                pe_row = pe_row.iloc[0]
+                ce_sym = str(ce_row.get('TradingSymbol','')).strip()
+                ce_token = str(ce_row.get('Token','')).strip()
+                pe_sym = str(pe_row.get('TradingSymbol','')).strip()
+                pe_token = str(pe_row.get('Token','')).strip()
+                ce_ltp = self._get_option_ltp(ce_sym)
+                pe_ltp = self._get_option_ltp(pe_sym)
+                if ce_ltp is None or pe_ltp is None:
+                    continue
+                diff = abs(ce_ltp - pe_ltp)
+                # prefer smaller diff
+                if diff < best_diff:
+                    best_diff = diff
+                    best = (strike, ce_sym, ce_token, ce_ltp, pe_sym, pe_token, pe_ltp)
+                    # if diff is small enough (like <=5) we can break early; but to be faithful, continue search to find best min
+            return best
         except Exception as e:
-            logger.error(f"Error finding optimal strike: {str(e)}")
-            return None, None, None
-    
-    def find_hedge_strike_directional(self, main_strike, option_type, expiry_date):
-        """Find hedge strike by searching directionally from main strike and select the lowest price option"""
+            logger.error("_find_best_straddle error: %s\n%s", e, traceback.format_exc())
+            return None
+
+    # -------------------- Monitoring --------------------
+    def _monitor_all(self):
+        now = ISTTimeUtils.current_time()
+        if not (TRADING_START_TIME <= now <= TRADING_END_TIME):
+            return
+
+        if self.intraday_straddle_state == "VIRTUAL":
+            self._monitor_virtual_sl()
+        elif self.intraday_straddle_state == "ACTIVE":
+            self._monitor_active_positions()
+            self._validate_active_positions_exist()
+
+    def _monitor_virtual_sl(self):
+        """
+        If any virtual leg LTP >= virtual SL, activate the OPPOSITE real SELL on same strike
+        and also place the hedge BUY (opposite side far OTM with premium in HEDGE_RANGE).
+        """
         try:
-            logger.info(f"Finding {option_type} hedge strike from main strike: {main_strike}")
-            
-            if not os.path.exists(NFO_SYMBOLS_FILE):
-                logger.error(f"{NFO_SYMBOLS_FILE} file not found")
-                return None, None
-            
-            df = pd.read_csv(NFO_SYMBOLS_FILE)
-            
-            expiry_dt = datetime.strptime(expiry_date, '%d-%b-%Y')
-            expiry_str_file = expiry_dt.strftime("%d-%b-%Y").upper()
-            
-            df = df[
-                (df["Instrument"].str.strip() == INSTRUMENT_TYPE) & 
-                (df["Symbol"].str.strip() == INDEX_SYMBOL) & 
-                (df["Expiry"].str.strip().str.upper() == expiry_str_file)
-            ]
-            
-            if df.empty:
-                logger.error(f"No {INDEX_SYMBOL} options found for expiry {expiry_str_file}")
-                return None, None
-            
-            all_strikes = df[df['OptionType'] == option_type]['StrikePrice'].unique()
-            all_strikes = sorted(all_strikes)
-            
-            if option_type == 'CE':
-                search_strikes = [s for s in all_strikes if s > main_strike]
-                search_strikes.sort()
-                search_direction = "upward"
-            else:
-                search_strikes = [s for s in all_strikes if s < main_strike]
-                search_strikes.sort(reverse=True)
-                search_direction = "downward"
-            
-            logger.info(f"Searching {search_direction} from {main_strike} for {option_type} hedge")
-            
-            search_strikes = [s for s in search_strikes if abs(s - main_strike) <= HEDGE_MAX_SEARCH_DISTANCE]
-            
-            best_strike = None
-            best_ltp = float('inf')
-            
-            for strike in search_strikes:
-                option_data = df[(df['StrikePrice'] == strike) & (df['OptionType'] == option_type)]
-                if not option_data.empty:
-                    symbol = option_data.iloc[0]['TradingSymbol']
-                    token = option_data.iloc[0]['Token']
-                    ltp = self.get_option_ltp(symbol, token)
-                    
-                    if HEDGE_PRICE_RANGE[0] <= ltp <= HEDGE_PRICE_RANGE[1]:
-                        if ltp < best_ltp:
-                            best_ltp = ltp
-                            best_strike = strike
-                            logger.debug(f"Found better {option_type} hedge strike: {strike} @ {ltp:.2f}")
-                    else:
-                        logger.debug(f"Strike {strike} {option_type}: {ltp:.2f} (outside range {HEDGE_PRICE_RANGE})")
-            
-            if best_strike:
-                logger.info(f"Selected {option_type} hedge strike: {best_strike} @ {best_ltp:.2f} (lowest price)")
-                return best_strike, best_ltp
-            else:
-                logger.warning(f"No {option_type} hedge strike found in price range {HEDGE_PRICE_RANGE}")
-                return None, None
-            
+            for leg in ['ce','pe']:
+                pos = self.intraday_straddle_positions[leg]
+                if not pos['symbol']:
+                    continue
+                ltp = self._get_option_ltp(pos['symbol'])
+                if ltp is None:
+                    continue
+                pos['ltp'] = ltp
+                if not pos.get('sl_hit', False) and ltp >= pos.get('current_sl', float('inf')):
+                    logger.info("Virtual %s SL hit (LTP=%s >= SL=%s). Activating real SELL on opposite leg.", leg.upper(), ltp, pos['current_sl'])
+                    opposite_leg = 'pe' if leg == 'ce' else 'ce'
+                    self._activate_real_on_opposite_and_hedge(opposite_leg)
+                    return
         except Exception as e:
-            logger.error(f"Error finding {option_type} hedge strike: {str(e)}")
-            return None, None
-    
-    def get_option_delta(self, strike, option_type, expiry_date):
-        """Get delta for specific option - simplified version"""
+            logger.error("_monitor_virtual_sl error: %s\n%s", e, traceback.format_exc())
+
+    def _activate_real_on_opposite_and_hedge(self, opp_leg: str) -> bool:
+        """
+        Place hedge BUY first (mandatory).
+        Only if hedge BUY succeeds, place real SELL on opp_leg (same strike).
+        If main SELL fails, auto-exit the hedge to avoid margin / exposure issues.
+        """
         try:
-            strike_float = float(strike)
-            spot_price = self.get_spot_price()
-            if spot_price == 0:
-                logger.warning("Spot price unavailable for delta calculation, using default")
-                return 0.5 if option_type == 'CE' else -0.5
-                
-            moneyness = (strike_float - spot_price) / spot_price
-            
-            if option_type == 'CE':
-                if moneyness < -0.01:  # ITM call
-                    return 0.7
-                elif moneyness > 0.01:  # OTM call
-                    return 0.3
-                else:  # ATM call
-                    return 0.5
-            else:  # PE
-                if moneyness < -0.01:  # OTM put
-                    return -0.3
-                elif moneyness > 0.01:  # ITM put
-                    return -0.7
-                else:  # ATM put
-                    return -0.5
-                    
-        except Exception as e:
-            logger.error(f"Error calculating delta: {str(e)}")
-            return 0.5 if option_type == 'CE' else -0.5
-    
-    def get_option_symbol_from_chain(self, strike, option_type, expiry_date):
-        """Get the correct trading symbol from option chain"""
-        try:
-            logger.debug(f"Getting symbol for {option_type} strike {strike}")
-            
-            if not os.path.exists(NFO_SYMBOLS_FILE):
-                logger.error(f"{NFO_SYMBOLS_FILE} file not found")
-                return None, None
-            
-            df = pd.read_csv(NFO_SYMBOLS_FILE)
-            
-            expiry_dt = datetime.strptime(expiry_date, '%d-%b-%Y')
-            expiry_str_file = expiry_dt.strftime("%d-%b-%Y").upper()
-            
-            strike_float = float(strike)
-            
-            option_data = df[
-                (df['StrikePrice'] == strike_float) & 
-                (df['OptionType'] == option_type) &
-                (df["Instrument"].str.strip() == INSTRUMENT_TYPE) & 
-                (df["Symbol"].str.strip() == INDEX_SYMBOL) & 
-                (df["Expiry"].str.strip().str.upper() == expiry_str_file)
-            ]
-            
-            if not option_data.empty:
-                symbol = option_data.iloc[0]['TradingSymbol']
-                token = option_data.iloc[0]['Token']
-                logger.debug(f"Found symbol: {symbol}, token: {token}")
-                return symbol, token
-            
-            logger.warning(f"No symbol found for {option_type} strike {strike}")
-            return None, None
-            
-        except Exception as e:
-            logger.error(f"Error getting symbol from chain: {str(e)}")
-            return None, None
-    
-    def place_straddle_order(self, strike, option_type, action, quantity):
-        """Place order for straddle strategy"""
-        try:
-            logger.info(f"Placing {action} order for {option_type} strike {strike}, quantity: {quantity}")
-            
-            expiry_date = self.get_expiry_date()
-            
-            symbol, token = self.get_option_symbol_from_chain(strike, option_type, expiry_date)
-            if not symbol:
-                logger.error(f"Could not find symbol for {strike} {option_type}")
+            if opp_leg not in ['ce','pe']:
+                logger.error("Invalid activation leg: %s", opp_leg)
                 return False
-            
-            client = self.client_manager.clients[0][2]
-            
-            buy_sell = "B" if action.upper() == "BUY" else "S"
-            
-            result = client.place_order(
-                buy_or_sell=buy_sell, 
-                product_type=ORDER_PRODUCT_TYPE, 
-                exchange=ORDER_EXCHANGE,
-                tradingsymbol=symbol, 
-                quantity=quantity, 
-                discloseqty=0,
-                price_type=ORDER_PRICE_TYPE, 
-                price=0, 
-                trigger_price=0,
-                retention=ORDER_RETENTION, 
-                remarks=ORDER_REMARKS
-            )
-            
-            if result and 'stat' in result and result['stat'] == 'Ok':
-                logger.info(f"Successfully placed {action} {quantity} {symbol}")
+
+            pos = self.intraday_straddle_positions[opp_leg]
+            if not pos['symbol']:
+                logger.error("Opposite leg symbol missing for activation.")
+                return False
+
+            # --- Step 1: find hedge ---
+            hedge = self._find_hedge_option(opp_leg, pos['strike'])
+            if not hedge:
+                logger.error("No hedge candidate found in HEDGE_RANGE for %s. Aborting activation.", opp_leg.upper())
+                return False
+
+            hedge_sym, hedge_token, hedge_ltp = hedge
+            hedge_ok = self._place_order(hedge_sym, hedge_token, 'BUY')
+            if not hedge_ok:
+                logger.error("Hedge BUY failed for %s. Aborting activation.", hedge_sym)
+                return False
+
+            # record hedge info
+            self.intraday_straddle_hedge_info = {
+                'hedge_symbol': hedge_sym,
+                'hedge_token': hedge_token,
+                'hedge_ltp': hedge_ltp,
+                'hedge_for': opp_leg
+            }
+            logger.info("Hedge placed successfully: BUY %s @ %s", hedge_sym, hedge_ltp)
+
+            # --- Step 2: place main real SELL ---
+            sell_ok = self._place_order(pos['symbol'], pos['token'], 'SELL')
+            if not sell_ok:
+                logger.error("Main SELL failed for %s after hedge BUY. Exiting hedge to stay clean.", pos['symbol'])
+                # try to exit hedge immediately
+                try:
+                    self._place_order(hedge_sym, hedge_token, 'SELL')
+                    logger.info("Exited hedge %s after main SELL failure.", hedge_sym)
+                except Exception as e:
+                    logger.error("Failed to exit hedge %s after main SELL failure: %s", hedge_sym, e)
+                return False
+
+            # update position info
+            actual_ltp = self._get_option_ltp(pos['symbol']) or pos['entry_price']
+            new_sl = round_sl(actual_ltp * INITIAL_SL_MULTIPLIER)
+            pos.update({
+                'entry_price': actual_ltp,
+                'ltp': actual_ltp,
+                'initial_sl': new_sl,
+                'current_sl': new_sl,
+                'real_entered': True,
+                'virtual': False,
+                'max_profit_price': actual_ltp,
+                'trailing_step': 0,
+                'sl_hit': False
+            })
+
+            self.intraday_straddle_state = "ACTIVE"
+            self._log_state("ACTIVE", f"Real SELL placed on {opp_leg.upper()} after hedge {hedge_sym}")
+            logger.info("Activation complete: Hedge BUY=%s, Main SELL=%s", hedge_sym, pos['symbol'])
+            return True
+
+        except Exception as e:
+            logger.error("_activate_real_on_opposite_and_hedge error: %s\n%s", e, traceback.format_exc())
+            return False
+
+
+
+    def _find_hedge_option(self, real_leg: str, base_strike: int):
+        """
+        For a real SELL on real_leg, find a hedge option to BUY on the opposite side with premium in HEDGE_RANGE.
+        - If real_leg == 'ce' (we sold CE), hedge by BUYing PE at lower strikes (OTM PE -> strike < base_strike)
+        - If real_leg == 'pe' (we sold PE), hedge by BUYing CE at higher strikes (OTM CE -> strike > base_strike)
+        Search outward in 50 increments and pick the first option whose LTP in HEDGE_RANGE.
+        """
+        try:
+            if not os.path.exists(NFO_SYMBOLS_FILE):
+                return None
+            df = pd.read_csv(NFO_SYMBOLS_FILE)
+            expiry_date = self._get_current_expiry()
+            if not expiry_date:
+                return None
+            expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
+
+            # determine desired option side for hedge
+            if real_leg == 'ce':
+                hedge_side = 'PE'
+                # search lower strikes: base -50, -100, ...
+                offsets = [i for i in range(STRIKE_STEP, MAX_STRIKE_DISTANCE + STRIKE_STEP, STRIKE_STEP)]
+                strikes = [base_strike - off for off in offsets if base_strike - off > 0]
+            else:
+                hedge_side = 'CE'
+                offsets = [i for i in range(STRIKE_STEP, MAX_STRIKE_DISTANCE + STRIKE_STEP, STRIKE_STEP)]
+                strikes = [base_strike + off for off in offsets]
+
+            for strike in strikes:
+                candidates = df[
+                    (df['Instrument'].str.strip() == "OPTIDX") &
+                    (df['Symbol'].str.strip() == "NIFTY") &
+                    (df['Expiry'].str.strip().str.upper() == expiry_str) &
+                    (df['OptionType'].str.strip().str.upper() == hedge_side) &
+                    (pd.to_numeric(df['Strike'], errors='coerce') == strike)
+                ]
+                if candidates.empty:
+                    continue
+                row = candidates.iloc[0]
+                sym = str(row.get('TradingSymbol','')).strip()
+                token = str(row.get('Token','')).strip()
+                ltp = self._get_option_ltp(sym)
+                if ltp is None:
+                    continue
+                # accept if ltp in HEDGE_RANGE
+                if HEDGE_RANGE[0] <= ltp <= HEDGE_RANGE[1]:
+                    return sym, token, ltp
+            return None
+        except Exception as e:
+            logger.error("_find_hedge_option error: %s\n%s", e, traceback.format_exc())
+            return None
+
+    # -------------------- Active monitoring & exit --------------------
+    def _monitor_active_positions(self):
+        try:
+            for leg in ['ce','pe']:
+                pos = self.intraday_straddle_positions[leg]
+                if not pos['symbol'] or not pos.get('real_entered', False):
+                    continue
+                ltp = self._get_option_ltp(pos['symbol'])
+                if ltp is None:
+                    continue
+                pos['ltp'] = ltp
+                # update max_profit_price for short (profit when ltp drops)
+                if pos.get('max_profit_price', 0.0) == 0.0:
+                    pos['max_profit_price'] = pos['entry_price']
+                if ltp < pos.get('max_profit_price', pos['entry_price']):
+                    pos['max_profit_price'] = ltp
+                self._update_trailing_sl(leg)
+                current_sl = pos.get('current_sl', None)
+                if current_sl and not pos.get('sl_hit', False) and ltp >= current_sl:
+                    logger.info("Real %s SL hit: LTP=%s >= SL=%s — exiting real SELL", leg.upper(), ltp, current_sl)
+                    self._exit_real_position(leg, ltp)
+        except Exception as e:
+            logger.error("_monitor_active_positions error: %s\n%s", e, traceback.format_exc())
+
+    def _update_trailing_sl(self, leg: str):
+        try:
+            pos = self.intraday_straddle_positions[leg]
+            if not pos['symbol'] or pos['entry_price'] <= 0:
+                return
+            entry_price = pos['entry_price']
+            max_profit_price = pos.get('max_profit_price', entry_price)
+            profit_frac = (entry_price - max_profit_price) / entry_price
+            new_step = 0
+            for i, threshold in enumerate(TRAILING_SL_STEPS):
+                if profit_frac >= threshold:
+                    new_step = i + 1
+            current_step = pos.get('trailing_step', 0)
+            if new_step > current_step:
+                sl_multiplier = 1.0 - (0.05 * new_step)
+                new_sl = round_sl(entry_price * sl_multiplier)
+                pos['current_sl'] = new_sl
+                pos['trailing_step'] = new_step
+                self._log_state("ACTIVE", f"{leg.upper()} trailing SL updated to {new_sl}", trailing_step=new_step)
+        except Exception as e:
+            logger.error("_update_trailing_sl error: %s\n%s", e, traceback.format_exc())
+
+    def _exit_real_position(self, leg: str, ltp: float):
+        try:
+            pos = self.intraday_straddle_positions[leg]
+            if not pos['symbol'] or not pos.get('real_entered', False):
+                logger.warning("No real position to exit for %s", leg)
+                return False
+            ok = self._place_order(pos['symbol'], pos['token'], 'BUY')
+            if ok:
+                pos['sl_hit'] = True
+                pos['real_entered'] = False
+                self._log_state("STOPPED_OUT", f"{leg.upper()} SL hit at {ltp}", exit_ltp=ltp)
+                # attempt to close hedge if exists (we bought hedge earlier; we will SELL to close)
+                hedge = self.intraday_straddle_hedge_info.get('hedge_symbol')
+                if hedge:
+                    try:
+                        self._place_order(hedge, self.intraday_straddle_hedge_info.get('hedge_token',''), 'SELL')
+                        logger.info("Closed hedge %s (intraday_straddle).", hedge)
+                    except Exception:
+                        logger.warning("Failed to close hedge %s", hedge)
+                # if both real legs closed -> STOPPED_OUT
+                both_closed = all(not self.intraday_straddle_positions[l]['real_entered'] for l in ['ce','pe'])
+                if both_closed:
+                    self.intraday_straddle_state = "STOPPED_OUT"
                 return True
             else:
-                logger.error(f"Failed to place {action} order for {symbol}: {result}")
+                logger.error("Failed to exit real position %s via BUY", pos['symbol'])
                 return False
-            
         except Exception as e:
-            logger.error(f"Error placing {action} order: {str(e)}")
+            logger.error("_exit_real_position error: %s\n%s", e, traceback.format_exc())
             return False
-    
-    def record_strategy_data(self, strike, ce_ltp, pe_ltp, ce_delta, pe_delta):
-        """Record strategy data to CSV file in log directory"""
-        try:
-            file_exists = os.path.exists(self.strategy_data_file)
-            
-            with open(self.strategy_data_file, 'a', newline='') as f:
-                writer = csv.writer(f)
-                if not file_exists:
-                    writer.writerow(['Timestamp', 'Strike', 'CE_LTP', 'PE_LTP', 
-                                   'CE_Delta', 'PE_Delta', 'Total_Delta'])
-                
-                total_delta = self.calculate_portfolio_delta()
-                timestamp = datetime.now(IST_TIMEZONE).strftime('%Y-%m-%d %H:%M:%S IST')
-                
-                writer.writerow([timestamp, strike, ce_ltp, pe_ltp, 
-                               ce_delta, pe_delta, total_delta])
-                
-                logger.debug(f"Recorded strategy data: Strike {strike}, Total Delta: {total_delta:.2f}")
-                
-        except Exception as e:
-            logger.error(f"Error recording strategy data: {str(e)}")
-    
-    def calculate_portfolio_delta(self):
-        """Calculate total portfolio delta"""
-        try:
-            total_delta = 0
-            expiry_date = self.get_expiry_date()
-            for key, position in self.positions.items():
-                strike, option_type = key.split('_')
-                option_delta = self.get_option_delta(float(strike), option_type, expiry_date)
-                total_delta += option_delta * position['quantity']
-            logger.debug(f"Portfolio delta calculated: {total_delta:.2f}")
-            return total_delta
-        except Exception as e:
-            logger.error(f"Error calculating portfolio delta: {str(e)}")
-            return 0
-    
-    def execute_hedge(self, current_delta):
-        """Execute hedging based on current delta"""
-        try:
-            logger.info(f"Executing hedge for delta: {current_delta:.2f}")
-            
-            expiry_date = self.get_expiry_date()
-            
-            if current_delta > DELTA_THRESHOLD:
-                main_strike = list(self.positions.keys())[0].split('_')[0]
-                hedge_strike, hedge_ltp = self.find_hedge_strike_directional(float(main_strike), 'PE', expiry_date)
-                if hedge_strike:
-                    if self.place_straddle_order(hedge_strike, 'PE', 'BUY', LOT_SIZE):
-                        self.positions[f"{hedge_strike}_PE"] = {
-                            'strike': hedge_strike, 'type': 'PE', 'quantity': LOT_SIZE,
-                            'delta': self.get_option_delta(hedge_strike, 'PE', expiry_date)
-                        }
-                        logger.info(f"Hedged with PE {hedge_strike} @ {hedge_ltp:.2f}")
-            
-            elif current_delta < -DELTA_THRESHOLD:
-                main_strike = list(self.positions.keys())[0].split('_')[0]
-                hedge_strike, hedge_ltp = self.find_hedge_strike_directional(float(main_strike), 'CE', expiry_date)
-                if hedge_strike:
-                    if self.place_straddle_order(hedge_strike, 'CE', 'BUY', LOT_SIZE):
-                        self.positions[f"{hedge_strike}_CE"] = {
-                            'strike': hedge_strike, 'type': 'CE', 'quantity': LOT_SIZE,
-                            'delta': self.get_option_delta(hedge_strike, 'CE', expiry_date)
-                        }
-                        logger.info(f"Hedged with CE {hedge_strike} @ {hedge_ltp:.2f}")
-                        
-        except Exception as e:
-            logger.error(f"Error executing hedge: {str(e)}")
-    
-    def monitor_positions(self):
-        """Monitor positions and execute hedging when needed"""
-        logger.info("Starting position monitoring")
-        
-        last_delta_update = None
-        
-        while self.is_running:
-            try:
-                current_time = datetime.now(IST_TIMEZONE)
-                
-                current_delta = self.calculate_portfolio_delta()
-                logger.debug(f"Current portfolio delta: {current_delta:.2f}")
-                
-                if abs(current_delta) >= DELTA_THRESHOLD:
-                    logger.warning(f"Delta threshold breached: {current_delta:.2f}")
-                    winsound.Beep(1000, 500)
-                    self.execute_hedge(current_delta)
-                
-                current_minute = current_time.minute
-                if (current_minute % DELTA_UPDATE_MINUTES == 0 and 
-                    current_time.second < 10 and
-                    (last_delta_update is None or 
-                     (current_time - last_delta_update).total_seconds() >= 300)):
-                    
-                    if self.positions:
-                        main_strike = list(self.positions.keys())[0].split('_')[0]
-                        expiry_date = self.get_expiry_date()
-                        ce_delta = self.get_option_delta(float(main_strike), 'CE', expiry_date)
-                        pe_delta = self.get_option_delta(float(main_strike), 'PE', expiry_date)
-                        self.record_strategy_data(main_strike, 0, 0, ce_delta, pe_delta)
-                        last_delta_update = current_time
-                        logger.info(f"Recorded delta data at {current_time.strftime('%H:%M:%S')} IST")
-                
-                sleep_time.sleep(60)
-                
-            except Exception as e:
-                logger.error(f"Monitoring error: {str(e)}")
-                sleep_time.sleep(60)
-    
-    def execute_strategy(self):
-        """Main strategy execution - BUY first then SELL for leverage"""
-        if self.is_running or self.strategy_executed:
-            logger.warning("Strategy already running or executed today")
-            return False
-            
-        try:
-            logger.info("Starting strategy execution")
-            self.is_running = True
-            
-            spot_price = self.get_spot_price()
-            if spot_price == 0:
-                logger.error("Cannot execute strategy: Spot price unavailable")
-                self.is_running = False
-                return False
-            
-            expiry_date = self.get_expiry_date()
-            logger.info(f"Using expiry: {expiry_date}, Spot: {spot_price:.2f}")
-            
-            optimal_strike, ce_ltp, pe_ltp = self.find_optimal_straddle_strike(spot_price, expiry_date)
-            if not optimal_strike:
-                logger.error("No suitable straddle strike found")
-                self.is_running = False
-                return False
-            
-            logger.info(f"Optimal straddle strike: {optimal_strike}, CE: {ce_ltp:.2f}, PE: {pe_ltp:.2f}")
-            
-            ce_hedge_strike, ce_hedge_ltp = self.find_hedge_strike_directional(float(optimal_strike), 'CE', expiry_date)
-            pe_hedge_strike, pe_hedge_ltp = self.find_hedge_strike_directional(float(optimal_strike), 'PE', expiry_date)
-            
-            if ce_hedge_strike:
-                if not self.place_straddle_order(ce_hedge_strike, 'CE', 'BUY', LOT_SIZE):
-                    logger.warning("Failed to place CE hedge BUY order")
-                else:
-                    self.positions[f"{ce_hedge_strike}_CE"] = {
-                        'strike': ce_hedge_strike, 'type': 'CE', 'quantity': LOT_SIZE,
-                        'delta': self.get_option_delta(ce_hedge_strike, 'CE', expiry_date)
-                    }
-            
-            if pe_hedge_strike:
-                if not self.place_straddle_order(pe_hedge_strike, 'PE', 'BUY', LOT_SIZE):
-                    logger.warning("Failed to place PE hedge BUY order")
-                else:
-                    self.positions[f"{pe_hedge_strike}_PE"] = {
-                        'strike': pe_hedge_strike, 'type': 'PE', 'quantity': LOT_SIZE,
-                        'delta': self.get_option_delta(pe_hedge_strike, 'PE', expiry_date)
-                    }
-            
-            if not self.place_straddle_order(optimal_strike, 'CE', 'SELL', LOT_SIZE):
-                logger.error("Failed to place CE SELL order")
-                self.is_running = False
-                return False
-            else:
-                self.positions[f"{optimal_strike}_CE"] = {
-                    'strike': optimal_strike, 'type': 'CE', 'quantity': -LOT_SIZE,
-                    'delta': self.get_option_delta(optimal_strike, 'CE', expiry_date)
-                }
-            
-            if not self.place_straddle_order(optimal_strike, 'PE', 'SELL', LOT_SIZE):
-                logger.error("Failed to place PE SELL order")
-                self.is_running = False
-                return False
-            else:
-                self.positions[f"{optimal_strike}_PE"] = {
-                    'strike': optimal_strike, 'type': 'PE', 'quantity': -LOT_SIZE,
-                    'delta': self.get_option_delta(optimal_strike, 'PE', expiry_date)
-                }
-            
-            ce_delta = self.get_option_delta(optimal_strike, 'CE', expiry_date)
-            pe_delta = self.get_option_delta(optimal_strike, 'PE', expiry_date)
-            self.record_strategy_data(optimal_strike, ce_ltp, pe_ltp, ce_delta, pe_delta)
-            
-            self.monitor_thread = threading.Thread(target=self.monitor_positions)
-            self.monitor_thread.daemon = True
-            self.monitor_thread.start()
-            
-            logger.info("Straddle strategy executed successfully - BUY first then SELL")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Strategy execution failed: {str(e)}")
-            self.is_running = False
-            return False
-    
-    def stop_strategy(self):
-        """Stop the strategy"""
-        logger.info("Stopping strategy")
-        self.is_running = False
-        if self.monitor_thread:
-            self.monitor_thread.join(timeout=5)
-        logger.info("Strategy stopped")
 
-    def _update_positions_greek(self):
-        """Update Greek table with position details including delta and total row"""
-        try:
-            current_time = datetime.now(IST_TIMEZONE)
-            
-            if current_time.time() < ENTRY_TIME or current_time.time() > EXIT_TIME:
-                logger.debug("Outside trading hours - skipping Greek table update")
-                return
-                
-            if current_time.minute % DELTA_UPDATE_MINUTES != 0:
-                logger.debug("Not time for Greek table update yet")
-                return
-                
-            if not hasattr(self, 'client_manager') or not self.client_manager.clients:
-                logger.warning("No client manager available for Greek table update")
-                return
-
-            client_name, client_id, primary_client = self.client_manager.clients[0]
-            logger.debug(f"Updating Greek table for client: {client_name}")
-
-            try:
-                positions = primary_client.get_positions()
-                if positions is None:
-                    logger.warning("No positions returned for Greek table")
-                    return
-            except Exception as e:
-                self.ui.log_message(client_name, f"Error fetching positions for Greek table: {str(e)}")
-                logger.error(f"Error fetching positions for Greek table: {str(e)}")
-                return
-
-            self.ui.GreekTable.setRowCount(0)
-            self.ui.GreekTable.setColumnCount(6)
-            
-            headers = ["Position", "Entry Price", "Current Price", "Exit Price", "P&L", "Delta"]
-            self.ui.GreekTable.setHorizontalHeaderLabels(headers)
-
-            if not positions:
-                logger.debug("No positions to display in Greek table")
-                return
-
-            rows_data = []
-            total_pnl = 0
-            total_delta = 0
-
-            for pos in positions:
+    def _exit_all_positions(self, reason: str = ""):
+        logger.info("intraday_straddle: exiting all positions - %s", reason)
+        all_closed_successfully = True
+        # close mains (BUY) if real_entered
+        for leg in ['ce','pe']:
+            pos = self.intraday_straddle_positions[leg]
+            if pos['symbol'] and pos.get('real_entered', False):
                 try:
-                    symbol = pos.get("tsym", "")
-                    if not symbol:
-                        continue
-
-                    buy_qty = (
-                        int(float(pos.get("totbuyqty") or 0))
-                        or int(float(pos.get("cfbuyqty") or 0))
-                        or int(float(pos.get("daybuyqty") or 0))
-                    )
-                    sell_qty = (
-                        int(float(pos.get("totsellqty") or 0))
-                        or int(float(pos.get("cfsellqty") or 0))
-                        or int(float(pos.get("daysellqty") or 0))
-                    )
-                    net_qty = int(float(pos.get("netqty") or 0))
-
-                    if buy_qty == 0 and sell_qty == 0:
-                        continue
-
-                    position_desc = ""
-                    entry_price = 0.0
-                    exit_price = 0.0
-                    
-                    if net_qty < 0:
-                        position_desc = f"-{abs(net_qty)}x {symbol}"
-                        entry_price = (
-                            float(pos.get("totsellavgprc") or 0)
-                            or float(pos.get("cfsellavgprc") or 0)
-                            or float(pos.get("daysellavgprc") or 0)
-                        )
-                        exit_price = 0.0
-                        
-                    elif net_qty > 0:
-                        position_desc = f"+{net_qty}x {symbol}"
-                        entry_price = (
-                            float(pos.get("totbuyavgprc") or 0)
-                            or float(pos.get("cfbuyavgprc") or 0)
-                            or float(pos.get("daybuyavgprc") or 0)
-                        )
-                        exit_price = 0.0
-                        
+                    ok = self._place_order(pos['symbol'], pos['token'], 'BUY')
+                    if ok:
+                        self.intraday_straddle_positions[leg] = self._empty_position()
                     else:
-                        position_desc = f"0x {symbol} (Closed)"
-                        if buy_qty > 0:
-                            entry_price = (
-                                float(pos.get("totbuyavgprc") or 0)
-                                or float(pos.get("cfbuyavgprc") or 0)
-                                or float(pos.get("daybuyavgprc") or 0)
-                            )
-                            exit_price = (
-                                float(pos.get("totsellavgprc") or 0)
-                                or float(pos.get("cfsellavgprc") or 0)
-                                or float(pos.get("daysellavgprc") or 0)
-                            )
-                        else:
-                            entry_price = (
-                                float(pos.get("totsellavgprc") or 0)
-                                or float(pos.get("cfsellavgprc") or 0)
-                                or float(pos.get("daysellavgprc") or 0)
-                            )
-                            exit_price = (
-                                float(pos.get("totbuyavgprc") or 0)
-                                or float(pos.get("cfbuyavgprc") or 0)
-                                or float(pos.get("daybuyavgprc") or 0)
-                            )
+                        all_closed_successfully = False
+                except Exception:
+                    all_closed_successfully = False
+        # close hedge if present (SELL hedge)
+        hedge_sym = self.intraday_straddle_hedge_info.get('hedge_symbol')
+        if hedge_sym:
+            try:
+                self._place_order(hedge_sym, self.intraday_straddle_hedge_info.get('hedge_token',''), 'SELL')
+            except Exception:
+                pass
 
-                    current_price = float(pos.get("lp") or 0)
-                    
-                    mtm = float(pos.get("urmtom") or 0)
-                    realized_pnl = float(pos.get("rpnl") or 0)
-                    total_position_pnl = mtm + realized_pnl
-                    total_pnl += total_position_pnl
+        if all_closed_successfully:
+            self.intraday_straddle_state = "COMPLETED"
+            self._log_state("COMPLETED", f"All closed: {reason}")
+        else:
+            self._log_state(self.intraday_straddle_state, f"Exit attempted: {reason}")
 
-                    delta = self._calculate_option_delta(symbol, current_price)
-                    total_delta += delta
-
-                    row_data = {
-                        "position_desc": position_desc,
-                        "entry_price": entry_price,
-                        "current_price": current_price,
-                        "exit_price": exit_price,
-                        "pnl": total_position_pnl,
-                        "delta": delta,
-                        "net_qty": net_qty
-                    }
-                    rows_data.append(row_data)
-
-                except Exception as e:
-                    self.ui.log_message("GreekTableError", f"Error processing position {symbol}: {str(e)}")
-                    logger.error(f"Error processing position {symbol}: {str(e)}")
-                    continue
-
-            for row_idx, row_data in enumerate(rows_data):
-                self.ui.GreekTable.insertRow(row_idx)
-
-                items = [
-                    QTableWidgetItem(row_data["position_desc"]),
-                    QTableWidgetItem(f"{row_data['entry_price']:.2f}"),
-                    QTableWidgetItem(f"{row_data['current_price']:.2f}"),
-                    QTableWidgetItem(f"{row_data['exit_price']:.2f}"),
-                    QTableWidgetItem(f"{row_data['pnl']:.2f}"),
-                    QTableWidgetItem(f"{row_data['delta']:.4f}")
-                ]
-
-                for col, item in enumerate(items):
-                    item.setTextAlignment(Qt.AlignCenter)
-                    
-                    if col == 4:
-                        pnl_value = float(item.text())
-                        item.setForeground(QColor("green") if pnl_value > 0 else QColor("red") if pnl_value < 0 else QColor("black"))
-                    
-                    elif col == 5:
-                        delta_value = float(item.text())
-                        item.setForeground(QColor("green") if delta_value > 0 else QColor("red") if delta_value < 0 else QColor("black"))
-
-                    self.ui.GreekTable.setItem(row_idx, col, item)
-
-            if rows_data:
-                self.ui.GreekTable.insertRow(len(rows_data))
-                
-                total_items = [
-                    QTableWidgetItem("Total"),
-                    QTableWidgetItem(""),
-                    QTableWidgetItem(""),
-                    QTableWidgetItem(""),
-                    QTableWidgetItem(f"{total_pnl:.2f}"),
-                    QTableWidgetItem(f"{total_delta:.4f}")
-                ]
-                
-                for col, item in enumerate(total_items):
-                    item.setTextAlignment(Qt.AlignCenter)
-                    if col == 4:
-                        item.setForeground(QColor("green") if total_pnl > 0 else QColor("red") if total_pnl < 0 else QColor("black"))
-                        item.setFont(QFont("Arial", 10, QFont.Bold))
-                    elif col == 5:
-                        item.setForeground(QColor("green") if total_delta > 0 else QColor("red") if total_delta < 0 else QColor("black"))
-                        item.setFont(QFont("Arial", 10, QFont.Bold))
-                    
-                    self.ui.GreekTable.setItem(len(rows_data), col, item)
-
-            self.ui.GreekTable.resizeColumnsToContents()
-
-            self.ui.log_message("GreekTable", f"Updated {len(rows_data)} positions | Total P&L: {total_pnl:.2f} | Total Delta: {total_delta:.4f} at {current_time.strftime('%H:%M:%S')}")
-            logger.info(f"Greek table updated with {len(rows_data)} positions, Total P&L: {total_pnl:.2f}, Total Delta: {total_delta:.4f}")
-
-        except Exception as e:
-            self.ui.log_message("GreekTableError", f"Error updating Greek table: {str(e)}")
-            logger.error(f"Error updating Greek table: {str(e)}")
-
-    def _calculate_option_delta(self, symbol, current_price):
-        """Calculate delta for an option symbol using NSE data and Black-Scholes"""
+    # -------------------- Broker / Quote / Order wrappers --------------------
+    def _get_spot_ltp(self) -> Optional[float]:
+        """
+        Fetch spot LTP for NIFTY (underlying). We expect NIFTY index symbol available in client quotes (like NIFTY or NIFTY 50).
+        If your broker uses a specific underlying trading symbol, adapt this function.
+        """
         try:
-            expiry_date_str = self.get_expiry_date()
-            
-            if not os.path.exists(NFO_SYMBOLS_FILE):
-                logger.error(f"{NFO_SYMBOLS_FILE} file not found for delta calculation")
-                return 0.0
-            
-            df = pd.read_csv(NFO_SYMBOLS_FILE)
-            
-            option_data = df[df['TradingSymbol'] == symbol]
-            
-            if option_data.empty:
-                logger.warning(f"Option {symbol} not found in {NFO_SYMBOLS_FILE} for delta calculation")
-                return 0.0
-            
-            strike_price = float(option_data.iloc[0]['StrikePrice'])
-            option_type = option_data.iloc[0]['OptionType']
-            
-            deltas = self._get_nse_deltas_for_strategy(expiry_date_str, strike_price, option_type)
-            
-            if (strike_price, option_type) in deltas:
-                delta_value = deltas[(strike_price, option_type)]
-                logger.debug(f"Delta for {symbol}: {delta_value:.4f}")
-                return delta_value
-            else:
-                fallback_delta = self._calculate_fallback_delta(strike_price, option_type)
-                logger.debug(f"Using fallback delta for {symbol}: {fallback_delta:.4f}")
-                return fallback_delta
-                    
-        except Exception as e:
-            logger.error(f"Error calculating delta for {symbol}: {str(e)}")
-            return 0.0
-
-    def _get_nse_deltas_for_strategy(self, expiry_date_str, target_strike=None, target_option_type=None):
-        """Get delta values from NSE using Black-Scholes calculation"""
-        deltas = {}
-        try:
-            logger.debug(f"Fetching NSE deltas for expiry: {expiry_date_str}")
-            
-            df_raw, S = self._fetch_option_chain(INDEX_SYMBOL)
-            if S is None:
-                logger.warning("Could not fetch underlying spot from NSE, using fallback delta")
-                return deltas
-
-            ce = pd.json_normalize(df_raw["CE"]).add_prefix("CE.")
-            pe = pd.json_normalize(df_raw["PE"]).add_prefix("PE.")
-            base = df_raw[["strikePrice", "expiryDate"]]
-            df = pd.concat([base, ce, pe], axis=1)
-
-            df = df[df["expiryDate"] == expiry_date_str].copy()
-            
-            if df.empty:
-                logger.warning(f"No NSE data found for expiry {expiry_date_str}")
-                return deltas
-
-            if target_strike is not None and target_option_type is not None:
-                df = df[df['strikePrice'] == target_strike]
-                if df.empty:
-                    logger.warning(f"No NSE data found for strike {target_strike}")
-                    return deltas
-
-            T = self._time_to_expiry_yrs(expiry_date_str)
-            
-            df["CE.iv"] = df.get("CE.impliedVolatility", np.nan) / 100.0
-            df["PE.iv"] = df.get("PE.impliedVolatility", np.nan) / 100.0
-
-            q_est = self._estimate_q_from_parity(df, S=S, r=RISK_FREE_RATE, T=T)
-
-            for _, row in df.iterrows():
-                strike = row["strikePrice"]
-                
-                if not pd.isna(row["CE.iv"]):
-                    ce_delta = self._bs_delta(
-                        S=S, K=strike, T=T, r=RISK_FREE_RATE, q=q_est, 
-                        sigma=row["CE.iv"], opt_type="C"
-                    )
-                    deltas[(strike, 'CE')] = ce_delta
-                
-                if not pd.isna(row["PE.iv"]):
-                    pe_delta = self._bs_delta(
-                        S=S, K=strike, T=T, r=RISK_FREE_RATE, q=q_est, 
-                        sigma=row["PE.iv"], opt_type="P"
-                    )
-                    deltas[(strike, 'PE')] = pe_delta
-                    
-            logger.info(f"Calculated NSE deltas for {len(deltas)} options")
-            
-        except Exception as e:
-            logger.error(f"Failed to get NSE deltas: {str(e)}")
-        
-        return deltas
-
-    def _calculate_fallback_delta(self, strike_price, option_type):
-        """Fallback delta calculation when NSE data is unavailable"""
-        try:
-            spot_price = self.get_spot_price()
-            if spot_price == 0:
-                logger.warning("Spot price unavailable for fallback delta calculation")
-                return 50.0 if option_type == 'CE' else -50.0
-
-            moneyness = (strike_price - spot_price) / spot_price
-
-            if option_type == 'CE':
-                if moneyness < -0.02:
-                    return 85.0
-                elif moneyness < -0.01:
-                    return 70.0
-                elif moneyness < 0.01:
-                    return 50.0
-                elif moneyness < 0.02:
-                    return 30.0
-                else:
-                    return 15.0
-            else:
-                if moneyness > 0.02:
-                    return -85.0
-                elif moneyness > 0.01:
-                    return -70.0
-                elif moneyness > -0.01:
-                    return -50.0
-                elif moneyness > -0.02:
-                    return -30.0
-                else:
-                    return -15.0
-                    
-        except Exception as e:
-            logger.error(f"Error in fallback delta calculation: {str(e)}")
-            return 50.0 if option_type == 'CE' else -50.0
-
-    def _fetch_option_chain(self, symbol=INDEX_SYMBOL):
-        """Fetch option chain data from NSE"""
-        try:
-            logger.debug(f"Fetching option chain for {symbol}")
-            
-            s = requests.Session()
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Referer": "https://www.nseindia.com/option-chain",
-            }
-            s.headers.update(headers)
-            
-            for url in ("https://www.nseindia.com", "https://www.nseindia.com/option-chain"):
+            client = self._get_primary_client()
+            if not client:
+                return None
+            # Try common NIFTY identifiers - adapt if different in your client
+            for ident in ['NIFTY 50', 'NIFTY', 'NIFTYII', 'NIFTY50']:
                 try:
-                    s.get(url, timeout=10)
-                except:
-                    pass
-                sleep_time.sleep(0.3)
-            
-            url = f"https://www.nseindia.com/api/option-chain-indices?symbol={symbol}"
-            resp = s.get(url, timeout=15)
-            
-            if resp.status_code == 200:
-                data = resp.json()
-                records = data.get("records", {}).get("data", [])
-                underlying_value = data.get("records", {}).get("underlyingValue", None)
-                logger.debug(f"Successfully fetched option chain, underlying value: {underlying_value}")
-                return pd.DataFrame(records), underlying_value
-            else:
-                logger.warning(f"Failed to fetch option chain, status code: {resp.status_code}")
-                
-        except Exception as e:
-            logger.error(f"Failed to fetch NSE option chain: {str(e)}")
-        
-        return pd.DataFrame(), None
-
-    def _time_to_expiry_yrs(self, expiry_str):
-        """Calculate time to expiry in years"""
-        try:
-            now_ist = datetime.now(IST_TIMEZONE)
-            expiry_dt = datetime.strptime(expiry_str, "%d-%b-%Y").replace(
-                hour=15, minute=30, second=0, tzinfo=IST_TIMEZONE
-            )
-            secs = max((expiry_dt - now_ist).total_seconds(), 0.0)
-            time_to_expiry = secs / (365.0 * 24.0 * 3600.0)
-            logger.debug(f"Time to expiry: {time_to_expiry:.4f} years")
-            return time_to_expiry
-        except Exception as e:
-            logger.warning(f"Error calculating time to expiry, using default: {str(e)}")
-            return DEFAULT_TIME_TO_EXPIRY
-
-    def _bs_delta(self, S, K, T, r, q, sigma, opt_type="C"):
-        """Black-Scholes delta calculation"""
-        try:
-            if T <= 0 or sigma <= 0 or S <= 0 or K <= 0:
-                logger.warning("Invalid parameters for Black-Scholes calculation")
-                return 50.0 if opt_type == "C" else -50.0
-                
-            d1 = (math.log(S / K) + (r - q + 0.5 * sigma * sigma) * T) / (sigma * math.sqrt(T))
-            if opt_type.upper() == "C":
-                delta = math.exp(-q * T) * norm.cdf(d1)
-            else:
-                delta = math.exp(-q * T) * (norm.cdf(d1) - 1.0)
-            
-            delta_percent = delta * 100
-            logger.debug(f"Black-Scholes delta: S={S}, K={K}, T={T}, sigma={sigma}, delta={delta_percent:.2f}")
-            return delta_percent
-            
-        except Exception as e:
-            logger.error(f"Error in Black-Scholes calculation: {str(e)}")
-            return 50.0 if opt_type == "C" else -50.0
-
-    def _estimate_q_from_parity(self, rows, S, r, T):
-        """Estimate dividend yield from put-call parity"""
-        try:
-            qs = []
-            for _, row in rows.iterrows():
-                C = row.get("CE.lastPrice", np.nan)
-                P = row.get("PE.lastPrice", np.nan)
-                K = row.get("strikePrice", np.nan)
-                if any(pd.isna(x) for x in (C, P, K)) or S <= 0 or T <= 0:
+                    q = client.get_quotes('NSE', ident)
+                    if q and isinstance(q, dict):
+                        if 'lp' in q and q.get('lp') is not None:
+                            return float(q.get('lp'))
+                        if 'data' in q and isinstance(q['data'], dict):
+                            for v in q['data'].values():
+                                if isinstance(v, dict) and 'lp' in v and v.get('lp') is not None:
+                                    return float(v.get('lp'))
+                except Exception:
                     continue
-                rhs = (C - P + K * math.exp(-r * T)) / S
-                if rhs > 0:
-                    q = -math.log(rhs) / T
-                    if -0.05 < q < 0.20:
-                        qs.append(q)
-            q_est = float(np.median(qs)) if qs else 0.0
-            logger.debug(f"Estimated dividend yield: {q_est:.4f}")
-            return q_est
+            # fallback: try underlying from NFO_symbols file—look for Instrument 'INDEX' and Symbol 'NIFTY'
+            try:
+                if os.path.exists(NFO_SYMBOLS_FILE):
+                    df = pd.read_csv(NFO_SYMBOLS_FILE)
+                    idx_row = df[(df['Instrument'].str.strip() == 'INDEX') & (df['Symbol'].str.strip() == 'NIFTY')]
+                    if not idx_row.empty:
+                        sym = idx_row.iloc[0].get('TradingSymbol','')
+                        q = client.get_quotes('NSE', sym)
+                        if q and isinstance(q, dict):
+                            if 'lp' in q and q.get('lp') is not None:
+                                return float(q.get('lp'))
+            except Exception:
+                pass
+            return None
         except Exception as e:
-            logger.warning(f"Error estimating dividend yield: {str(e)}")
-            return 0.0
+            logger.debug("_get_spot_ltp error: %s", e)
+            return None
+
+    def _get_option_ltp(self, symbol_or_token: str) -> Optional[float]:
+        try:
+            client = self._get_primary_client()
+            if not client or not symbol_or_token:
+                return None
+            q = None
+            try:
+                q = client.get_quotes('NFO', symbol_or_token)
+            except Exception:
+                try:
+                    q = client.get_quotes('NFO', symbol_or_token)
+                except Exception:
+                    q = None
+            if not q:
+                return None
+            if isinstance(q, dict):
+                if q.get('stat') in ['Ok', 'OK', 'ok'] and 'lp' in q and q.get('lp') is not None:
+                    try:
+                        return float(q.get('lp'))
+                    except Exception:
+                        pass
+                if 'data' in q and isinstance(q['data'], dict):
+                    if symbol_or_token in q['data'] and isinstance(q['data'][symbol_or_token], dict):
+                        inner = q['data'][symbol_or_token]
+                        if 'lp' in inner and inner.get('lp') is not None:
+                            return float(inner.get('lp'))
+                    for v in q['data'].values():
+                        if isinstance(v, dict) and 'lp' in v and v.get('lp') is not None:
+                            return float(v.get('lp'))
+            return None
+        except Exception as e:
+            logger.debug("_get_option_ltp error: %s", e)
+            return None
+
+    def _place_order(self, symbol: str, token: str, action: str) -> bool:
+        try:
+            client = self._get_primary_client()
+            if not client:
+                logger.error("No trading client available")
+                return False
+            sh_action = 'B' if action.upper() == 'BUY' else 'S'
+            try:
+                order_res = client.place_order(
+                    buy_or_sell=sh_action,
+                    product_type=ORDER_PRODUCT_TYPE,
+                    exchange=ORDER_EXCHANGE,
+                    tradingsymbol=symbol,
+                    quantity=LOT_SIZE,
+                    discloseqty=0,
+                    price_type='MKT',
+                    price=0.0,
+                    trigger_price=None,
+                    retention='DAY',
+                    remarks=f"{STRATEGY_NAME}_{action.upper()}_{symbol}"
+                )
+            except Exception as e:
+                logger.error("Broker place_order raised exception: %s", e)
+                return False
+            if not order_res:
+                return False
+            # best-effort success check
+            if isinstance(order_res, dict):
+                if order_res.get('stat') in ['Ok','OK','ok'] or order_res.get('status','').lower() in ['success','ok']:
+                    return True
+            if isinstance(order_res, bool):
+                return order_res
+            return True
+        except Exception as e:
+            logger.error("_place_order failed: %s\n%s", e, traceback.format_exc())
+            return False
+
+    def _get_broker_positions(self) -> List[Dict[str, Any]]:
+        try:
+            client = self._get_primary_client()
+            if not client:
+                return []
+            res = client.get_positions()
+            if not res:
+                return []
+            if isinstance(res, dict) and 'data' in res:
+                data = res['data']
+                if isinstance(data, list):
+                    return data
+                if isinstance(data, dict):
+                    return list(data.values())
+            if isinstance(res, list):
+                return res
+            return []
+        except Exception as e:
+            logger.warning("Failed to get broker positions: %s", e)
+            return []
+
+    def _get_primary_client(self):
+        try:
+            if self.client_manager and hasattr(self.client_manager, "clients") and self.client_manager.clients:
+                return self.client_manager.clients[0][2]
+        except Exception:
+            logger.exception("Error fetching primary client")
+        return None
+
+    def _is_symbol_in_pos(self, symbol: Optional[str], broker_pos: Dict[str, Any]) -> bool:
+        if not symbol or not broker_pos:
+            return False
+        try:
+            norm = str(symbol).strip().upper()
+            for key in ['tradingsymbol', 'TradingSymbol', 'symbol', 'Trading_Symbol', 'instrument']:
+                if key in broker_pos and str(broker_pos[key]).strip().upper() == norm:
+                    return True
+        except Exception:
+            return False
+        return False
+
+    def _validate_active_positions_exist(self):
+        try:
+            if self.intraday_straddle_state != "ACTIVE":
+                return
+            broker_positions = self._get_broker_positions()
+            found_ce = any(self._is_symbol_in_pos(self.intraday_straddle_positions['ce']['symbol'], bp) for bp in broker_positions) if self.intraday_straddle_positions['ce']['symbol'] else False
+            found_pe = any(self._is_symbol_in_pos(self.intraday_straddle_positions['pe']['symbol'], bp) for bp in broker_positions) if self.intraday_straddle_positions['pe']['symbol'] else False
+            if not found_ce and not found_pe:
+                logger.info("ACTIVE but no broker positions detected for CE/PE.")
+                # reset to WAITING for safety
+                self.intraday_straddle_positions = {'ce': self._empty_position(), 'pe': self._empty_position()}
+                self.intraday_straddle_state = "WAITING"
+                self._log_state("WAITING", "Auto-reset: no broker positions detected (intraday_straddle)")
+        except Exception as e:
+            logger.error("_validate_active_positions_exist: %s\n%s", e, traceback.format_exc())
+
+    def _get_current_expiry(self):
+        """
+        Uses UI dropdown if present; otherwise returns None.
+        """
+        try:
+            if not self.ui or not hasattr(self.ui, 'ExpiryListDropDown'):
+                return None
+            expiry_dates = []
+            for i in range(self.ui.ExpiryListDropDown.count()):
+                txt = self.ui.ExpiryListDropDown.itemText(i)
+                try:
+                    d = datetime.strptime(txt, "%d-%b-%Y").date()
+                    expiry_dates.append(d)
+                except Exception:
+                    continue
+            expiry_dates.sort()
+            today = datetime.now().date()
+            for d in expiry_dates:
+                if d >= today:
+                    return d
+            return expiry_dates[-1] if expiry_dates else None
+        except Exception:
+            return None
+
+    # -------------------- State logging --------------------
+    def _log_state(self, status: str, comments: str = "", **extra):
+        try:
+            now = ISTTimeUtils.now().strftime("%Y-%m-%d %H:%M:%S")
+            row = {
+                'timestamp': now,
+                'status': status,
+                'comments': comments,
+                'ce_symbol': self.intraday_straddle_positions['ce'].get('symbol'),
+                'ce_strike': self.intraday_straddle_positions['ce'].get('strike'),
+                'ce_entry_price': self.intraday_straddle_positions['ce'].get('entry_price'),
+                'ce_ltp': self.intraday_straddle_positions['ce'].get('ltp'),
+                'ce_sl_price': self.intraday_straddle_positions['ce'].get('current_sl'),
+                'ce_real_entered': self.intraday_straddle_positions['ce'].get('real_entered'),
+                'pe_symbol': self.intraday_straddle_positions['pe'].get('symbol'),
+                'pe_strike': self.intraday_straddle_positions['pe'].get('strike'),
+                'pe_entry_price': self.intraday_straddle_positions['pe'].get('entry_price'),
+                'pe_ltp': self.intraday_straddle_positions['pe'].get('ltp'),
+                'pe_sl_price': self.intraday_straddle_positions['pe'].get('current_sl'),
+                'pe_real_entered': self.intraday_straddle_positions['pe'].get('real_entered'),
+                'hedge_symbol': self.intraday_straddle_hedge_info.get('hedge_symbol'),
+                'hedge_ltp': self.intraday_straddle_hedge_info.get('hedge_ltp')
+            }
+            row.update(extra)
+            df = pd.DataFrame([row])
+            write_header = not os.path.exists(self.intraday_straddle_state_file)
+            df.to_csv(self.intraday_straddle_state_file, mode='a', header=write_header, index=False)
+        except Exception as e:
+            logger.error("_log_state failed: %s\n%s", e, traceback.format_exc())
+

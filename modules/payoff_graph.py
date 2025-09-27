@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QTimer, QPointF, QMargins
 from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QBrush
 from PyQt5.QtWidgets import QVBoxLayout, QGraphicsSimpleTextItem, QMessageBox
 import winsound
+import sip
 
 logger = logging.getLogger(__name__)
 
@@ -375,28 +376,32 @@ class PayoffGraphTab:
     def _add_payoff_labels(self, chart_view, current_price, lower_range, higher_range, ce_adj, pe_adj, total_premium):
         """Add text labels to the payoff chart"""
         try:
-            if not chart_view or not chart_view.scene():
+            # ✅ Prevent using a deleted chart_view in PyQt5
+            if chart_view is None or sip.isdeleted(chart_view):
+                return
+            if not chart_view.scene():
                 return
 
             # Add labels for key price levels
             self._add_vertical_label(chart_view, current_price, f"Calc: {current_price:.2f}", Qt.blue)
-            
+
             if self._spot_price_valid:
                 self._add_vertical_label(chart_view, self._spot_price_raw, f"Spot: {self._spot_price_raw:.2f}", Qt.green)
-            
+
             self._add_vertical_label(chart_view, lower_range, f"Low: {lower_range:.2f}", Qt.red)
             self._add_vertical_label(chart_view, higher_range, f"High: {higher_range:.2f}", Qt.red)
             self._add_vertical_label(chart_view, ce_adj, f"CE: {ce_adj:.2f}", QColor(255, 165, 0))
             self._add_vertical_label(chart_view, pe_adj, f"PE: {pe_adj:.2f}", QColor(255, 165, 0))
-            
+
             if total_premium > 0:
                 self._add_vertical_label(chart_view, chart_view.chart().axisX().min() + 50,
-                                       f"Premium: {total_premium:.2f}", QColor(0, 102, 102))
-                                       
+                                        f"Premium: {total_premium:.2f}", QColor(0, 102, 102))
+
             logger.debug("Payoff labels added successfully")
-                                       
+
         except Exception as e:
             logger.error(f"Failed to add payoff labels: {str(e)}")
+
 
     def _add_vertical_label(self, chart_view, price, text, color):
         """Add a label at the top of a vertical line"""

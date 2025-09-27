@@ -37,10 +37,13 @@ def combine_position_files(folder_path, output_file):
         pattern = os.path.join(folder_path, "*_positions.csv")
         all_files = glob.glob(pattern)
 
+
         if not all_files:
-            if os.path.exists(output_file):
-                os.remove(output_file)
-            return pd.DataFrame()
+            # Create an empty template file with expected columns
+            empty_df = pd.DataFrame(columns=["Timestamp", "Symbol", "Product", "Strategy", "PnL"])
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+            empty_df.to_csv(output_file, index=False)
+            return empty_df
 
         if os.path.exists(output_file):
             os.remove(output_file)
@@ -305,12 +308,12 @@ if not daily_data.empty:
             for col in summary_table.columns
             if col != "Date" and pd.api.types.is_numeric_dtype(summary_table[col])
         }
-        st.dataframe(summary_table.style.format(format_dict), use_container_width=True)
+        st.dataframe(summary_table.style.format(format_dict), width="stretch")
 else:
     st.info("No daily data available for the selected filters.")
 
 # --- REFRESH BUTTON ---
-if st.button("🔄 Refresh Data", use_container_width=True):
+if st.button("🔄 Refresh Data", width="stretch"):
     st.cache_data.clear()
     st.rerun()
 
@@ -322,4 +325,4 @@ with st.expander("🔍 View Raw Data"):
             for col in ["Date", "DataSource", "Symbol", "Product", "Strategy", "PnL", "SourceFile"]
             if col in df.columns
         ]
-        st.dataframe(df[display_cols], use_container_width=True)
+        st.dataframe(df[display_cols], width="stretch")

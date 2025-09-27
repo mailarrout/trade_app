@@ -7,7 +7,7 @@ from functools import wraps
 from PyQt5.QtCore import QTimer
 from pytz import timezone
 from calendar import monthrange
-
+from PyQt5.QtWidgets import QMessageBox
 
 # Configuration / constants
 IST = timezone('Asia/Kolkata')
@@ -667,8 +667,15 @@ class MonthlyStraddleStrategy:
             # Market moved beyond premium range
             if self.entry_spot_price is not None and self.max_premium is not None:
                 if (self.spot_price > self.entry_spot_price + self.max_premium) or \
-                   (self.spot_price < self.entry_spot_price - self.max_premium):
+                (self.spot_price < self.entry_spot_price - self.max_premium):
                     logger.info("Exit condition satisfied: market moved beyond premium range")
+                    
+                    # Simple alert message for adjustment condition
+                    self._show_alert_message(
+                        "Market Movement Alert", 
+                        f"Spot price moved beyond premium range!\nEntry Spot: ₹{self.entry_spot_price:.2f}\nCurrent Spot: ₹{self.spot_price:.2f}\nMax Premium: ₹{self.max_premium:.2f}\nConsidering adjustment.",
+                        "warning"
+                    )
                     return True
 
             return False
@@ -1312,3 +1319,25 @@ class MonthlyStraddleStrategy:
         except Exception as e:
             logger.error(f"Error getting token from positions CSV for {symbol}: {e}")
             return None            
+        
+    def _show_alert_message(self, title, message, level="info"):
+        """Show simple alert message to user"""
+        try:
+            msg_box = QMessageBox()
+            msg_box.setWindowTitle(title)
+            msg_box.setText(message)
+            
+            if level == "warning":
+                msg_box.setIcon(QMessageBox.Warning)
+            elif level == "critical":
+                msg_box.setIcon(QMessageBox.Critical)
+            else:
+                msg_box.setIcon(QMessageBox.Information)
+                
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec_()
+            
+            logger.info(f"User alert: {title} - {message}")
+            
+        except Exception as e:
+            logger.error(f"Failed to show alert: {e}")        

@@ -1,0 +1,2 @@
+client_name,client_id,retrieval_time,request_time,stat,prfname,cash,payin,payout,brkcollamt,unclearedcash,aux_daycash,aux_brkcollamt,aux_unclearedcash,daycash,turnoverlmt,pendordvallmt,remarks_amt,turnover,peak_mar,premium,brokerage,premium_d_m,brkage_d_m,blk_amt,mr_der_a
+AMIYA RANJAN ROUT,FA93411,2025-08-20 15:34:42 IST,15:34:41 20-08-2025,Ok,SHOONYA,311869.77,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,999999999999.00,999999999999.00,0.00,7520137.50,235467.45,-525.00,51.61,-525.00,51.61,0.00,218308.84

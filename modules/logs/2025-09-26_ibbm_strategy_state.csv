@@ -1,0 +1,4 @@
+timestamp,status,comments,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_real_entered,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_real_entered,ce_hedge_symbol,ce_hedge_entry,pe_hedge_symbol,pe_hedge_entry
+2025-09-26 10:16:17,VIRTUAL,Virtual CE & PE created,NIFTY30SEP25C24850,80.95,80.95,82.6,False,NIFTY30SEP25P24850,92.45,92.45,94.3,False,,0.0,,0.0
+2025-09-26 10:18:41,ACTIVE,Activated real PE with hedge + main SELL,NIFTY30SEP25C24850,80.95,83.8,82.6,False,NIFTY30SEP25P24850,91.3,91.3,93.15,True,,0.0,NIFTY30SEP25P24500,12.55,PE,NIFTY30SEP25P24850,NIFTY30SEP25P24500
+2025-09-26 10:19:06,STOPPED_OUT,PE SL hit at 96.0,NIFTY30SEP25C24850,80.95,83.8,82.6,False,NIFTY30SEP25P24850,91.3,96.0,93.15,False,,0.0,NIFTY30SEP25P24500,12.55,PE,96.0
