@@ -1,0 +1,8 @@
+timestamp,status,comments,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_real_entered,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_real_entered,ce_hedge_symbol,ce_hedge_entry,pe_hedge_symbol,pe_hedge_entry
+2025-09-29 09:47:18,VIRTUAL,Virtual CE & PE created,NIFTY07OCT25C25000,76.3,76.3,91.6,False,NIFTY07OCT25P24700,97.35,97.35,116.85,False,,0.0,,0.0
+2025-09-29 11:38:30,ACTIVE,Activated real CE with hedge + main SELL,NIFTY07OCT25C24950,77.1,77.1,92.55,True,NIFTY07OCT25P24700,97.35,119.45,116.85,False,NIFTY07OCT25C25650,5.4,,0.0,CE,NIFTY07OCT25C24950,NIFTY07OCT25C25650
+2025-09-29 11:38:38,WAITING,Auto-reset: ACTIVE but no broker positions,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-09-29 11:46:30,VIRTUAL,Virtual CE & PE created,NIFTY07OCT25C24950,73.95,73.95,88.75,False,NIFTY07OCT25P24600,94.8,94.8,113.8,False,,0.0,,0.0
+2025-09-29 12:41:24,ACTIVE,Activated real CE with hedge + main SELL,NIFTY07OCT25C24900,73.05,73.05,87.7,True,NIFTY07OCT25P24600,94.8,114.0,113.8,False,NIFTY07OCT25C25650,5.1,,0.0,CE,NIFTY07OCT25C24900,NIFTY07OCT25C25650
+2025-09-29 12:41:39,WAITING,Auto-reset: ACTIVE but no broker positions,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-09-29 12:46:16,VIRTUAL,Virtual CE & PE created,NIFTY07OCT25C24900,71.0,71.0,85.2,False,NIFTY07OCT25P24500,85.05,85.05,102.1,False,,0.0,,0.0

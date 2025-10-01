@@ -14336,3 +14336,186 @@ ValueError: time data 'nan' does not match format '%Y-%m-%d'
 2025-09-24 16:56:39,215 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-24
 2025-09-24 16:57:09,198 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-24
 2025-09-24 16:57:39,214 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-09-30; Next trading day: 2025-10-01; Today: 2025-09-24
+2025-10-01 17:00:00,511 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-01 17:00:00,534 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-01 17:00:21,454 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-01 17:00:21,459 - INFO - modules.strategy_monthly_straddle - Using latest state file: a2025-09-18_monthly_straddle_state.csv
+2025-10-01 17:00:21,513 - WARNING - modules.strategy_monthly_straddle - Could not parse date: 30-SEP-25, using default 2025-10-31
+2025-10-01 17:00:21,514 - WARNING - modules.strategy_monthly_straddle - Could not parse date: 18-SEP-25, using default 2025-10-01
+2025-10-01 17:00:21,515 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-01 17:00:21,516 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-01 17:00:21,979 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24836.30
+2025-10-01 17:00:22,429 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24836.3
+2025-10-01 17:00:22,434 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-01 17:00:22,917 - DEBUG - modules.strategy_monthly_straddle - LTP for 60455: 0.0
+2025-10-01 17:00:23,397 - DEBUG - modules.strategy_monthly_straddle - LTP for 60500: 0.0
+2025-10-01 17:00:23,916 - DEBUG - modules.strategy_monthly_straddle - LTP for 60566: 0.0
+2025-10-01 17:00:24,395 - DEBUG - modules.strategy_monthly_straddle - LTP for 60358: 0.0
+2025-10-01 17:00:24,400 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-01 17:00:24,400 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-01 17:01:18,356 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:01:30,742 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:02:00,728 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:02:30,777 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:03:00,745 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:03:30,786 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:04:00,729 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:04:30,744 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:05:00,870 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:05:30,752 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:06:00,796 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:06:30,789 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:07:00,773 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:07:30,785 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:08:00,776 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:08:30,774 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:09:01,169 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:09:30,775 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:10:00,942 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:10:31,239 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:10:57,638 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-01 17:10:57,640 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-01 17:11:59,778 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-01 17:11:59,799 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-01 17:11:59,800 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-01 17:12:00,253 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24836.30
+2025-10-01 17:12:00,717 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24836.3
+2025-10-01 17:12:00,721 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-01 17:12:01,188 - DEBUG - modules.strategy_monthly_straddle - LTP for 60455: 0.0
+2025-10-01 17:12:01,648 - DEBUG - modules.strategy_monthly_straddle - LTP for 60500: 0.0
+2025-10-01 17:12:02,090 - DEBUG - modules.strategy_monthly_straddle - LTP for 60566: 0.0
+2025-10-01 17:12:02,530 - DEBUG - modules.strategy_monthly_straddle - LTP for 60358: 0.0
+2025-10-01 17:12:02,533 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-01 17:12:02,534 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-01 17:12:03,168 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:12:27,836 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:12:57,821 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:13:27,829 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:13:57,838 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:14:27,853 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:14:57,872 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:15:27,853 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:15:57,879 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:16:27,853 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:16:57,880 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:17:28,022 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:17:57,905 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:18:27,900 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:18:57,916 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:19:27,915 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:19:57,916 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:20:27,962 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:20:57,994 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:21:27,994 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:21:57,995 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:22:27,994 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:22:58,041 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:23:28,026 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:23:58,055 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:24:28,059 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:24:58,058 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:25:28,056 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:25:58,056 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:26:28,072 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:26:58,087 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:27:28,088 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:27:58,123 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:28:28,104 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:28:58,135 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:29:28,150 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:29:58,150 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:30:28,183 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:30:58,212 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:31:28,229 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:31:58,228 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:32:28,262 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:32:58,281 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:33:28,275 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:33:58,306 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:34:28,330 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:34:58,323 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:35:28,330 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:35:58,342 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:36:28,353 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:36:58,368 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:37:28,369 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:37:58,384 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:38:28,418 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:38:58,400 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:39:28,417 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:39:58,401 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:40:28,415 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:40:58,432 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:41:28,494 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:41:58,433 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:42:28,450 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:42:58,463 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:43:28,478 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:43:58,479 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:44:28,494 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:44:58,494 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:45:28,493 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:45:58,509 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:46:28,509 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:46:58,526 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:47:28,532 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:47:58,533 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:48:28,542 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:48:58,556 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:49:28,570 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:49:58,791 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:50:28,572 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:50:58,573 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:51:28,614 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:51:58,604 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:52:28,765 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:52:58,605 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:53:28,587 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:53:58,613 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:54:28,634 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:54:58,619 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:55:28,618 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:55:58,634 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:56:28,636 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:56:58,744 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:57:28,635 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:57:58,651 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:58:28,666 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:58:58,681 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:59:29,025 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 17:59:58,681 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:00:28,885 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:00:58,744 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:01:28,744 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:01:58,745 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:02:28,759 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:02:58,769 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:03:28,806 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:03:58,775 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:04:28,775 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:04:58,790 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:05:28,835 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:06:00,400 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:06:28,869 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:06:58,973 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:07:29,026 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:14:09,884 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-01 18:14:09,886 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-01 18:14:40,753 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-01 18:14:40,788 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-01 18:14:40,788 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-01 18:14:42,181 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24836.30
+2025-10-01 18:14:43,337 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24836.3
+2025-10-01 18:14:43,337 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-01 18:14:44,153 - DEBUG - modules.strategy_monthly_straddle - LTP for 60455: 0.0
+2025-10-01 18:14:44,984 - DEBUG - modules.strategy_monthly_straddle - LTP for 60500: 0.0
+2025-10-01 18:14:46,042 - DEBUG - modules.strategy_monthly_straddle - LTP for 60566: 0.0
+2025-10-01 18:14:48,075 - DEBUG - modules.strategy_monthly_straddle - LTP for 60358: 0.0
+2025-10-01 18:14:48,076 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-01 18:14:48,076 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-01 18:18:26,193 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:18:26,195 - WARNING - modules.strategy_monthly_straddle - Manual execute clicked - not an entry day.
+2025-10-01 18:18:56,306 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:19:26,158 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:19:56,212 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01
+2025-10-01 18:20:26,206 - DEBUG - modules.strategy_monthly_straddle - Last Tuesday expiry: 2025-10-28; Next trading day: 2025-10-29; Today: 2025-10-01

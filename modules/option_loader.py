@@ -161,13 +161,43 @@ class OptionLoader(QObject):
             df = pd.read_csv("NFO_symbols.txt")
             logger.debug(f"Loaded NFO_symbols.txt with {len(df)} rows")
             
-            df_fut = df[(df["Instrument"].str.strip() == "FUTIDX") & 
-                        (df["Symbol"].str.strip() == "NIFTY")]
+            # Get expiry dates from dropdown
+            expiry_texts = [self.ui.ExpiryListDropDown.itemText(i) for i in range(self.ui.ExpiryListDropDown.count())]
+            expiry_dates = pd.to_datetime(expiry_texts, format="%d-%b-%Y", errors="coerce")
 
-            if df_fut.empty:
-                error_msg = "No futures data found for NIFTY"
-                logger.error(error_msg)
-                raise ValueError(error_msg)
+            today = pd.to_datetime("today")
+            current_month_expiries = [d for d in expiry_dates if d.month == today.month and d.year == today.year]
+
+            # Choose last expiry of current month, else fallback
+            if current_month_expiries:
+                monthly_expiry = max(current_month_expiries).strftime("%d-%b-%Y").upper()
+            else:
+                monthly_expiry = self.ui.ExpiryListDropDown.currentText().upper()
+
+            # --- Normalize df['Expiry'] safely ---
+            # Parse with explicit format to avoid warnings
+            df["Expiry_dt"] = pd.to_datetime(df["Expiry"], format="%d-%b-%Y", errors="coerce")
+
+            # Convert to normalized string
+            df["Expiry_str"] = df["Expiry_dt"].dt.strftime("%d-%b-%Y").str.upper()
+
+            # Logging
+            logger.info(f"All expiries: {expiry_texts}")
+            logger.info(f"Current month expiries: {current_month_expiries}")
+            logger.info(f"Monthly expiry resolved to: {monthly_expiry}")
+
+            # Filter for FUTIDX NIFTY
+            df_fut = df[
+                (df["Instrument"].str.strip() == "FUTIDX") &
+                (df["Symbol"].str.strip() == "NIFTY") &
+                (df["Expiry_str"] == monthly_expiry)
+            ]
+
+            if not df_fut.empty:
+                token = df_fut.iloc[0]["Token"]
+                logger.info(f"Monthly FUTIDX Token: {token}")
+            else:
+                logger.error(f"No futures data found for expiry: {monthly_expiry}")
 
             token = str(df_fut.iloc[0]['Token'])
             logger.debug(f"Using token {token} for spot price")

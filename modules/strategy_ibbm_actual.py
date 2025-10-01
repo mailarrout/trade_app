@@ -1,213 +1,518 @@
+# strategy_ibbm_actual.py
 import os
-import time
 import logging
-from datetime import datetime, time
+import math
+import time
+import traceback
+from datetime import datetime, time as dt_time, timedelta
+from functools import wraps
+from typing import Optional, Dict, Any, Tuple, List
 from PyQt5.QtCore import QTimer
+import pandas as pd
 from pytz import timezone
 import yfinance as yf
-import pandas as pd
-import math
-from functools import wraps
-from typing import Optional, Dict, Any, Tuple
-import traceback
 
+# ===== CONFIGURATION / CONSTANTS =====
 IST = timezone('Asia/Kolkata')
+LOGGER_NAME = __name__
 
-# Get logger for this module
-logger = logging.getLogger(__name__)
+STRATEGY_NAME = "IBBM Intraday"
 
-# ---------------------- Utility Decorators ----------------------
+# CURRENT (comment out the original)
+TRADING_START_TIME = dt_time(9, 45)
+TRADING_END_TIME = dt_time(14, 45)
+EOD_EXIT_TIME = dt_time(15, 15)
+ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
+
+# NEW - Set to current time ± few minutes
+# TRADING_START_TIME = dt_time(10, 0)  # Change to your current hour
+# TRADING_END_TIME = dt_time(23, 59)   # Extended to end of day
+# EOD_EXIT_TIME = dt_time(23, 59)      # Don't auto-exit during testing
+# ENTRY_MINUTES = list(range(0, 60))   # Allow entry ANY minute
+
+
+MONITORING_MINUTES = [15, 45]
+
+PREMIUM_RANGE = (70.0, 100.0)
+MIN_PREMIUM = PREMIUM_RANGE[0]
+MAX_PREMIUM = PREMIUM_RANGE[1]
+
+INITIAL_SL_MULTIPLIER = 1.20
+SL_ROUNDING_FACTOR = 20
+TRAILING_SL_STEPS = [0.10, 0.20, 0.30, 0.40, 0.50]
+
+STRATEGY_CHECK_INTERVAL = 60000
+MONITORING_INTERVAL = 10000
+
+NFO_SYMBOLS_FILE = "NFO_symbols.txt"
+LOG_DIR = os.path.join(os.path.dirname(__file__), "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+
+LOT_SIZE = 75
+ORDER_PRODUCT_TYPE = 'M'
+ORDER_EXCHANGE = 'NFO'
+
+ALLOW_REENTRY_AFTER_STOP = True
+
+# Market Data Constants
+YFINANCE_SYMBOL = "^NSEI"
+DATA_PERIOD = "1d"
+DATA_INTERVAL = "5m"
+MA_WINDOW = 12
+STRIKE_RANGE = 200
+
+logger = logging.getLogger(LOGGER_NAME)
+
+# ===== UTILS / DECORATORS =====
 def safe_log(context: str):
-    """Decorator to log errors gracefully without crashing."""
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
+            logger.debug(f"[{context}] Entering {func.__name__}")
             try:
-                logger.info(f"Starting {func.__name__} - {context}")
-                result = func(*args, **kwargs)
-                logger.info(f"Completed {func.__name__} successfully")
-                return result
+                return func(*args, **kwargs)
             except Exception as e:
-                error_msg = f"{context}: {str(e)}\n{traceback.format_exc()}"
-                logger.error(error_msg)
+                logger.error(f"[{context}] Exception in {func.__name__}: {e}\n{traceback.format_exc()}")
                 return None
         return wrapper
     return decorator
 
-# ---------------------- Time Utils ----------------------
 class ISTTimeUtils:
-    """Utility class for Indian Standard Time operations"""
     @staticmethod
     def now() -> datetime:
         return datetime.now(IST)
-    
+
     @staticmethod
-    def current_time() -> time:
+    def current_time() -> dt_time:
         return ISTTimeUtils.now().time()
-    
+
     @staticmethod
     def current_date_str() -> str:
         return ISTTimeUtils.now().strftime("%Y-%m-%d")
 
-# ---------------------- Strategy ----------------------
+def round_sl(price: float) -> float:
+    return math.ceil(price * SL_ROUNDING_FACTOR) / SL_ROUNDING_FACTOR
+
+# ===== STRATEGY CLASS =====
 class IBBMStrategy:
-    # ===================== CONFIGURATION CONSTANTS =====================
-    STRATEGY_NAME = "IBBM Intraday"
-    TRADING_START_TIME = time(9, 45)
-    TRADING_END_TIME = time(14, 45)
-    EOD_EXIT_TIME = time(15, 15)
+    def __init__(self, ui: Optional[Any], client_manager: Optional[Any], position_manager: Optional[Any] = None):
+        try:
+            logger.info("Initializing IBBMStrategy")
+            
+            self.ui = ui
+            self.client_manager = client_manager
+            self.position_manager = position_manager
 
-    # Entry time pattern (15/45 minutes with ±1 minute tolerance)
-    ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
-    MONITORING_MINUTES = [15, 45]
+            # Initialize state file FIRST to ensure recovery
+            self.current_state_file = os.path.join(LOG_DIR, f"{ISTTimeUtils.current_date_str()}_ibbm_actual_state.csv")
+            
+            # Create initial state file entry immediately
+            self._ensure_state_file_exists()
+            
+            self.state: str = "WAITING"
 
-    # Monitoring time windows
-    TREND_MONITORING_START = time(9, 46)  # Start monitoring 1 minute after trading starts
-    TREND_MONITORING_END = time(14, 45)   # End monitoring at trading end time
+            self.positions: Dict[str, Dict[str, Any]] = {
+                'ce': self._empty_position(),
+                'pe': self._empty_position()
+            }
+            self.hedges: Dict[str, Dict[str, Any]] = {
+                'ce': self._empty_position(),
+                'pe': self._empty_position()
+            }
 
-    # Timer intervals
-    STRATEGY_CHECK_INTERVAL = 60000  # 1 minute in milliseconds
-    MONITORING_INTERVAL = 10000      # 10 seconds in milliseconds
-    
-    # Option selection parameters
-    STRIKE_RANGE = 1000  # +/- around ATM
-    MIN_PREMIUM = 70
-    MAX_PREMIUM = 100
-    
-    # Stop loss parameters
-    INITIAL_SL_MULTIPLIER = 1.20  # 20% SL
-    SL_ROUNDING_FACTOR = 20       # Round to nearest 0.05
-    
-    # Market data parameters
-    YFINANCE_SYMBOL = '^NSEI'
-    DATA_PERIOD = '2d'
-    DATA_INTERVAL = '30m'
-    MA_WINDOW = 12
-    # ===================== END CONFIGURATION CONSTANTS =====================
-    
-    def __init__(self, ui, client_manager):
-        self.ui = ui
-        self.client_manager = client_manager
-        self.current_close: Optional[float] = None
-        self.current_ma12: Optional[float] = None
-        self.current_trend: Optional[str] = None
+            # Market data attributes
+            self.current_close = None
+            self.current_ma12 = None
+            self.current_trend = None
+            self.previous_trend = None
 
-        self.log_dir = os.path.join(os.path.dirname(__file__), 'logs')
-        os.makedirs(self.log_dir, exist_ok=True)
+            self._positions_validated = False
+            self._first_monitoring_logged = False
+            self._entry_attempted = False
 
-        self.current_state_file = os.path.join(
-            self.log_dir, f"{ISTTimeUtils.current_date_str()}_ibbm_strategy_state.csv"
-        )
+            # Initialize timers with error handling
+            self.strategy_timer = QTimer()
+            self.monitor_timer = QTimer()
+            
+            try:
+                self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
+                self.strategy_timer.start(STRATEGY_CHECK_INTERVAL)
+                logger.debug("Strategy timer started.")
+            except Exception as e:
+                logger.error(f"Failed to start strategy timer: {e}")
 
-        # Setup timers
-        self.strategy_timer = QTimer()
-        self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
-        self.strategy_timer.start(self.STRATEGY_CHECK_INTERVAL)
+            try:
+                self.monitor_timer.timeout.connect(self._monitor_all)
+                self.monitor_timer.start(MONITORING_INTERVAL)
+                logger.debug("Monitor timer started.")
+            except Exception as e:
+                logger.error(f"Failed to start monitor timer: {e}")
 
-        self.monitor_timer = QTimer()
-        self.monitor_timer.timeout.connect(self._monitor_all)
-        self.monitor_timer.start(self.MONITORING_INTERVAL)
+            # Bind UI button if present
+            try:
+                if hasattr(self.ui, 'ExecuteStrategyQPushButton'):
+                    self.ui.ExecuteStrategyQPushButton.clicked.connect(self.on_execute_strategy_clicked)
+            except Exception as e:
+                logger.debug(f"Could not bind UI execute button: {e}")
 
-        logger.info(f"Strategy initialized - Runs at {self.TRADING_START_TIME.strftime('%H:%M')} and monitors trend/SL till {self.TRADING_END_TIME.strftime('%H:%M')} IST")
+            # Attempt recovery - this will create state file if missing
+            recovery_success = self._try_recover_from_state_file()
+            if not recovery_success:
+                # If recovery fails, create fresh state file
+                self._log_state("WAITING", "Fresh start - no recovery data found")
+            
+            logger.info(f"IBBMStrategy initialized successfully; state={self.state}")
 
-        # WAITING | ACTIVE | STOPPED_OUT | COMPLETED
-        self.state = "WAITING"
-        self.positions: Dict[str, Dict[str, Any]] = {
-            'ce': self._empty_position(),
-            'pe': self._empty_position()
-        }
+        except Exception as e:
+            logger.critical(f"CRITICAL: IBBMStrategy initialization failed: {e}")
+            # Even if initialization fails, try to create state file for debugging
+            try:
+                self._log_state("ERROR", f"Initialization failed: {e}")
+            except:
+                pass
+            raise
 
-        self.ui.ExecuteStrategyQPushButton.clicked.connect(self.on_execute_strategy_clicked)
-        self._first_monitoring_logged = False 
-        self._positions_validated = False
+    def _ensure_state_file_exists(self):
+        """Ensure state file exists with initial entry"""
+        try:
+            if not os.path.exists(self.current_state_file):
+                initial_data = {
+                    'timestamp': ISTTimeUtils.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    'status': 'INITIALIZING',
+                    'comments': 'State file created during initialization',
+                    'nifty_price': 0.0,
+                    'nifty_ma12': 0.0,
+                    'trend': 'unknown',
+                    'ce_symbol': None,
+                    'ce_entry_price': 0.0,
+                    'ce_ltp': 0.0,
+                    'ce_sl_price': 0.0,
+                    'ce_trailing_step': 0,
+                    'pe_symbol': None,
+                    'pe_entry_price': 0.0,
+                    'pe_ltp': 0.0,
+                    'pe_sl_price': 0.0,
+                    'pe_trailing_step': 0
+                }
+                df = pd.DataFrame([initial_data])
+                df.to_csv(self.current_state_file, index=False)
+                logger.info(f"Created initial state file: {self.current_state_file}")
+        except Exception as e:
+            logger.error(f"Failed to create initial state file: {e}")
 
-        # Try to recover from state file on initialization
-        self._try_recover_from_state_file()
-    # ---------------------- Helpers ----------------------
     def _empty_position(self) -> Dict[str, Any]:
         return {
             'symbol': None, 'token': None, 'ltp': 0.0,
-            'sl': None, 'sl_hit': False, 'entry_price': 0.0
+            'entry_price': 0.0, 'initial_sl': 0.0, 'current_sl': 0.0,
+            'sl_hit': False, 'max_profit_price': 0.0, 'trailing_step': 0,
+            'real_entered': False, 'order_id': None
         }
+
+    # ===== Recovery & State Management =====
+    @safe_log("recovery")
+    def _try_recover_from_state_file(self):
+        """Recover strategy state from CSV file with enhanced error handling"""
+        try:
+            if not os.path.exists(self.current_state_file):
+                logger.info("No state file found for today; starting fresh.")
+                self._log_state("WAITING", "No state file found - fresh start")
+                return False
+
+            df = pd.read_csv(self.current_state_file)
+            if df.empty:
+                logger.info("State file empty for today.")
+                self._log_state("WAITING", "Empty state file - fresh start")
+                return False
+
+            last = df.iloc[-1]
+            last_status = str(last.get('status', 'WAITING')).strip()
+            logger.info(f"Recovered last status from file: {last_status}")
+
+            # Validate broker positions for ACTIVE/STOPPED_OUT states
+            if last_status in ['ACTIVE', 'STOPPED_OUT']:
+                broker_positions = self._get_broker_positions()
+                ce_sym = last.get('ce_symbol', None)
+                pe_sym = last.get('pe_symbol', None)
+                found_ce = False
+                found_pe = False
+
+                if broker_positions:
+                    try:
+                        if ce_sym and not pd.isna(ce_sym):
+                            found_ce = any(self._is_symbol_in_pos(ce_sym, bp) for bp in broker_positions)
+                        if pe_sym and not pd.isna(pe_sym):
+                            found_pe = any(self._is_symbol_in_pos(pe_sym, bp) for bp in broker_positions)
+                    except Exception:
+                        found_ce = found_pe = False
+
+                if not found_ce and not found_pe:
+                    if ALLOW_REENTRY_AFTER_STOP:
+                        logger.info("No broker positions detected -> resetting to WAITING")
+                        self._reset_all_positions()
+                        self.state = "WAITING"
+                        self._log_state("WAITING", "Reset - no broker positions found")
+                        return True
+                    else:
+                        logger.info("No broker positions detected -> remain STOPPED_OUT")
+                        self._reset_all_positions()
+                        self.state = "STOPPED_OUT"
+                        self._log_state("STOPPED_OUT", "No broker positions - staying STOPPED_OUT")
+                        return True
+
+            # Recover position data
+            self.state = last_status
+
+            for leg in ['ce', 'pe']:
+                try:
+                    sym = last.get(f'{leg}_symbol', None)
+                    if pd.notna(sym) and str(sym).strip():
+                        self.positions[leg]['symbol'] = str(sym).strip()
+                        self.positions[leg]['entry_price'] = float(last.get(f'{leg}_entry_price', 0.0))
+                        self.positions[leg]['ltp'] = float(last.get(f'{leg}_ltp', self.positions[leg]['entry_price']))
+                        self.positions[leg]['initial_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                        self.positions[leg]['current_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                        self.positions[leg]['real_entered'] = True
+                        self.positions[leg]['trailing_step'] = int(last.get(f'{leg}_trailing_step', 0))
+                        
+                        # Get token from symbol
+                        token = self._get_token_from_symbol(self.positions[leg]['symbol'])
+                        if token:
+                            self.positions[leg]['token'] = token
+                            
+                        logger.info(f"Recovered {leg.upper()} main: {self.positions[leg]['symbol']}")
+                except Exception as e:
+                    logger.debug(f"Failed to recover main leg {leg} from file: {e}")
+
+            # Recover market data
+            try:
+                self.current_close = float(last.get('nifty_price', 0.0))
+                self.current_ma12 = float(last.get('nifty_ma12', 0.0))
+                self.current_trend = last.get('trend', 'unknown')
+                self.previous_trend = self.current_trend
+            except Exception as e:
+                logger.debug(f"Failed to recover market data: {e}")
+
+            self._log_state("RECOVERED", f"Successfully recovered state: {self.state}")
+            return True
+
+        except Exception as e:
+            logger.error(f"State file recovery failed: {e}")
+            self._log_state("ERROR", f"Recovery failed: {e}")
+            return False
+
+    def _is_symbol_in_pos(self, symbol: str, broker_pos: dict) -> bool:
+        """Check if symbol exists in broker position"""
+        try:
+            return broker_pos.get('tsym', '') == symbol
+        except Exception:
+            return False
 
     def _reset_all_positions(self):
         self.positions = {'ce': self._empty_position(), 'pe': self._empty_position()}
+        self.hedges = {'ce': self._empty_position(), 'pe': self._empty_position()}
 
-    # ---------------------- Strategy Execution ----------------------
+    # ===== Core Strategy Methods =====
     def on_execute_strategy_clicked(self):
-        current_time = ISTTimeUtils.current_time()
-        strategy_name = self.ui.StrategyNameQComboBox.currentText()
+        """Manual execution via UI button"""
+        try:
+            now = ISTTimeUtils.current_time()
+            logger.info(f"Manual execute clicked at {now}")
+            
+            if now.minute not in ENTRY_MINUTES:
+                logger.warning("Manual execute allowed only in entry minutes.")
+                return
+                
+            if not (TRADING_START_TIME <= now <= TRADING_END_TIME):
+                logger.warning("Manual execute outside trading hours.")
+                return
+                
+            if self.state not in ['WAITING']:
+                logger.info(f"Manual execute ignored; current state={self.state}")
+                return
+                
+            logger.info("Manual start accepted; running entry cycle.")
+            self._run_entry_cycle()
+            
+        except Exception as e:
+            logger.error(f"Manual execute failed: {e}")
+
+    def attempt_recovery(self):
+        """Public recovery method"""
+        logger.info("Attempting IBBM strategy recovery")
+        try:
+            if self._try_recover_from_state_file():
+                logger.info("IBBM strategy recovered from state file")
+                return True
+            else:
+                logger.info("IBBM strategy recovery failed")
+                return False
+        except Exception as e:
+            logger.error(f"Recovery attempt failed: {e}")
+            return False
+
+    def recover_from_state_file(self):
+        return self._try_recover_from_state_file()
+
+    def recover_from_positions(self, positions_list=None):
+        try:
+            logger.info("Attempting to recover IBBM from positions")
+            
+            if positions_list is None:
+                positions_list = self._get_ibbm_positions_from_broker()
+            
+            if not positions_list:
+                logger.info("No IBBM positions found for recovery")
+                return False
+
+            ce_positions = [p for p in positions_list if 'CE' in p.get('symbol', '')]
+            pe_positions = [p for p in positions_list if 'PE' in p.get('symbol', '')]
+
+            if ce_positions:
+                ce_pos = ce_positions[0]
+                self.positions['ce'].update({
+                    'symbol': ce_pos.get('symbol'),
+                    'token': ce_pos.get('token'),
+                    'entry_price': ce_pos.get('avg_price', 0),
+                    'ltp': ce_pos.get('ltp', 0),
+                    'real_entered': True
+                })
+
+            if pe_positions:
+                pe_pos = pe_positions[0]
+                self.positions['pe'].update({
+                    'symbol': pe_pos.get('symbol'),
+                    'token': pe_pos.get('token'),
+                    'entry_price': pe_pos.get('avg_price', 0),
+                    'ltp': pe_pos.get('ltp', 0),
+                    'real_entered': True
+                })
+
+            if ce_positions or pe_positions:
+                self.state = "ACTIVE"
+                self._log_state("ACTIVE", "Recovered from broker positions")
+                self.register_strategy_positions()
+                logger.info("IBBM strategy recovered from broker positions")
+                return True
+
+            return False
+
+        except Exception as e:
+            logger.error(f"Error recovering from positions: {e}")
+            return False
+
+    def _get_ibbm_positions_from_broker(self):
+        try:
+            broker_positions = self._get_broker_positions()
+            ibbm_positions = []
+            
+            for pos in broker_positions:
+                symbol = pos.get('tsym', '')
+                if 'NIFTY' in symbol and ('CE' in symbol or 'PE' in symbol):
+                    net_qty = int(float(pos.get('netqty', 0)))
+                    if net_qty < 0:  # Only short positions
+                        ibbm_positions.append({
+                            'symbol': symbol,
+                            'token': pos.get('token', ''),
+                            'net_qty': net_qty,
+                            'avg_price': float(pos.get('netupldprc', 0)),
+                            'ltp': float(pos.get('lp', 0))
+                        })
+            
+            return ibbm_positions
+        except Exception as e:
+            logger.error(f"Error getting IBBM positions from broker: {e}")
+            return []
+
+    def register_strategy_positions(self, position_manager=None):
+        """Register positions with PositionManager"""
+        try:
+            target_manager = position_manager or self.position_manager
+            if not target_manager:
+                logger.error("No position manager available for registration")
+                return False
+
+            spot_price = self._get_current_spot_price()
+            
+            for leg in ['ce', 'pe']:
+                pos = self.positions[leg]
+                if pos['symbol'] and pos['token']:
+                    key = f"{pos['symbol']}_{pos['token']}"
+                    target_manager._strategy_symbol_token_map[key] = {
+                        'strategy_name': STRATEGY_NAME,
+                        'spot_price': spot_price,
+                        'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    logger.info(f"Registered {leg.upper()} with PositionManager: {pos['symbol']}")
+            
+            target_manager._save_strategy_mapping()
+            logger.info("Registered IBBM strategy positions with PositionManager")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to register strategy positions: {str(e)}")
+            return False
         
-        if (strategy_name != self.STRATEGY_NAME or
-            current_time < self.TRADING_START_TIME or current_time > self.TRADING_END_TIME):
-            logger.warning(f"Strategy can only run between {self.TRADING_START_TIME.strftime('%H:%M')} and {self.TRADING_END_TIME.strftime('%H:%M')}")
-            return
+    def execute_strategy(self):
+        """Public strategy execution method"""
+        logger.info("Executing IBBM strategy")
+        self._run_entry_cycle()
 
-        # Check if it's a valid entry time (15/45 minute pattern)
-        if current_time.minute not in self.ENTRY_MINUTES:
-            logger.warning("Strategy can only be executed at XX:15 or XX:45")
-            return
-
-        date_str = ISTTimeUtils.current_date_str()
-        positions_file = os.path.join(self.log_dir, f"{date_str}_positions.csv")
-
-        if os.path.exists(positions_file):
-            try:
-                df = pd.read_csv(positions_file)
-                ibbm_positions = df[
-                    (df['Strategy'] == self.STRATEGY_NAME) & 
-                    (df['NetQty'].astype(float) < 0)
-                ]
-
-                if not ibbm_positions.empty:
-                    logger.info("Existing IBBM positions found - Starting monitoring")
-                    if hasattr(self.ui, 'position_manager'):
-                        self.ui.position_manager._current_strategy = strategy_name
-                    try:
-                        self._validate_positions(update_prices=True)
-                        self.state = "ACTIVE"
-                        logger.info("Resumed monitoring existing positions")
-                        return
-                    except Exception as e:
-                        logger.error(f"Failed to validate existing positions: {str(e)}")
-            except Exception as e:
-                logger.error(f"Error reading positions file: {str(e)}")
-
-        if self.state != "WAITING":
-            logger.warning("Cannot execute strategy - not in WAITING state")
-            return
-
-        if hasattr(self.ui, 'position_manager'):
-            self.ui.position_manager._current_strategy = strategy_name
-
-        logger.info("Manually executing IBBM strategy")
+    def _run_entry_cycle(self):
+        """Run the entry cycle for strategy"""
+        logger.info("Running entry cycle")
         self._run_strategy_cycle()
 
+    # ===== Core Strategy Logic =====
     def _check_and_execute_strategy(self):
         current_time = ISTTimeUtils.current_time()
 
+        if current_time.minute == 45:  # Run every 45th minute for debugging
+            self.debug_strategy_flow()
+
         # 1. End of day exit logic
-        if (current_time.hour == self.EOD_EXIT_TIME.hour and 
-            current_time.minute == self.EOD_EXIT_TIME.minute and 
-            self.state == "ACTIVE"):
+        if (current_time >= EOD_EXIT_TIME and self.state == "ACTIVE"):
             self._exit_all_positions(reason="End of trading day")
             return
 
-        # 2. Regular monitoring for active positions
-        if ((current_time.minute in self.MONITORING_MINUTES) and 
-            self.TREND_MONITORING_START <= current_time <= self.TREND_MONITORING_END and 
+        # 2. Regular monitoring for active positions - check for trend changes
+        if ((current_time.minute in MONITORING_MINUTES) and 
+            TRADING_START_TIME <= current_time <= TRADING_END_TIME and 
             self.state == "ACTIVE"):
+            
+            # Check for trend change first
+            if self._check_trend_change():
+                logger.info("Trend change detected - exiting all positions")
+                self._exit_all_positions(reason="Trend change")
+                # Reset to allow re-entry
+                self.state = "WAITING"
+                self._entry_attempted = False
+                self._log_state("WAITING", "Trend change - ready for re-entry")
+                return
+            
             self._monitor_trend_and_positions()
 
-        # 3. Strategy entry logic
-        if (self.TRADING_START_TIME <= current_time <= self.TRADING_END_TIME and 
+        # 3. Strategy entry logic - Only at 9:45 AM or if trend changes
+        if (TRADING_START_TIME <= current_time <= TRADING_END_TIME and 
             self.state == "WAITING"):
-            if current_time.minute in self.ENTRY_MINUTES:
-                state_file = os.path.join(self.log_dir, f"{ISTTimeUtils.current_date_str()}_ibbm_strategy_state.csv")
-                
-                if os.path.exists(state_file):
+            
+            should_enter = False
+            
+            # Entry at 9:45 AM
+            if (current_time.hour == 9 and current_time.minute == 45 and 
+                not self._entry_attempted):
+                should_enter = True
+                self._entry_attempted = True
+                logger.info("9:45 AM entry time detected")
+            
+            # Or if trend changes during monitoring minutes (re-entry after trend change)
+            elif current_time.minute in MONITORING_MINUTES:
+                should_enter = True
+                logger.info("Monitoring minute - checking for entry")
+            
+            if should_enter:
+                if os.path.exists(self.current_state_file):
                     try:
-                        df = pd.read_csv(state_file)
+                        df = pd.read_csv(self.current_state_file)
                         if len(df) > 0:
                             last_state = df.iloc[-1]
                             
@@ -222,29 +527,19 @@ class IBBMStrategy:
                     except Exception as e:
                         logger.error(f"Error reading state file: {str(e)}")
                 
-                logger.info("=== Running Strategy Cycle (Restart) ===")
+                logger.info("=== Running Strategy Cycle ===")
                 self._run_strategy_cycle()
 
-    def _monitor_all(self):
-        """Monitor both SL and positions (runs every 10 seconds)"""
-        if self.state != "ACTIVE":
-            return
+    def _check_trend_change(self) -> bool:
+        """Check if trend has changed for exit"""
+        if not self._get_market_data():
+            return False
             
-        # Check API connection before proceeding
-        if not self._validate_api_connection():
-            logger.warning("Skipping monitoring due to API connection issues")
-            return
+        if self.previous_trend and self.current_trend != self.previous_trend:
+            logger.info(f"Trend changed from {self.previous_trend} to {self.current_trend}")
+            return True
             
-        self._monitor_stop_losses()
-        
-        # Additional check for position validation
-        if not self._positions_validated and self.positions['ce']['symbol']:
-            try:
-                self._validate_positions(update_prices=False)
-                self._positions_validated = True
-            except ValueError as e:
-                logger.error(f"Position validation error: {str(e)}")
-                self.state = "WAITING"  # Reset state without crashing
+        return False
 
     def _run_strategy_cycle(self):
         logger.info("=== Running Strategy Cycle ===")
@@ -262,45 +557,61 @@ class IBBMStrategy:
         
         self._monitor_trend_and_positions()
 
-    # ---------------------- Market Data ----------------------
+    def _monitor_all(self):
+        if self.state != "ACTIVE":
+            return
+            
+        if not self._validate_api_connection():
+            logger.warning("Skipping monitoring due to API connection issues")
+            return
+            
+        self._monitor_stop_losses()
+        
+        if not self._positions_validated and self.positions['ce']['symbol']:
+            try:
+                self._validate_positions(update_prices=True)
+                self._positions_validated = True
+            except ValueError as e:
+                logger.error(f"Position validation error: {str(e)}")
+                self.state = "WAITING"
+
+    # ===== Market Data =====
     @safe_log("Data fetch failed")
     def _get_market_data(self) -> bool:
         try:
-            logger.info(f"Fetching market data for {self.YFINANCE_SYMBOL}")
-            data = yf.download(self.YFINANCE_SYMBOL, period=self.DATA_PERIOD, 
-                            interval=self.DATA_INTERVAL, progress=False, auto_adjust=True)
+            logger.info(f"Fetching market data for {YFINANCE_SYMBOL}")
+            data = yf.download(YFINANCE_SYMBOL, period=DATA_PERIOD, 
+                            interval=DATA_INTERVAL, progress=False, auto_adjust=True)
             
             if len(data) == 0:
                 logger.error("No data returned from yfinance")
                 return False
                 
-            if len(data) < self.MA_WINDOW:
-                logger.error(f"Insufficient data points for MA{self.MA_WINDOW} calculation. Got {len(data)}, need {self.MA_WINDOW}")
+            if len(data) < MA_WINDOW:
+                logger.error(f"Insufficient data points for MA{MA_WINDOW} calculation. Got {len(data)}, need {MA_WINDOW}")
                 return False
             
-            data[f'MA{self.MA_WINDOW}'] = data['Close'].rolling(window=self.MA_WINDOW).mean()
+            data[f'MA{MA_WINDOW}'] = data['Close'].rolling(window=MA_WINDOW).mean()
             last_row = data.iloc[-1]
             
             # Extract scalar values from the Series
-            self.current_close = last_row['Close'].item() if hasattr(last_row['Close'], 'item') else float(last_row['Close'])
-            self.current_ma12 = last_row[f'MA{self.MA_WINDOW}'].item() if hasattr(last_row[f'MA{self.MA_WINDOW}'], 'item') else float(last_row[f'MA{self.MA_WINDOW}'])
+            self.current_close = float(last_row['Close'])
+            self.current_ma12 = float(last_row[f'MA{MA_WINDOW}'])
             
             self.current_trend = 'up' if self.current_close > self.current_ma12 else 'down'
-            logger.info(f"Market data: Close={self.current_close:.2f}, MA{self.MA_WINDOW}={self.current_ma12:.2f}, Trend={self.current_trend.upper()}")
+            logger.info(f"Market data: Close={self.current_close:.2f}, MA{MA_WINDOW}={self.current_ma12:.2f}, Trend={self.current_trend.upper()}")
             return True
         except Exception as e:
             logger.error(f"Market data fetch failed: {str(e)}")
             return False
 
-    # ---------------------- Entry Logic ----------------------
+    # ===== Entry Logic =====
     def _take_positions(self) -> bool:
-        """Take positions at 9:45"""
         logger.info("Starting position taking process")
         
-        # SET STRATEGY NAME FIRST - BEFORE ANY ORDERS
-        if hasattr(self.ui, 'position_manager'):
-            self.ui.position_manager._current_strategy = self.STRATEGY_NAME
-            logger.info(f"Strategy '{self.STRATEGY_NAME}' set before order placement")
+        if self.position_manager:
+            self.position_manager._current_strategy = STRATEGY_NAME
+            logger.info(f"Strategy '{STRATEGY_NAME}' set before order placement")
         
         expiry_date = self._get_current_expiry()
         if not expiry_date:
@@ -319,15 +630,9 @@ class IBBMStrategy:
             logger.info(f"Placing SELL order for CE: {ce_symbol}")
             ce_order_success = self._place_order(ce_symbol, ce_token, 'SELL')
             if not ce_order_success:
-                logger.error("Failed to place CE order - checking reason")
-                # Check if it's a margin issue
-                if "margin" in str(ce_order_success).lower() or "insufficient" in str(ce_order_success).lower():
-                    logger.error("Margin issue detected - cannot proceed with strategy")
-                    return False
-                logger.error("CE order failed for unknown reason - aborting strategy")
+                logger.error("Failed to place CE order")
                 return False
                 
-            # Wait a moment for order to be processed
             time.sleep(2)
             
             # Place PE order
@@ -335,66 +640,24 @@ class IBBMStrategy:
             pe_order_success = self._place_order(pe_symbol, pe_token, 'SELL')
             if not pe_order_success:
                 logger.error("Failed to place PE order - exiting CE position")
-                # Check if it's a margin issue
-                if "margin" in str(pe_order_success).lower() or "insufficient" in str(pe_order_success).lower():
-                    logger.error("Margin issue detected - exiting CE position")
-                    self._place_order(ce_symbol, ce_token, 'BUY')
-                    return False
-                
-                # Try to exit the CE order if PE failed
-                logger.info("Exiting CE order due to PE order failure")
-                exit_success = self._place_order(ce_symbol, ce_token, 'BUY')
-                if not exit_success:
-                    logger.error("Failed to exit CE position after PE failure")
+                logger.info(f"Exiting CE position due to PE failure: {ce_symbol}")
+                self._place_order(ce_symbol, ce_token, 'BUY')
                 return False
 
-            # Wait for positions to be updated in broker system
             logger.info("Waiting for positions to be updated in broker system...")
-            time.sleep(5)  # Increased wait time for position updates
+            time.sleep(5)
 
-            if hasattr(self.ui, 'position_manager'):
-                pm = self.ui.position_manager
-                current_spot = self._get_current_spot_price()
-                current_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
-                
-                # Map both CE and PE positions to IBBM strategy
-                key_ce = f"{ce_symbol}_{ce_token}"
-                key_pe = f"{pe_symbol}_{pe_token}"
-                
-                pm._strategy_symbol_token_map[key_ce] = {
-                    'strategy_name': self.STRATEGY_NAME,
-                    'spot_price': current_spot,
-                    'timestamp': current_time
-                }
-                pm._strategy_symbol_token_map[key_pe] = {
-                    'strategy_name': self.STRATEGY_NAME,
-                    'spot_price': current_spot,
-                    'timestamp': current_time
-                }
-                pm._save_strategy_mapping()  # Save immediately to file
-                logger.info(f"Strategy mapping saved for both positions")
-            # ===== END ADDITION =====
+            # Register with position manager
+            self.register_strategy_positions()
 
-            # ONLY AFTER SUCCESSFUL ORDERS set the strategy name
-            if hasattr(self.ui, 'position_manager'):
-                self.ui.position_manager._current_strategy = self.STRATEGY_NAME
-                logger.info(f"Strategy '{self.STRATEGY_NAME}' set after successful orders")
-
-            # Validate positions and get actual entry prices
             logger.info("Validating positions after order placement")
             validation_attempts = 0
             positions_validated = False
 
             while validation_attempts < 3:
                 try:
-                    # Check broker positions directly
-                    client = self.client_manager.clients[0][2]
-                    broker_positions = client.get_positions()
+                    broker_positions = self._get_broker_positions()
                     
-                    if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                        broker_positions = broker_positions['data']
-                    
-                    # Check if both positions exist in broker
                     ce_found = False
                     pe_found = False
                     ce_entry_price = 0
@@ -402,28 +665,29 @@ class IBBMStrategy:
                     
                     for bp in broker_positions:
                         if (bp.get('tsym') == ce_symbol and 
-                            float(bp.get('netqty', 0)) < 0):  # Short position
+                            float(bp.get('netqty', 0)) < 0):
                             ce_found = True
-                            ce_entry_price = float(bp.get('avgprc', 0))
+                            ce_entry_price = float(bp.get('netupldprc', 0))
                             logger.info(f"Found CE position: {ce_symbol} @ {ce_entry_price}")
                         
                         if (bp.get('tsym') == pe_symbol and 
-                            float(bp.get('netqty', 0)) < 0):  # Short position
+                            float(bp.get('netqty', 0)) < 0):
                             pe_found = True
-                            pe_entry_price = float(bp.get('avgprc', 0))
+                            pe_entry_price = float(bp.get('netupldprc', 0))
                             logger.info(f"Found PE position: {pe_symbol} @ {pe_entry_price}")
                     
                     if ce_found and pe_found:
-                        # Both positions found, update our records
                         self.positions['ce']['symbol'] = ce_symbol
                         self.positions['ce']['token'] = ce_token
                         self.positions['ce']['entry_price'] = ce_entry_price
-                        self.positions['ce']['ltp'] = ce_entry_price
+                        self.positions['ce']['ltp'] = ce_ltp
+                        self.positions['ce']['real_entered'] = True
                         
                         self.positions['pe']['symbol'] = pe_symbol
                         self.positions['pe']['token'] = pe_token
                         self.positions['pe']['entry_price'] = pe_entry_price
-                        self.positions['pe']['ltp'] = pe_entry_price
+                        self.positions['pe']['ltp'] = pe_ltp
+                        self.positions['pe']['real_entered'] = True
                         
                         positions_validated = True
                         logger.info("Both CE and PE positions validated successfully")
@@ -431,14 +695,12 @@ class IBBMStrategy:
                         
                     elif ce_found and not pe_found:
                         logger.warning(f"Only CE position found, missing PE: {pe_symbol}")
-                        # Exit the CE position since PE is missing
                         logger.info(f"Exiting CE position due to missing PE: {ce_symbol}")
                         self._place_order(ce_symbol, ce_token, 'BUY')
                         break
                         
                     elif pe_found and not ce_found:
                         logger.warning(f"Only PE position found, missing CE: {ce_symbol}")
-                        # Exit the PE position since CE is missing
                         logger.info(f"Exiting PE position due to missing CE: {pe_symbol}")
                         self._place_order(pe_symbol, pe_token, 'BUY')
                         break
@@ -456,113 +718,110 @@ class IBBMStrategy:
             if not positions_validated:
                 logger.error("Position validation failed after 3 attempts")
                 
-                # Final check - try to exit any remaining positions
+                # Cleanup any remaining positions
                 try:
-                    client = self.client_manager.clients[0][2]
-                    broker_positions = client.get_positions()
-                    
-                    if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                        broker_positions = broker_positions['data']
-                    
-                    # Check if either position still exists and exit it
+                    broker_positions = self._get_broker_positions()
                     for bp in broker_positions:
                         if (bp.get('tsym') == ce_symbol and 
-                            float(bp.get('netqty', 0)) < 0):  # Short position
+                            float(bp.get('netqty', 0)) < 0):
                             logger.info(f"Exiting remaining CE position: {ce_symbol}")
                             self._place_order(ce_symbol, ce_token, 'BUY')
                             
                         if (bp.get('tsym') == pe_symbol and 
-                            float(bp.get('netqty', 0)) < 0):  # Short position
+                            float(bp.get('netqty', 0)) < 0):
                             logger.info(f"Exiting remaining PE position: {pe_symbol}")
                             self._place_order(pe_symbol, pe_token, 'BUY')
                             
                 except Exception as e:
                     logger.error(f"Error during final position cleanup: {str(e)}")
                 
-                # Clear strategy name since validation failed
-                if hasattr(self.ui, 'position_manager'):
-                    self.ui.position_manager._current_strategy = ""
+                if self.position_manager:
+                    self.position_manager._current_strategy = ""
                 return False
 
-            # Calculate SL prices based on actual entry prices
-            ce_sl = math.ceil(self.positions['ce']['entry_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR
-            pe_sl = math.ceil(self.positions['pe']['entry_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR
+            # Set initial stop losses (20% each side)
+            ce_sl = round_sl(self.positions['ce']['entry_price'] * INITIAL_SL_MULTIPLIER)
+            pe_sl = round_sl(self.positions['pe']['entry_price'] * INITIAL_SL_MULTIPLIER)
             
-            self.positions['ce']['sl'] = ce_sl
-            self.positions['pe']['sl'] = pe_sl
+            self.positions['ce']['initial_sl'] = ce_sl
+            self.positions['ce']['current_sl'] = ce_sl
+            self.positions['ce']['max_profit_price'] = self.positions['ce']['entry_price']
+            
+            self.positions['pe']['initial_sl'] = pe_sl
+            self.positions['pe']['current_sl'] = pe_sl
+            self.positions['pe']['max_profit_price'] = self.positions['pe']['entry_price']
             
             self.state = "ACTIVE"
             self._log_state(
                 status='ACTIVE',
-                comments='Positions opened',
+                comments='Positions opened with 20% SL',
+                nifty_price=self.current_close,
+                nifty_ma12=self.current_ma12,
+                trend=self.current_trend,
                 ce_sl_price=ce_sl,
                 pe_sl_price=pe_sl
             )
             
-            logger.info(f"Positions opened: CE={ce_symbol} (SL={ce_sl:.2f}), PE={pe_symbol} (SL={pe_sl:.2f})")
+            logger.info(f"Positions opened: CE={ce_symbol} (Entry={ce_entry_price:.2f}, SL={ce_sl:.2f}), PE={pe_symbol} (Entry={pe_entry_price:.2f}, SL={pe_sl:.2f})")
             return True
             
         except Exception as e:
             logger.error(f"Position setup failed: {str(e)}")
-            # Clear strategy name on exception
-            if hasattr(self.ui, 'position_manager'):
-                self.ui.position_manager._current_strategy = ""
+            if self.position_manager:
+                self.position_manager._current_strategy = ""
             return False
 
     def _get_current_expiry(self):
-        """Get current or next week expiry based on today and dropdown list"""
         try:
             today = datetime.now().date()
             expiry_dates = []
-            logger.info(f"Getting expiry dates from dropdown, today is {today}")
             
-            for i in range(self.ui.ExpiryListDropDown.count()):
-                expiry_str = self.ui.ExpiryListDropDown.itemText(i)
-                try:
-                    expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
-                    if expiry_date >= today:
-                        expiry_dates.append(expiry_date)
-                        logger.debug(f"Found valid expiry date: {expiry_date}")
-                except ValueError:
-                    logger.warning(f"Could not parse expiry date: {expiry_str}")
-                    continue
+            if hasattr(self.ui, 'ExpiryListDropDown'):
+                logger.info(f"Getting expiry dates from dropdown, today is {today}")
+                for i in range(self.ui.ExpiryListDropDown.count()):
+                    expiry_str = self.ui.ExpiryListDropDown.itemText(i)
+                    try:
+                        expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
+                        if expiry_date >= today:
+                            expiry_dates.append(expiry_date)
+                            logger.debug(f"Found valid expiry date: {expiry_date}")
+                    except ValueError:
+                        logger.warning(f"Could not parse expiry date: {expiry_str}")
+                        continue
+            else:
+                # Fallback: calculate next Thursday
+                days_ahead = 3 - today.weekday()  # 3 = Thursday
+                if days_ahead <= 0:  # Target day already happened this week
+                    days_ahead += 7
+                next_thursday = today + timedelta(days_ahead)
+                expiry_dates.append(next_thursday)
+                logger.info(f"Using calculated expiry: {next_thursday}")
                     
             if not expiry_dates:
-                logger.error("No valid expiry dates found in dropdown")
+                logger.error("No valid expiry dates found")
                 return None
                 
             expiry_dates.sort()
-            weekday = today.weekday()
-            
-            if weekday in [2, 3]:  # Wed, Thu
-                selected_expiry = expiry_dates[0]
-                logger.info(f"Wednesday/Thursday detected, selecting current week expiry: {selected_expiry}")
-            else:
-                if len(expiry_dates) > 1:
-                    selected_expiry = expiry_dates[1]
-                    logger.info(f"Other weekday detected, selecting next week expiry: {selected_expiry}")
-                else:
-                    logger.warning("No next week expiry available, using current week")
-                    selected_expiry = expiry_dates[0]
-                    
+            selected_expiry = expiry_dates[0]  # Always use nearest expiry
+            logger.info(f"Selected expiry: {selected_expiry}")
             return selected_expiry
             
         except Exception as e:
             logger.error(f"Error getting current expiry: {str(e)}")
             return None
 
-    # ---------------------- Option Selection ----------------------
+    # ===== Option Selection =====
     @safe_log("Option selection failed")
     def _select_options(self, expiry_date) -> Tuple[Optional[tuple], Optional[tuple]]:
         expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
         logger.info(f"Selecting options for expiry: {expiry_str}")
         
         try:
-            if not os.path.exists("NFO_symbols.txt"):
+            if not os.path.exists(NFO_SYMBOLS_FILE):
                 logger.error("NFO_symbols.txt file not found")
                 return None, None
                 
-            df = pd.read_csv("NFO_symbols.txt")
+            df = pd.read_csv(NFO_SYMBOLS_FILE)
             nifty_options = df[(df["Instrument"] == "OPTIDX") & (df["Symbol"] == "NIFTY") & (df["Expiry"].str.strip().str.upper() == expiry_str)].copy()
             
             if len(nifty_options) == 0:
@@ -570,20 +829,19 @@ class IBBMStrategy:
                 return None, None
             
             current_strike = round(self.current_close/100)*100
-            lower_strike = current_strike - self.STRIKE_RANGE
-            upper_strike = current_strike + self.STRIKE_RANGE
+            lower_strike = current_strike - STRIKE_RANGE
+            upper_strike = current_strike + STRIKE_RANGE
             
-            logger.info(f"Looking for options in strike range: {lower_strike} to {upper_strike}, premium range: {self.MIN_PREMIUM} to {self.MAX_PREMIUM}")
+            logger.info(f"Looking for options in strike range: {lower_strike} to {upper_strike}, premium range: {MIN_PREMIUM} to {MAX_PREMIUM}")
             
             filtered_options = nifty_options[(nifty_options["StrikePrice"] >= lower_strike) & (nifty_options["StrikePrice"] <= upper_strike)]
             valid_ce, valid_pe = [], []
             
-            client = self.client_manager.clients[0][2]
+            client = self._get_primary_client()
             
             for _, row in filtered_options.iterrows():
                 symbol, token, opt_type = row["TradingSymbol"], str(row["Token"]), row["OptionType"].strip().upper()
                 
-                # Add retry logic for quote retrieval
                 ltp = 0
                 for attempt in range(3):
                     try:
@@ -594,8 +852,13 @@ class IBBMStrategy:
                             time.sleep(1)
                             continue
                             
-                        if not isinstance(quote, dict) or quote.get('stat') != 'Ok':
-                            logger.warning(f"Invalid quote for {symbol}: {quote}")
+                        if not isinstance(quote, dict):
+                            logger.warning(f"Quote is not dict for {symbol}: {type(quote)}")
+                            time.sleep(1)
+                            continue
+                            
+                        if quote.get('stat') != 'Ok':
+                            logger.warning(f"Quote stat not Ok for {symbol}: {quote.get('stat')}")
                             time.sleep(1)
                             continue
                             
@@ -613,782 +876,348 @@ class IBBMStrategy:
                         time.sleep(1)
                         continue
                 
-                if not self.MIN_PREMIUM <= ltp <= self.MAX_PREMIUM:
-                    logger.debug(f"Skipping {symbol} - premium {ltp} outside range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
+                if not MIN_PREMIUM <= ltp <= MAX_PREMIUM:
+                    logger.debug(f"Skipping {symbol} - premium {ltp} outside range {MIN_PREMIUM}-{MAX_PREMIUM}")
                     continue
                     
                 if opt_type == "CE":
-                    valid_ce.append((symbol, token, ltp))
+                    valid_ce.append((symbol, token, ltp, row["StrikePrice"]))
                     logger.debug(f"Valid CE found: {symbol} @ {ltp:.2f}")
                 else:
-                    valid_pe.append((symbol, token, ltp))
+                    valid_pe.append((symbol, token, ltp, row["StrikePrice"]))
                     logger.debug(f"Valid PE found: {symbol} @ {ltp:.2f}")
             
-            if not valid_ce:
-                logger.error(f"No valid CE options found in premium range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
-            if not valid_pe:
-                logger.error(f"No valid PE options found in premium range {self.MIN_PREMIUM}-{self.MAX_PREMIUM}")
-                
             if not valid_ce or not valid_pe:
+                logger.error(f"No valid options found in premium range {MIN_PREMIUM}-{MAX_PREMIUM}")
                 return None, None
             
-            # Select options with highest premium
-            ce_selected = max(valid_ce, key=lambda x: x[2])
-            pe_selected = max(valid_pe, key=lambda x: x[2])
-                
-            logger.info(f"Selected CE: {ce_selected[0]} @ {ce_selected[2]:.2f}, PE: {pe_selected[0]} @ {pe_selected[2]:.2f}")
-            return ce_selected, pe_selected
+            # Select ATM options (closest to current strike)
+            ce_selected = min(valid_ce, key=lambda x: abs(x[3] - current_strike))
+            pe_selected = min(valid_pe, key=lambda x: abs(x[3] - current_strike))
+            
+            logger.info(f"Selected CE: {ce_selected[0]} (Strike={ce_selected[3]}, Premium={ce_selected[2]:.2f})")
+            logger.info(f"Selected PE: {pe_selected[0]} (Strike={pe_selected[3]}, Premium={pe_selected[2]:.2f})")
+            
+            return (ce_selected[0], ce_selected[1], ce_selected[2]), (pe_selected[0], pe_selected[1], pe_selected[2])
             
         except Exception as e:
             logger.error(f"Option selection error: {str(e)}")
             return None, None
 
-    # ---------------------- Order Management ----------------------
-    @safe_log("Order placement failed")
+    # ===== Order Management =====
     def _place_order(self, symbol: str, token: str, action: str) -> bool:
         try:
-            # Convert action to Shoonya API format
-            shoonya_action = 'B' if action.upper() == 'BUY' else 'S'
+            logger.info(f"Placing order: {action} {symbol} (token: {token})")
             
-            client = self.client_manager.clients[0][2]
-            logger.info(f"Placing {action} order for {symbol} with token {token}")
-            order_id = client.place_order(
-                buy_or_sell=shoonya_action,
-                product_type='M',
-                exchange='NFO',
+            client = self._get_primary_client()
+            if not client:
+                logger.error("No client available for order placement")
+                return False
+            
+            # Determine order type based on action
+            if action.upper() == 'SELL':
+                order_type = 'SELL'
+                product_type = ORDER_PRODUCT_TYPE
+            else:  # BUY
+                order_type = 'BUY'
+                product_type = 'I'  # Intraday for buy back
+            
+            # Place order
+            order_result = client.place_order(
+                buy_or_sell=order_type,
+                product_type=product_type,
+                exchange=ORDER_EXCHANGE,
                 tradingsymbol=symbol,
-                quantity=75,
+                quantity=LOT_SIZE,
                 discloseqty=0,
                 price_type='MKT',
                 price=0.0,
-                trigger_price=0,
-                retention='DAY',
-                remarks=f'IBBM_{action}'
+                trigger_price=None,
+                retention='DAY'
             )
-            if order_id:
-                logger.info(f"{action} order placed for {symbol} (ID: {order_id})")
+            
+            if order_result and order_result.get('stat') == 'Ok':
+                logger.info(f"Order placed successfully: {order_type} {symbol}")
                 return True
             else:
-                logger.error(f"Failed to place {action} order for {symbol}")
+                logger.error(f"Order placement failed: {order_result}")
                 return False
+                
         except Exception as e:
-            logger.error(f"Order placement error for {symbol}: {str(e)}")
+            logger.error(f"Order placement exception: {str(e)}")
             return False
 
-    # ---------------------- Position Validation ----------------------
-    def _validate_positions(self, update_prices: bool = False):
-        """Validate positions with broker and update if needed"""
-        try:
-            client = self.client_manager.clients[0][2]
-            broker_positions = client.get_positions()
-            
-            if isinstance(broker_positions, dict) and 'data' in broker_positions:
-                broker_positions = broker_positions['data']
-            
-            for leg in ['ce', 'pe']:
-                pos = self.positions[leg]
-                if not pos['symbol']:
-                    continue
-                    
-                found = False
-                for bp in broker_positions:
-                    if (bp.get('tsym') == pos['symbol'] and 
-                        str(bp.get('token')) == str(pos['token']) and
-                        float(bp.get('netqty', 0)) != 0):
-                        found = True
-                        if update_prices:
-                            pos['entry_price'] = float(bp.get('avgprc', 0))
-                            pos['ltp'] = self._get_option_ltp(pos['symbol']) or pos['ltp']
-                        break
-                
-                if not found:
-                    raise ValueError(f"{leg.upper()} position not found in broker: {pos['symbol']}")
-                    
-        except Exception as e:
-            logger.error(f"Position validation failed: {str(e)}")
-            raise
-
-    @safe_log("Price update failed")
-    def _update_position_prices(self) -> bool:
-        logger.info("Updating position prices")
-        client = self.client_manager.clients[0][2]
-        
-        for opt_type in ['ce', 'pe']:
-            token = self.positions[opt_type]['token']
-            if not token:
-                logger.warning(f"No token found for {opt_type.upper()}")
-                continue
-                
-            # Add retry logic for quote retrieval
-            ltp = 0
-            for attempt in range(3):
-                try:
-                    quote = client.get_quotes('NFO', token)
-                    
-                    if quote is None:
-                        logger.warning(f"[UPDATE] Quote is None for {opt_type.upper()} (attempt {attempt+1})")
-                        time.sleep(1)
-                        continue
-                        
-                    if not isinstance(quote, dict) or quote.get('stat') != 'Ok':
-                        logger.warning(f"[UPDATE] Invalid quote response for token={token}, response={quote}")
-                        time.sleep(1)
-                        continue
-                        
-                    ltp_str = quote.get('lp', '0')
-                    try:
-                        ltp = float(ltp_str)
-                        if ltp > 0:
-                            break
-                    except ValueError:
-                        logger.warning(f"[UPDATE] LTP conversion failed for {opt_type.upper()}: {ltp_str}")
-                    
-                    time.sleep(1)
-                except Exception as e:
-                    logger.error(f"[UPDATE] Quote retrieval error for {opt_type.upper()}: {str(e)}")
-                    time.sleep(1)
-                    continue
-            
-            if ltp <= 0:
-                logger.error(f"Failed to get valid LTP for {opt_type.upper()} after 3 attempts")
-                return False
-                
-            self.positions[opt_type]['ltp'] = ltp
-            self.positions[opt_type]['entry_price'] = ltp
-            logger.info(f"{opt_type.upper()} {self.positions[opt_type]['symbol']} @ {ltp:.2f}")
-                
-        return True
-
-    # ---------------------- Monitoring ----------------------
-    def _monitor_trend_and_positions(self):
-        if self.state != "ACTIVE":
-            logger.debug("Skipping trend monitoring - not in ACTIVE state")
-            return
-            
-        if not self._get_market_data():
-            logger.error("Failed to get market data for trend monitoring")
-            return
-            
-        logger.info(f"Trend monitoring: Trend={self.current_trend.upper()}, Close={self.current_close:.2f}, MA12={self.current_ma12:.2f}")
-        
-        if not self._update_position_prices():
-            logger.error("Failed to update position prices for trend monitoring")
-            return
-            
-        self._monitor_stop_losses()
-        self._log_state(status='ACTIVE', comments='Regular monitoring')
-
-    @safe_log("Stop loss monitoring failed")
-    def _monitor_stop_losses(self):
-        try:
-            if self.state not in ["VIRTUAL_ACTIVE", "ACTIVE"]:
-                logger.debug(f"State is {self.state}, skipping SL monitoring")
-                return
-            
-            for leg in ["ce", "pe"]:
-                pos = self.positions[leg]
-                if not pos["symbol"]:
-                    logger.debug(f"No {leg.upper()} position, skipping SL check")
-                    continue
-                
-                ltp = self._get_option_ltp(pos["symbol"])
-                if ltp is None or ltp <= 0:  # Handle None and invalid LTP
-                    logger.warning(f"Invalid LTP for {leg.upper()} {pos['symbol']}, skipping SL check")
-                    continue
-                    
-                pos["ltp"] = ltp
-                
-                # Update max profit price for trailing SL
-                if (self.state == "ACTIVE" and leg in self.positions and 
-                    pos.get('entry_price') is not None):
-                    current_max = pos.get('max_profit_price', float('inf'))
-                    if current_max is None:  # Handle None case
-                        pos['max_profit_price'] = ltp
-                        current_max = ltp
-                    
-                    if ltp < current_max:
-                        pos['max_profit_price'] = ltp
-                        self._update_trailing_sl(leg, ltp)
-                
-                # Virtual -> Real transition - ensure current_sl is not None
-                current_sl = pos.get("current_sl")
-                if current_sl is None:
-                    logger.warning(f"No current SL set for {leg.upper()}, skipping check")
-                    continue
-                    
-                if self.state == "VIRTUAL_ACTIVE" and not pos["sl_hit"] and ltp >= current_sl:
-                    logger.info(f"{leg.upper()} virtual SL hit at {ltp}. Taking real opposite leg...")
-                    opposite_leg = "pe" if leg == "ce" else "ce"
-                    self._enter_real_leg(opposite_leg)
-                    return
-                
-                # Active stop loss
-                if (self.state == "ACTIVE" and not pos["sl_hit"] and 
-                    ltp >= current_sl):
-                    self._exit_position(leg, ltp)
-            
-            if self.state == "ACTIVE" and not (self.positions['ce']['symbol'] or self.positions['pe']['symbol']):
-                self.state = "STOPPED_OUT"
-                self._log_state(status=self.state, comments="All SELL positions closed from SL")
-                logger.info("All positions stopped out")
-                
-        except Exception as e:
-            logger.error(f"SL monitoring failed: {str(e)}")
-
-    def _check_manual_exits(self):
-        """Check if positions were manually exited using client API"""
-        try:
-            logger.info("Checking for manual exits")
-            client = self.client_manager.clients[0][2]
-            positions_response = client.get_positions()
-            
-            if isinstance(positions_response, dict) and positions_response.get('stat') == 'Ok':
-                positions_data = positions_response.get('data', [])
-            elif isinstance(positions_response, list):
-                positions_data = positions_response
-            else:
-                logger.error("Unexpected positions response format")
-                return False
-
-            # Now safe: positions_data is always a list of dicts
-            nfo_positions = [p for p in positions_data if p.get('exch') == 'NFO']
-
-            # Check if our expected positions still exist
-            active_symbols = {pos.get('tsym') for pos in nfo_positions if float(pos.get('netqty', 0)) < 0}
-            expected_symbols = {self.positions['ce']['symbol'], self.positions['pe']['symbol']}
-            
-            if not active_symbols.intersection(expected_symbols):
-                self.state = "COMPLETED"
-                self._log_state(status='COMPLETED', comments='Manual exit detected')
-                logger.info("Manual exit detected - strategy completed")
-                
-        except Exception as e:
-            logger.error(f"Manual exit check failed: {str(e)}")
-
-    # ---------------------- Exit Logic ----------------------
-    @safe_log("Exit failed")
-    def _exit_all_positions(self, reason: str = "Manual exit"):
+    def _exit_all_positions(self, reason: str = "Unknown"):
         logger.info(f"Exiting all positions: {reason}")
-        if self.state not in ["ACTIVE", "STOPPED_OUT"]:
-            logger.warning(f"Cannot exit positions in state: {self.state}")
-            return
-            
-        client = self.client_manager.clients[0][2]
+        
         exit_success = True
         
-        for opt_type in ['ce', 'pe']:
-            symbol, token = self.positions[opt_type]['symbol'], self.positions[opt_type]['token']
-            if not symbol or self.positions[opt_type]['sl_hit']:
-                logger.debug(f"Skipping {opt_type.upper()} exit - no symbol or SL already hit")
-                continue
-                
-            try:
-                logger.info(f"Exiting {opt_type.upper()} {symbol}")
-                if self._place_order(symbol, token, 'BUY'):
-                    logger.info(f"Exited {opt_type.upper()} {symbol} ({reason})")
-                    self.positions[opt_type]['sl_hit'] = True
-                else:
-                    logger.error(f"Failed to exit {opt_type.upper()} {symbol}")
+        for leg in ['ce', 'pe']:
+            pos = self.positions[leg]
+            if pos['symbol'] and pos['real_entered']:
+                logger.info(f"Exiting {leg.upper()}: {pos['symbol']}")
+                if not self._place_order(pos['symbol'], pos['token'], 'BUY'):
                     exit_success = False
-                    
-            except Exception as e:
-                logger.error(f"Exit error for {opt_type.upper()}: {str(e)}")
-                exit_success = False
+                    logger.error(f"Failed to exit {leg.upper()} position")
         
         if exit_success:
             self.state = "COMPLETED"
-            # Clear strategy name after successful exit
-            if hasattr(self.ui, 'position_manager'):
-                self.ui.position_manager._current_strategy = ""
-                logger.info("Strategy name cleared after position exit")
-            self._log_state(status='COMPLETED', comments=reason)
-            logger.info(f"All positions exited - {reason}")
-            
-            # Reset positions for next cycle
-            self._reset_all_positions()
+            self._log_state("COMPLETED", f"All positions exited: {reason}")
+            logger.info("All positions exited successfully")
         else:
-            logger.error("Failed to exit all positions successfully")
-            # Don't clear strategy name if exit failed - positions may still exist
+            logger.error("Some positions failed to exit")
 
-    # ---------------------- State Management ----------------------
-    def _recover_state_from_file(self):
-        try:
-            logger.info(f"Recovering state from file: {self.current_state_file}")
-            df = pd.read_csv(self.current_state_file)
-            if len(df) > 0:
-                last_state = df.iloc[-1]
-                self.state = last_state['status']
-                
-                if self.state == "ACTIVE":
-                    logger.info("Recovered ACTIVE state - resuming monitoring")
-                    self._validate_positions(update_prices=True)
-        except Exception as e:
-            logger.error(f"State recovery failed: {str(e)}")
-            self.state = "WAITING"
-
-    def _log_state(self, status: str, comments: str = "", **kwargs):
-        """Log strategy state to CSV file"""
-        try:
-            current_time = ISTTimeUtils.now()
-            log_data = {
-                'timestamp': current_time.strftime("%Y-%m-%d %H:%M:%S"),
-                'status': status,
-                'comments': str(comments).replace(",", ";"),
-                'nifty_price': self.current_close,
-                'nifty_ma12': self.current_ma12,
-                'trend': self.current_trend,
-                'ce_symbol': self.positions['ce'].get('symbol'),
-                'ce_entry_price': self.positions['ce'].get('entry_price'),
-                'ce_ltp': self.positions['ce'].get('ltp'),
-                'ce_sl_price': self.positions['ce'].get('current_sl'),
-                'ce_trailing_step': self.positions['ce'].get('trailing_step', 0),
-                'pe_symbol': self.positions['pe'].get('symbol'),
-                'pe_entry_price': self.positions['pe'].get('entry_price'),
-                'pe_ltp': self.positions['pe'].get('ltp'),
-                'pe_sl_price': self.positions['pe'].get('current_sl'),
-                'pe_trailing_step': self.positions['pe'].get('trailing_step', 0),
-                **kwargs
-            }
-            
-            df = pd.DataFrame([log_data])
-            file_exists = os.path.exists(self.current_state_file)
-            
-            df.to_csv(
-                self.current_state_file,
-                mode='a',
-                header=not file_exists,
-                index=False
-            )
-            
-            logger.info(f"State logged: {status} - {comments}")
-            
-        except Exception as e:
-            logger.error(f"Failed to log state: {str(e)}")
-
-    # ---------------------- API Validation ----------------------
-    def _validate_api_connection(self) -> bool:
-        """Validate that API connection is working before making requests"""
-        try:
-            logger.debug("Validating API connection")
-            client = self.client_manager.clients[0][2]
-            # Simple test call to check connectivity
-            test_quote = client.get_quotes('NSE', '26000')
-            if test_quote is None:
-                logger.error("API connection failed - no response")
+    def _exit_single_position(self, leg: str, reason: str = "Unknown"):
+        pos = self.positions[leg]
+        if pos['symbol'] and pos['real_entered']:
+            logger.info(f"Exiting {leg.upper()} position: {reason}")
+            if self._place_order(pos['symbol'], pos['token'], 'BUY'):
+                pos['sl_hit'] = True
+                self._log_state("STOPPED_OUT", f"{leg.upper()} stopped out: {reason}")
+                logger.info(f"{leg.upper()} position exited successfully")
+                return True
+            else:
+                logger.error(f"Failed to exit {leg.upper()} position")
                 return False
-            logger.debug("API connection validated successfully")
-            return True
-        except Exception as e:
-            logger.error(f"API connection validation failed: {str(e)}")
-            return False
-        
-    def _get_option_ltp(self, symbol):
-        """Get last traded price for an option with better error handling"""
-        if not symbol:
-            logger.warning("Cannot get LTP - no symbol provided")
-            return 0
+        return True
+
+    # ===== Stop Loss Monitoring =====
+    def _monitor_stop_losses(self):
+        if self.state != "ACTIVE":
+            return
             
+        for leg in ['ce', 'pe']:
+            if not self.positions[leg]['sl_hit'] and self.positions[leg]['real_entered']:
+                self._update_ltp(leg)
+                self._update_stop_loss(leg)
+                self._check_stop_loss(leg)
+
+    def _update_ltp(self, leg: str):
         try:
-            logger.debug(f"Getting LTP for {symbol}")
-            client = self.client_manager.clients[0][2]
-            
-            # Get token from positions or symbol lookup
-            token = None
-            for leg in ['ce', 'pe']:
-                if self.positions[leg].get('symbol') == symbol:
-                    token = self.positions[leg].get('token')
-                    break
-            
-            if not token:
-                # Try to find token from NFO symbols file
-                try:
-                    df = pd.read_csv("NFO_symbols.txt")
-                    symbol_data = df[df["TradingSymbol"] == symbol]
-                    if not symbol_data.empty:
-                        token = str(symbol_data.iloc[0]['Token'])
-                        logger.debug(f"Found token {token} for {symbol} in NFO file")
-                except:
-                    logger.warning(f"Could not find token for {symbol} in NFO file")
-                    pass
-            
-            if not token:
-                logger.warning(f"No token found for {symbol}")
-                return 0
+            pos = self.positions[leg]
+            if not pos['symbol'] or not pos['token']:
+                return
                 
-            # Add retry logic for quote retrieval
-            for attempt in range(3):
-                quote = client.get_quotes('NFO', token)
+            client = self._get_primary_client()
+            if not client:
+                return
                 
-                # Check if quote is None or invalid
-                if quote is None:
-                    logger.warning(f"Quote is None for {symbol} (attempt {attempt+1})")
-                    time.sleep(1)  # Wait before retry
-                    continue
-                    
-                if not isinstance(quote, dict) or quote.get('stat') != 'Ok':
-                    logger.warning(f"Invalid quote format for {symbol}: {quote}")
-                    time.sleep(1)
-                    continue
-                    
-                ltp_str = quote.get('lp')
-                if not ltp_str:
-                    logger.warning(f"No LTP in quote for {symbol}")
-                    time.sleep(1)
-                    continue
-                    
+            quote = client.get_quotes('NFO', pos['token'])
+            if quote and quote.get('stat') == 'Ok':
+                ltp_str = quote.get('lp', '0')
                 try:
                     ltp = float(ltp_str)
-                    if ltp > 0:
-                        logger.debug(f"Got LTP for {symbol}: {ltp}")
-                        return ltp
-                    else:
-                        logger.warning(f"Invalid LTP value {ltp} for {symbol}")
+                    pos['ltp'] = ltp
+                    
+                    # Update max profit price for trailing SL
+                    if ltp < pos['max_profit_price']:
+                        pos['max_profit_price'] = ltp
+                        
                 except ValueError:
-                    logger.warning(f"LTP conversion failed for {symbol}: {ltp_str}")
-                
-                time.sleep(1)  # Wait before next retry
-            
-            logger.error(f"Failed to get LTP for {symbol} after 3 attempts")
-            return 0
-            
-        except Exception as e:
-            logger.error(f"Failed to get LTP for {symbol}: {str(e)}")
-            return 0
-
-    # ---------------------- Recovery Methods (Added to match Monthly Straddle) ----------------------
-    def recover_from_positions(self, positions_list):
-        """
-        Recover IBBM strategy from existing positions.
-        Uses the original average sell price from the broker.
-        """
-        try:
-            logger.info(f"{self.__class__.__name__} recovering from positions: {len(positions_list)} positions")
-            
-            # Check if we have the required short positions
-            short_ce = None
-            short_pe = None
-            
-            for pos in positions_list:
-                symbol = pos.get('symbol', '')
-                avg_price = pos.get('avg_price', 0)
-                net_qty = pos.get('net_qty', 0)
-                
-                # Determine option type
-                if 'CE' in symbol or 'C' in symbol or 'C' in symbol[-6:]:
-                    option_type = 'CE'
-                elif 'PE' in symbol or 'P' in symbol or 'P' in symbol[-6:]:
-                    option_type = 'PE'
-                else:
-                    option_type = None
-                    logger.warning(f"Could not determine option type for symbol: {symbol}")
-
-                if net_qty < 0:  # Short positions
-                    if option_type == 'CE':
-                        short_ce = {
-                            'symbol': symbol, 
-                            'avg_price': avg_price, 
-                            'net_qty': net_qty
-                        }
-                    elif option_type == 'PE':
-                        short_pe = {
-                            'symbol': symbol, 
-                            'avg_price': avg_price, 
-                            'net_qty': net_qty
-                        }
-
-            logger.info(f"Short CE: {short_ce}, Short PE: {short_pe}")
-
-            # Check if we have the core short positions
-            if not short_ce or not short_pe:
-                logger.warning("Missing core short positions (CE and PE)")
-                return False
-
-            # Recover core short positions
-            self.state = "ACTIVE"
-            self.positions["ce"] = {
-                'symbol': short_ce['symbol'],
-                'entry_price': short_ce['avg_price'],
-                'ltp': short_ce['avg_price'],  # Use entry price as initial LTP
-                'sl': math.ceil(short_ce['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                'sl_hit': False
-            }
-            self.positions["pe"] = {
-                'symbol': short_pe['symbol'], 
-                'entry_price': short_pe['avg_price'],
-                'ltp': short_pe['avg_price'],  # Use entry price as initial LTP
-                'sl': math.ceil(short_pe['avg_price'] * self.INITIAL_SL_MULTIPLIER * self.SL_ROUNDING_FACTOR) / self.SL_ROUNDING_FACTOR,
-                'sl_hit': False
-            }
-
-            logger.info(f"Strategy RECOVERED: CE={short_ce['symbol']} @ {short_ce['avg_price']:.2f}, PE={short_pe['symbol']} @ {short_pe['avg_price']:.2f}")
-            logger.info(f"CE SL: {self.positions['ce']['sl']:.2f}, PE SL: {self.positions['pe']['sl']:.2f}")
-            
-            # Get current market data for monitoring
-            self._get_market_data()
-                
-            self._log_state("ACTIVE", "Strategy recovered from positions")
-            return True
-
-        except Exception as e:
-            logger.error(f"Error during strategy recovery: {e}", exc_info=True)
-            return False
-
-    def recover_from_state_file(self):
-        """Recover strategy state from today's state CSV file only"""
-        try:
-            # Only use today's file
-            if not os.path.exists(self.current_state_file):
-                logger.info("No state file found for today - no recovery needed")
-                return False
-                
-            # Read with error handling
-            try:
-                df = pd.read_csv(self.current_state_file, on_bad_lines='skip')
-            except:
-                logger.warning("Failed to read state file with pandas, trying manual recovery")
-                return self._manual_state_file_recovery()
-            
-            if df.empty:
-                return False
-                
-            latest_state = df.iloc[-1]
-            if pd.isna(latest_state.get('comments')) or str(latest_state.get('comments')).strip() == "":
-                logger.warning("Last row has missing comments, skipping it")
-                if len(df) > 1:
-                    latest_state = df.iloc[-2]
-                else:
-                    return False
-            
-            # Only recover if status was ACTIVE or VIRTUAL_ACTIVE
-            if latest_state.get('status') not in ['ACTIVE', 'VIRTUAL_ACTIVE']:
-                logger.info(f"Last state was {latest_state.get('status')}, not recovering")
-                return False
-            
-            # Recover basic strategy state
-            def safe_float(val, default=0.0):
-                try:
-                    return float(val)
-                except Exception:
-                    return default
-
-            # Recover basic strategy state
-            self.state = latest_state.get('status', 'WAITING')
-            self.current_close = safe_float(latest_state.get('nifty_price'))
-            self.current_ma12 = safe_float(latest_state.get('nifty_ma12'))
-            self.current_trend = str(latest_state.get('trend', 'unknown'))
-            
-            # Recover positions
-            for opt_type in ['ce', 'pe']:
-                symbol = latest_state.get(f'{opt_type}_symbol')
-                if pd.notna(symbol) and symbol:
-                    self.positions[opt_type] = {
-                        'symbol': symbol,
-                        'entry_price': float(latest_state.get(f'{opt_type}_entry', 0.0)),
-                        'ltp': float(latest_state.get(f'{opt_type}_ltp', 0.0)),
-                        'sl': float(latest_state.get(f'{opt_type}_sl', 0.0)),
-                        'sl_hit': False
-                    }
-            
-            logger.info(f"Strategy recovered from state file: {self.state}")
-            logger.info(f"Recovered positions: CE={self.positions['ce'].get('symbol')}, PE={self.positions['pe'].get('symbol')}")
-            
-            # Get current market data
-            self._get_market_data()
-            
-            # Log the successful recovery
-            self._log_state("ACTIVE", "Recovered from state file")
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"State file recovery failed: {e}")
-            return False
-
-    def _find_latest_state_file(self):
-        """Find the latest state file if today's file doesn't exist"""
-        try:
-            # First check if today's file exists
-            if os.path.exists(self.current_state_file):
-                return self.current_state_file
-                
-            # Look for any IBBM state files
-            state_files = []
-            for file in os.listdir(self.log_dir):
-                if file.endswith('_ibbm_strategy_state.csv'):
-                    state_files.append(file)
-            
-            if not state_files:
-                logger.info("No IBBM state files found")
-                return None
-                
-            # Sort by date (newest first)
-            state_files.sort(reverse=True)
-            latest_file = state_files[0]
-            latest_file_path = os.path.join(self.log_dir, latest_file)
-            
-            logger.info(f"Using latest state file: {latest_file}")
-            return latest_file_path
-            
-        except Exception as e:
-            logger.error(f"Error finding latest state file: {e}")
-            return None
-
-    def _ensure_state_consistency(self):
-        """Ensure state is consistent with current positions"""
-        try:
-            # Check if we have active positions but no state file
-            has_active_positions = any(self.positions.values())
-            state_file_exists = os.path.exists(self.current_state_file)
-            
-            if has_active_positions and not state_file_exists:
-                logger.warning("Active positions found but no state file - creating one")
-                self._log_state("ACTIVE", "State file created from active positions")
-                
-            elif state_file_exists and not has_active_positions:
-                logger.warning("State file exists but no active positions - cleaning up")
-                os.remove(self.current_state_file)
-                self.state = "WAITING"
-                
-        except Exception as e:
-            logger.error(f"State consistency check failed: {e}")
-
-    def cleanup(self):
-        """Cleanup strategy resources"""
-        logger.info("Performing cleanup for IBBMStrategy")
-        try:
-            if hasattr(self.strategy_timer, "isActive") and self.strategy_timer.isActive():
-                self.strategy_timer.stop()
-                logger.debug("Strategy timer stopped")
-                
-            if hasattr(self.monitor_timer, "isActive") and self.monitor_timer.isActive():
-                self.monitor_timer.stop()
-                logger.debug("Monitor timer stopped")
-        except Exception:
-            logger.exception("Error stopping strategy timers")
-
-        # Reset positions and state
-        self.state = "WAITING"
-        self.positions = {'ce': self._empty_position(), 'pe': self._empty_position()}
-        self.current_close = None
-        self.current_ma12 = None
-        self.current_trend = None
-
-        logger.info("Cleanup complete")
-
-
-    def _try_recover_from_state_file(self):
-        """Try to recover strategy state from today's state file only"""
-        try:
-            if not os.path.exists(self.current_state_file):
-                logger.info("No state file found for today - starting fresh")
-                return
-                
-            logger.info(f"Attempting to recover from today's state file: {self.current_state_file}")
-            
-            # Read CSV with proper error handling for inconsistent fields
-            try:
-                df = pd.read_csv(self.current_state_file, on_bad_lines='skip')
-            except:
-                # Fallback: read manually if pandas fails
-                with open(self.current_state_file, 'r') as f:
-                    lines = f.readlines()
-                
-                if len(lines) <= 1:  # Only header or empty
-                    logger.info("State file is empty or has only header")
-                    return
+                    pass
                     
-                # Get the last valid line (skip header)
-                last_line = lines[-1].strip()
-                if last_line.count(',') < 15:  # Minimum expected fields
-                    logger.warning("Invalid last line in state file - skipping recovery")
-                    return
-                    
-                # Manual parsing as fallback
-                fields = last_line.split(',')
-                if len(fields) < 16:
-                    logger.warning(f"Insufficient fields in state file: {len(fields)}")
-                    return
-                    
-                # Create minimal dataframe from last line
-                df = pd.DataFrame([fields[:16]], columns=[
-                    'timestamp', 'status', 'comments', 'nifty_price', 'nifty_ma12', 'trend',
-                    'ce_symbol', 'ce_entry_price', 'ce_ltp', 'ce_sl_price', 'ce_trailing_step',
-                    'pe_symbol', 'pe_entry_price', 'pe_ltp', 'pe_sl_price', 'pe_trailing_step'
-                ])
-            
-            if len(df) == 0:
-                logger.info("State file is empty - starting fresh")
-                return
-                
-            # Get the latest state
-            last_row = df.iloc[-1]
-            status = last_row.get('status', 'WAITING')
-            
-            if status in ['COMPLETED', 'STOPPED_OUT']:
-                logger.info(f"Strategy already {status} for today - waiting for tomorrow")
-                self.state = status
-                return
-                
-            if status in ['VIRTUAL_ACTIVE', 'ACTIVE']:
-                logger.info(f"Recovering {status} state from today's file")
-                self.state = status
-                
-                # Recover positions
-                for leg in ['ce', 'pe']:
-                    symbol_col = f"{leg}_symbol"
-                    entry_price_col = f"{leg}_entry_price"
-                    sl_col = f"{leg}_sl_price"
-                    trailing_step_col = f"{leg}_trailing_step"
-                    
-                    if symbol_col in last_row and pd.notna(last_row[symbol_col]):
-                        self.positions[leg]['symbol'] = last_row[symbol_col]
-                        self.positions[leg]['entry_price'] = last_row.get(entry_price_col, 0)
-                        self.positions[leg]['current_sl'] = last_row.get(sl_col, 0)
-                        self.positions[leg]['initial_sl'] = last_row.get(sl_col, 0)
-                        self.positions[leg]['trailing_step'] = last_row.get(trailing_step_col, 0)
-                        self.positions[leg]['sl_hit'] = False
-                        
-                        # Try to get token from symbol
-                        token = self._get_token_from_symbol(self.positions[leg]['symbol'])
-                        if token:
-                            self.positions[leg]['token'] = token
-                            logger.info(f"Recovered {leg.upper()} position: {self.positions[leg]['symbol']}")
-                
-                # Validate positions with broker
-                if self.state == "ACTIVE":
-                    try:
-                        self._validate_positions(update_prices=True)
-                        logger.info("Positions validated with broker after recovery")
-                    except ValueError as e:
-                        logger.warning(f"Position validation failed after recovery: {str(e)}")
-                        # Reset if positions don't exist in broker
-                        self._reset_all_positions()
-                        self.state = "WAITING"
-                        
-                logger.info(f"Successfully recovered {status} state from today's file")
-                
         except Exception as e:
-            logger.error(f"Failed to recover from today's state file: {str(e)}")
-            self.state = "WAITING"     
+            logger.debug(f"LTP update failed for {leg}: {str(e)}")
+
+    def _update_stop_loss(self, leg: str):
+        pos = self.positions[leg]
+        if pos['ltp'] == 0 or pos['max_profit_price'] == 0:
+            return
+            
+        # Calculate profit percentage
+        profit_pct = (pos['entry_price'] - pos['ltp']) / pos['entry_price']
+        
+        # Update trailing step based on profit
+        for i, threshold in enumerate(TRAILING_SL_STEPS):
+            if profit_pct >= threshold and pos['trailing_step'] < i + 1:
+                pos['trailing_step'] = i + 1
+                new_sl = round_sl(pos['max_profit_price'] * (1 + threshold))
+                if new_sl < pos['current_sl'] or pos['current_sl'] == 0:
+                    pos['current_sl'] = new_sl
+                    logger.info(f"{leg.upper()} trailing SL updated to step {i+1}: {new_sl:.2f}")
+
+    def _check_stop_loss(self, leg: str):
+        pos = self.positions[leg]
+        if pos['ltp'] >= pos['current_sl'] and pos['current_sl'] > 0:
+            logger.info(f"{leg.upper()} stop loss hit: LTP={pos['ltp']:.2f}, SL={pos['current_sl']:.2f}")
+            self._exit_single_position(leg, "Stop loss triggered")
+
+    # ===== Position Validation =====
+    def _validate_positions(self, update_prices: bool = False):
+        broker_positions = self._get_broker_positions()
+        
+        for leg in ['ce', 'pe']:
+            pos = self.positions[leg]
+            if not pos['symbol']:
+                continue
+                
+            found = False
+            for bp in broker_positions:
+                if (bp.get('tsym') == pos['symbol'] and 
+                    float(bp.get('netqty', 0)) < 0):
+                    found = True
+                    if update_prices:
+                        pos['entry_price'] = float(bp.get('netupldprc', 0))
+                        pos['ltp'] = float(bp.get('lp', 0))
+                    break
+                    
+            if not found:
+                logger.warning(f"Position not found in broker: {pos['symbol']}")
+                pos['real_entered'] = False
+
+    # ===== Broker Communication =====
+    def _get_primary_client(self):
+        if self.client_manager:
+            return self.client_manager.get_primary_client()
+        return None
+
+    def _get_broker_positions(self):
+        try:
+            client = self._get_primary_client()
+            if not client:
+                return []
+                
+            positions = client.positions()
+            if positions and isinstance(positions, list):
+                return positions
+            return []
+        except Exception as e:
+            logger.error(f"Error getting broker positions: {str(e)}")
+            return []
 
     def _get_token_from_symbol(self, symbol: str) -> Optional[str]:
-            """Get token from symbol using NFO symbols file"""
-            try:
-                if not os.path.exists("NFO_symbols.txt"):
-                    logger.error("NFO_symbols.txt file not found")
-                    return None
-                    
-                df = pd.read_csv("NFO_symbols.txt")
-                symbol_data = df[df['TradingSymbol'] == symbol]
-                
-                if not symbol_data.empty:
-                    token = str(symbol_data.iloc[0]['Token'])
-                    logger.info(f"Found token {token} for symbol {symbol}")
-                    return token
-                    
-                logger.warning(f"Token not found for symbol {symbol}")
+        try:
+            if not os.path.exists(NFO_SYMBOLS_FILE):
                 return None
                 
-            except Exception as e:
-                logger.error(f"Error getting token from symbol: {str(e)}")
-                return None               
+            df = pd.read_csv(NFO_SYMBOLS_FILE)
+            match = df[df["TradingSymbol"] == symbol]
+            if not match.empty:
+                return str(match.iloc[0]["Token"])
+            return None
+        except Exception as e:
+            logger.error(f"Error getting token from symbol: {str(e)}")
+            return None
+
+    def _get_current_spot_price(self) -> float:
+        try:
+            client = self._get_primary_client()
+            if not client:
+                return 0.0
+                
+            quote = client.get_quotes('NSE', 'NIFTY 50')
+            if quote and quote.get('stat') == 'Ok':
+                return float(quote.get('lp', 0))
+            return 0.0
+        except Exception as e:
+            logger.error(f"Error getting spot price: {str(e)}")
+            return 0.0
+
+    def _validate_api_connection(self) -> bool:
+        try:
+            client = self._get_primary_client()
+            if not client:
+                return False
+                
+            # Simple API call to test connection
+            positions = client.positions()
+            return positions is not None
+        except Exception:
+            return False
+
+    # ===== State Management =====
+    def _log_state(self, status: str, comments: str = "", nifty_price: float = 0.0, 
+               nifty_ma12: float = 0.0, trend: str = "unknown", 
+               ce_sl_price: float = 0.0, pe_sl_price: float = 0.0):
+        """Consistent state logging - REMOVE **extra parameter"""
+        try:
+            current_time = ISTTimeUtils.now()
+            
+            # Clean comments to prevent CSV issues
+            cleaned_comments = str(comments).replace(',', ';').replace('\n', ' | ').replace('"', "'")
+            
+            # ALWAYS use the same 16 columns
+            state_data = {
+                'timestamp': current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                'status': str(status),
+                'comments': cleaned_comments,
+                'nifty_price': float(nifty_price or self.current_close or 0.0),
+                'nifty_ma12': float(nifty_ma12 or self.current_ma12 or 0.0),
+                'trend': str(trend or self.current_trend or "unknown"),
+                'ce_symbol': str(self.positions['ce']['symbol'] or ''),
+                'ce_entry_price': float(self.positions['ce']['entry_price'] or 0.0),
+                'ce_ltp': float(self.positions['ce']['ltp'] or 0.0),
+                'ce_sl_price': float(ce_sl_price or self.positions['ce']['current_sl'] or 0.0),
+                'ce_trailing_step': int(self.positions['ce']['trailing_step'] or 0),
+                'pe_symbol': str(self.positions['pe']['symbol'] or ''),
+                'pe_entry_price': float(self.positions['pe']['entry_price'] or 0.0),
+                'pe_ltp': float(self.positions['pe']['ltp'] or 0.0),
+                'pe_sl_price': float(pe_sl_price or self.positions['pe']['current_sl'] or 0.0),
+                'pe_trailing_step': int(self.positions['pe']['trailing_step'] or 0)
+            }
+            
+            df = pd.DataFrame([state_data])
+            
+            if not os.path.exists(self.current_state_file):
+                df.to_csv(self.current_state_file, index=False)
+            else:
+                df.to_csv(self.current_state_file, mode='a', header=False, index=False)
+                
+            logger.debug(f"State logged: {status} - {cleaned_comments}")
+            
+        except Exception as e:
+            logger.error(f"State logging failed: {str(e)}")
+
+    def _recover_state_from_file(self):
+        return self._try_recover_from_state_file()
+
+    def _monitor_trend_and_positions(self):
+        """Monitor for trend changes and position status"""
+        if self.state != "ACTIVE":
+            return
+            
+        # Check for trend change
+        if self._check_trend_change():
+            logger.info("Trend change detected - exiting all positions")
+            self._exit_all_positions(reason="Trend change")
+            self.state = "WAITING"
+            self._entry_attempted = False
+            self._log_state("WAITING", "Trend change - ready for re-entry")
+            return
+            
+        # Check if both legs are stopped out
+        if (self.positions['ce']['sl_hit'] and self.positions['pe']['sl_hit']):
+            logger.info("Both legs stopped out - strategy completed")
+            self.state = "STOPPED_OUT"
+            self._log_state("STOPPED_OUT", "Both legs stopped out")
+            return
+            
+        # Update LTPs and check stop losses
+        self._monitor_stop_losses()
+
+    def stop(self):
+        """Stop the strategy and clean up"""
+        try:
+            logger.info("Stopping IBBM strategy")
+            
+            if self.strategy_timer:
+                self.strategy_timer.stop()
+                
+            if self.monitor_timer:
+                self.monitor_timer.stop()
+                
+            logger.info("IBBM strategy stopped")
+            
+        except Exception as e:
+            logger.error(f"Error stopping IBBM strategy: {str(e)}")
+
+    # ===== Factory Function =====
+    def create_strategy_instance(ui, client_manager, position_manager=None):
+        try:
+            logger.info("Creating IBBMStrategy instance")
+            strategy = IBBMStrategy(ui, client_manager, position_manager)
+            logger.info("IBBMStrategy instance created successfully")
+            return strategy
+        except Exception as e:
+            logger.critical(f"Failed to create IBBMStrategy instance: {e}")
+            return None

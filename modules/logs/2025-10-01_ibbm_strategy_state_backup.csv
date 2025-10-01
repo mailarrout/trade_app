@@ -1,0 +1,33 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-10-01 01:17:20,INITIALIZING,State file created during initialization,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 01:17:20,RECOVERED,Successfully recovered state: INITIALIZING,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 01:17:22,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 01:17:35,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 01:17:37,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 09:20:31,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 09:20:47,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:00:45,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:01:00,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:23:58,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:24:13,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:45:40,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 10:45:55,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 11:58:47,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 11:59:02,ERROR,Recovery failed parsing error,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 12:11:32,ERROR,Recovery failed parsing error,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 12:11:32,WAITING,Fresh start - no recovery data found,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 12:11:49,ERROR,Recovery failed parsing error,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 12:16:19,VIRTUAL,Virtual CE & PE created,0.0,0.0,unknown,NIFTY07OCT25C24900,84.4,84.4,101.3,0,NIFTY07OCT25P24800,90.3,90.3,108.4,0
+2025-10-01 12:46:40,ACTIVE,Activated real CE with hedge + main SELL,0.0,0.0,unknown,NIFTY07OCT25C24850,84.35,84.35,101.25,0,NIFTY07OCT25P24800,90.3,108.9,108.4,0
+2025-10-01 13:04:44,ACTIVE,CE trailing SL updated to 80.15,0.0,0.0,unknown,NIFTY07OCT25C24850,84.35,75.75,80.15,1,NIFTY07OCT25P24800,90.3,108.9,108.4,0
+2025-10-01 13:08:45,STOPPED_OUT,CE SL hit at 80.25,0.0,0.0,unknown,NIFTY07OCT25C24850,84.35,80.25,80.15,1,NIFTY07OCT25P24800,90.3,108.9,108.4,0
+2025-10-01 14:18:18,ERROR,Recovery failed parsing error,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 14:18:18,WAITING,Fresh start - no recovery data found,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-01 14:18:42,ERROR,Recovery failed parsing error,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,02025-10-01 14:46:10,VIRTUAL,Virtual CE & PE created,NIFTY07OCT25C24900,86.2,86.2,103.45,False,NIFTY07OCT25P24850,85.8,85.8,103.0,False,,0.0,,0.0
+2025-10-01 15:15:19,COMPLETED,All closed: End of trading day,NIFTY07OCT25C24900,86.2,86.2,103.45,False,NIFTY07OCT25P24850,85.8,85.8,103.0,False,,0.0,,0.0
+2025-10-01 17:18:16,ERROR,Recovery failed: Error tokenizing data. C error: Expected 16 fields in line 26; saw 32 | ,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 17:18:16,WAITING,Fresh start - no recovery data found,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 17:18:36,ERROR,Recovery failed: Error tokenizing data. C error: Expected 16 fields in line 26; saw 32 | ,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 17:33:36,ERROR,Recovery failed: Error tokenizing data. C error: Expected 16 fields in line 26; saw 32 | ,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 17:33:36,WAITING,Fresh start - no recovery data found,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 17:33:56,ERROR,Recovery failed: Error tokenizing data. C error: Expected 16 fields in line 26; saw 32 | ,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0

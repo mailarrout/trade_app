@@ -1,0 +1,4 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-09-30 16:05:52,INITIALIZING,State file created during initialization,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-09-30 16:05:52,RECOVERED,Successfully recovered state: INITIALIZING,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-09-30 16:06:07,RECOVERED,Successfully recovered state: RECOVERED,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0

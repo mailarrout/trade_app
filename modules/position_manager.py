@@ -6,23 +6,18 @@ from datetime import datetime, time
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QPushButton, QInputDialog, QMenu
 import pandas as pd
 from pytz import timezone
-IST = timezone('Asia/Kolkata')
-import winsound
-import sys
 
+IST = timezone('Asia/Kolkata')
 logger = logging.getLogger(__name__)
 
 class PositionManager:
-    # Configuration constants
     MAX_TOTAL_SELL_QTY = 450
     DEFAULT_TARGET = 30000.0
     DEFAULT_SL = -30000.0
-    AUTO_REFRESH_INTERVAL = 10000  # 10 seconds
-    EXIT_COOLDOWN = 300000  # 5 minutes
-    
-    # Market hours constants
-    MARKET_OPEN = time(9, 15)   # 9:15 AM IST
-    MARKET_CLOSE = time(15, 30) # 3:30 PM IST
+    AUTO_REFRESH_INTERVAL = 10000
+    EXIT_COOLDOWN = 300000
+    MARKET_OPEN = time(9, 15)
+    MARKET_CLOSE = time(15, 30)
     
     def __init__(self, ui, client_manager):
         logger.info("Initializing PositionManager")
@@ -40,19 +35,16 @@ class PositionManager:
         self._strategy_mapping_file = f"{current_date}_strategy_mapping.csv"
         self._strategy_symbol_token_map = self._load_strategy_mapping()
 
-        # Connect UI signals
         self.ui.PositionRefreshPushButton.clicked.connect(self.update_positions)
         self.ui.SubmitPushButton.clicked.connect(self.update_target_sl)
         self.ui.AllClientsRefreshPushButton.clicked.connect(self.update_all_clients_mtm)
         
-        # Context menu for strategy updates
         self.ui.PositionTable.customContextMenuRequested.connect(self._show_context_menu)
         self.ui.PositionTable.setContextMenuPolicy(Qt.CustomContextMenu)
         
         logger.info("PositionManager initialization completed")
 
     def start_updates(self):
-        """Start the auto-refresh timer ONLY during market hours"""
         logger.info("Starting auto-refresh timer")
         if not self.timer.isActive():
             if self._is_market_hours():
@@ -61,23 +53,18 @@ class PositionManager:
                 self.ui.log_message("System", f"Auto-refresh started ({self.AUTO_REFRESH_INTERVAL//1000}s interval)")
             else:
                 self.ui.log_message("System", "Outside market hours - auto-refresh disabled")
-                # Still show current positions once
                 self.update_positions()
                 self.update_all_clients_mtm()
 
     def stop_updates(self):
-        """Stop the auto-refresh timer"""
         logger.info("Stopping auto-refresh timer")
         if self.timer.isActive():
             self.timer.stop()
             self.ui.log_message("System", "Auto-refresh stopped")
 
     def auto_refresh(self):
-        """Automatically refresh positions and check for exit conditions"""
         try:
-            # Market hours restriction - only stop auto-refresh, but allow manual updates
             if not self._is_market_hours():
-                # Only allow market close exit logic outside market hours
                 current_time = datetime.now(IST).time()
                 if self._enable_market_close_exit and time(15, 15) <= current_time <= time(15, 16) and not self._exit_triggered:
                     logger.info("Market close time reached - triggering exit")
@@ -108,7 +95,6 @@ class PositionManager:
             self.ui.log_message("RefreshError", error_msg)
             
     def update_positions(self):
-        """Main method to update positions table"""
         try:
             logger.info("Starting positions update")
             
@@ -118,33 +104,22 @@ class PositionManager:
             client_name, client_id, primary_client = self.client_manager.clients[0]
             logger.debug(f"Using primary client: {client_name}")
 
-            # Get target and SL values
             target, sl = self._get_target_sl_values()
             if target is None or sl is None:
                 return
 
-            # Get positions from client
             positions = self._get_client_positions(primary_client, client_name)
             if positions is None:
                 return
 
-            # Update strategy tracking
-            self.update_strategy_tracking(positions)
+            rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty = self._process_positions(positions, primary_client)
 
-            # Process positions
-            rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty = self._process_positions(
-                positions, primary_client
-            )
-
-            # Safety check: total sell quantity (always active for safety)
             if total_sell_qty > self.MAX_TOTAL_SELL_QTY:
                 self._handle_trade_limit_violation(total_sell_qty)
                 return
 
-            # Update table with processed data (always show data)
             self._update_positions_table(rows_data)
 
-            # Update MTM display (always show MTM)
             current_mtm = total_mtm + total_pnl
             self.update_mtm_display(current_mtm, total_raw_mtm)
             
@@ -153,13 +128,11 @@ class PositionManager:
 
             self.save_positions_to_csv(rows_data)
             
-            # Show appropriate status message based on market hours
             if self._is_market_hours():
                 self.ui.statusBar().showMessage(f"Positions updated for {client_id} ({len(rows_data)} valid)", 5000)
             else:
                 self.ui.statusBar().showMessage(f"Viewing positions (outside market hours) - {client_id} ({len(rows_data)} valid)", 5000)
 
-            # Check exit conditions ONLY during market hours
             if self._is_market_hours() and (not hasattr(self, '_exited_all') or not self._exited_all):
                 self._check_exit_conditions(current_mtm, target, sl)
 
@@ -169,7 +142,6 @@ class PositionManager:
             self.ui.log_message("PositionError", error_msg)
 
     def _validate_clients(self):
-        """Validate that clients are available"""
         if not self.client_manager or not self.client_manager.clients:
             logger.warning("No clients available")
             self.ui.log_message("System", "No clients available")
@@ -177,7 +149,6 @@ class PositionManager:
         return True
 
     def _get_target_sl_values(self):
-        """Get target and SL values from UI"""
         try:
             target_text = self.ui.TargetQEdit.text().strip()
             sl_text = self.ui.SLQLine.text().strip()
@@ -185,7 +156,6 @@ class PositionManager:
             target = float(target_text) if target_text else self.DEFAULT_TARGET
             sl = -abs(float(sl_text)) if sl_text else self.DEFAULT_SL
 
-            # Update UI with defaults if empty
             if not target_text:
                 self.ui.TargetQEdit.setText(str(target))
             if not sl_text:
@@ -200,7 +170,6 @@ class PositionManager:
             return None, None
 
     def _get_client_positions(self, client, client_name):
-        """Get positions from client with error handling"""
         try:
             positions = client.get_positions()
             if positions is None:
@@ -216,25 +185,20 @@ class PositionManager:
             return None
 
     def _process_positions(self, positions, client):
-        """Process positions and calculate totals"""
         rows_data = []
         total_mtm = 0.0
         total_pnl = 0.0
         total_raw_mtm = 0.0
         total_sell_qty = 0
-        invalid_positions = 0
 
         for pos in positions:
             try:
                 symbol = pos.get("tsym", "")
                 if not symbol:
-                    invalid_positions += 1
                     continue
 
-                # Extract position data
                 position_data = self._extract_position_data(pos, client, symbol)
                 if not position_data:
-                    invalid_positions += 1
                     continue
 
                 total_sell_qty += position_data['sell_qty']
@@ -245,42 +209,35 @@ class PositionManager:
                 rows_data.append(position_data)
 
             except Exception as e:
-                invalid_positions += 1
                 logger.error(f"Error processing position: {str(e)}", exc_info=True)
 
         logger.debug(f"Total sell quantity = {total_sell_qty}")
         return rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty
 
     def _extract_position_data(self, pos, client, symbol):
-        """Extract data from a single position"""
         token = pos.get("token", "")
         pe_ce = 'CE' if 'C' in symbol else 'PE' if 'P' in symbol else None
 
-        # Quantity calculations
         buy_qty = self._get_quantity(pos, "buy")
         sell_qty = self._get_quantity(pos, "sell")
         net_qty = int(float(pos.get("netqty", 0)))
 
-        # Price calculations
         buy_price = self._get_price(pos, "buy")
         sell_price = self._get_price(pos, "sell")
 
-        # Market data
         ltp = float(pos.get("lp", 0))
         mtm = float(pos.get("urmtom", 0))
         pnl = float(pos.get("rpnl", 0))
         product = pos.get("s_prdt_ali", "")
 
-        # Raw MTM calculation
-        if net_qty < 0:  # Short position
+        if net_qty < 0:
             raw_mtm = (sell_price - ltp) * abs(net_qty)
-        elif net_qty > 0:  # Long position  
+        elif net_qty > 0:
             raw_mtm = (ltp - buy_price) * net_qty
-        else:  # Flat position
+        else:
             raw_mtm = 0
 
-        # Get strategy
-        strategy = self.enhanced_get_strategy_for_position(symbol, token, net_qty)
+        strategy = self.get_strategy_for_position(symbol, token, net_qty)
 
         return {
             "symbol": symbol, "pe_ce": pe_ce, "token": token,
@@ -291,7 +248,6 @@ class PositionManager:
         }
 
     def _get_quantity(self, pos, qty_type):
-        """Get quantity of specific type from position"""
         qty_map = {
             "buy": ["totbuyqty", "cfbuyqty", "daybuyqty"],
             "sell": ["totsellqty", "cfsellqty", "daysellqty"]
@@ -304,7 +260,6 @@ class PositionManager:
         return 0
 
     def _get_price(self, pos, price_type):
-        """Get price of specific type from position"""
         price_map = {
             "buy": ["netupldprc", "totbuyavgprc", "cfbuyavgprc", "daybuyavgprc"],
             "sell": ["netupldprc", "totsellavgprc", "cfsellavgprc", "daysellavgprc"]
@@ -317,28 +272,23 @@ class PositionManager:
         return 0.0
 
     def _update_positions_table(self, rows_data):
-        """Update the positions table with processed data"""
         self.ui.PositionTable.setRowCount(0)
         self.ui.PositionTable.setColumnCount(13)
         
-        # Sort: Shorts → Longs → Flats
         rows_data.sort(key=lambda x: (0 if x["net_qty"] < 0 else 1 if x["net_qty"] > 0 else 2))
 
         for row_idx, row_data in enumerate(rows_data):
             self.ui.PositionTable.insertRow(row_idx)
             
-            # Create table items
             items = self._create_table_items(row_data)
             
             for col, item in enumerate(items):
                 self.ui.PositionTable.setItem(row_idx, col, item)
 
-            # Add exit button for active positions
             if row_data["has_action"]:
                 self._add_exit_button(row_idx, row_data)
 
     def _create_table_items(self, row_data):
-        """Create table items for a row"""
         strategy_value = row_data.get("strategy", "")
         strategy_name = strategy_value.get('strategy_name', 'Update Required') if isinstance(strategy_value, dict) else strategy_value
 
@@ -364,33 +314,29 @@ class PositionManager:
             strategy_item,
         ]
 
-        # Apply coloring
         for col, item in enumerate(items):
             item.setTextAlignment(Qt.AlignCenter)
-            if col in [2, 3, 4]:  # Quantity columns
+            if col in [2, 3, 4]:
                 self._color_quantity_item(item, col, row_data)
-            elif col in [8, 9]:  # MTM/PnL columns
+            elif col in [8, 9]:
                 self._color_mtm_item(item, col, row_data)
 
         return items
 
     def _color_quantity_item(self, item, col, row_data):
-        """Apply coloring to quantity items"""
         value = int(item.text())
-        if col == 2 and value > 0:  # Buy quantity
+        if col == 2 and value > 0:
             item.setForeground(QColor("green"))
-        elif col == 3 and value > 0:  # Sell quantity
+        elif col == 3 and value > 0:
             item.setForeground(QColor("red"))
-        elif col == 4:  # Net quantity
+        elif col == 4:
             item.setForeground(QColor("green") if value > 0 else QColor("red") if value < 0 else QColor("black"))
 
     def _color_mtm_item(self, item, col, row_data):
-        """Apply coloring to MTM/PnL items"""
         value = float(item.text())
         item.setForeground(QColor("green") if value > 0 else QColor("red") if value < 0 else QColor("black"))
 
     def _add_exit_button(self, row_idx, row_data):
-        """Add exit button for a position row"""
         btn = QPushButton("Exit", self.ui.PositionTable)
         btn.setStyleSheet("""
             QPushButton {
@@ -411,16 +357,12 @@ class PositionManager:
         self.ui.PositionTable.setCellWidget(row_idx, 12, btn)
 
     def _handle_trade_limit_violation(self, total_sell_qty):
-        """Handle trade limit violation"""
         logger.critical(f"Total sell quantity {total_sell_qty} exceeded limit {self.MAX_TOTAL_SELL_QTY}")
-        winsound.Beep(1000, 1000)
-        winsound.Beep(1500, 1000)
         self.exit_all_positions()
         QTimer.singleShot(3000, self._close_application)
         self.ui.log_message("TradeLimit", f"Total sell quantity {total_sell_qty} exceeded {self.MAX_TOTAL_SELL_QTY} - exiting")
 
     def _check_exit_conditions(self, current_mtm, target, sl):
-        """Check if exit conditions are met"""
         if current_mtm >= target:
             logger.info(f"Target reached ({current_mtm:.2f} >= {target:.2f})")
             self.ui.log_message("System", f"Target reached ({current_mtm:.2f} >= {target:.2f})")
@@ -435,14 +377,11 @@ class PositionManager:
             QTimer.singleShot(self.EXIT_COOLDOWN, self.reset_exit_flag)
 
     def reset_exit_flag(self):
-        """Reset the exit flag after cooldown"""
         logger.info("Resetting exit flag after cooldown")
         self._exited_all = False
         self.ui.log_message("System", "Exit flag reset, monitoring resumed")
 
-    # ===== MTM Display =====
     def update_mtm_display(self, mtm_value, raw_mtm_value=None):
-        """Update the MTMQL and MTMShowQLabel with the combined MTM value"""
         try:
             logger.debug(f"Updating MTM display: {mtm_value}, Raw MTM: {raw_mtm_value}")
             if mtm_value is None:
@@ -458,7 +397,6 @@ class PositionManager:
             self.ui.MTMShowQLabel.setText(mtm_text)
             self.ui.MTMShowQLabelPayOff.setText(mtm_text)
             
-            # Add RawMTMQL display
             if raw_mtm_value is not None:
                 raw_mtm_text = f"Raw MTM: {raw_mtm_value:+,.2f}"
                 self.ui.RawMTMQL.setText(raw_mtm_text)
@@ -491,36 +429,7 @@ class PositionManager:
             self.ui.MTMShowQLabelPayOff.setText("Error")
             self.ui.RawMTMQL.setText("Error")
 
-    def _set_mtm_displays(self, mtm_text, raw_mtm_value):
-        """Set MTM values on all display widgets"""
-        self.ui.MTMQL.setText(mtm_text)
-        self.ui.MTMShowQLabel.setText(mtm_text)
-        self.ui.MTMShowQLabelPayOff.setText(mtm_text)
-        
-        if raw_mtm_value is not None:
-            raw_mtm_text = f"Raw MTM: {raw_mtm_value:+,.2f}"
-            self.ui.RawMTMQL.setText(raw_mtm_text)
-            self._color_mtm_widget(self.ui.RawMTMQL, raw_mtm_value)
-        
-        # Color main MTM displays
-        if "N/A" not in mtm_text and "Error" not in mtm_text:
-            mtm_value = float(mtm_text.split(":")[1].strip())
-            self._color_mtm_widget(self.ui.MTMQL, mtm_value)
-            self._color_mtm_widget(self.ui.MTMShowQLabel, mtm_value)
-            self._color_mtm_widget(self.ui.MTMShowQLabelPayOff, mtm_value)
-
-    def _color_mtm_widget(self, widget, value):
-        """Apply coloring to MTM widget based on value"""
-        if value > 0:
-            widget.setStyleSheet("color: green; font-weight: bold;")
-        elif value < 0:
-            widget.setStyleSheet("color: red; font-weight: bold;")
-        else:
-            widget.setStyleSheet("color: white; font-weight: bold;")
-
-    # ===== All Clients MTM =====
     def update_all_clients_mtm(self):
-        """Update MTM for all clients"""
         try:
             if not self._validate_clients():
                 return
@@ -558,7 +467,6 @@ class PositionManager:
             self.ui.log_message("MTMError", error_msg)
 
     def _calculate_client_mtm_pnl(self, positions):
-        """Calculate MTM and PnL for a client"""
         try:
             mtm = sum(float(p.get("urmtom", 0)) for p in positions)
             pnl = sum(float(p.get("rpnl", 0)) for p in positions)
@@ -568,7 +476,6 @@ class PositionManager:
             return 0.0, 0.0
 
     def _create_table_item(self, value, color=None, bold=False):
-        """Create a standardized table item"""
         item = QTableWidgetItem(str(value))
         item.setTextAlignment(Qt.AlignCenter)
         
@@ -581,9 +488,7 @@ class PositionManager:
             
         return item
 
-    # ===== Exit Positions =====
     def exit_all_positions(self, client_name=None, symbol=None):
-        """Exit positions with optional filters"""
         try:
             if not self._validate_clients():
                 return
@@ -618,7 +523,6 @@ class PositionManager:
             self.ui.log_message("ExitError", error_msg)
 
     def _exit_single_position(self, client, pos, net_qty, client_name):
-        """Exit a single position"""
         try:
             product_alias = (pos.get("s_prdt_ali") or "").upper()
             product_type = self._get_product_type(product_alias)
@@ -654,7 +558,6 @@ class PositionManager:
             return 0
 
     def _get_product_type(self, product_alias):
-        """Map product alias to product type"""
         product_map = {
             "CNC": "C",
             "NRML": "M", 
@@ -666,9 +569,7 @@ class PositionManager:
         }
         return product_map.get(product_alias, "M")
 
-    # ===== Target/SL Update =====
     def update_target_sl(self):
-        """Handle target and SL submission"""
         target = self.ui.TargetQEdit.text()
         sl = self.ui.SLQLine.text()
 
@@ -689,9 +590,7 @@ class PositionManager:
             logger.error(error_msg, exc_info=True)
             QMessageBox.critical(self.ui, "Error", "Please enter valid numeric values")
 
-    # ===== CSV Export =====
     def save_positions_to_csv(self, positions_data):
-        """Save positions to CSV file"""
         try:
             output_data = []
             for pos in positions_data:
@@ -719,7 +618,6 @@ class PositionManager:
                     "RawMTM": float(pos.get("raw_mtm", 0))
                 })
 
-            # Create filename and path
             current_date = datetime.now(IST).strftime('%Y-%m-%d')
             filename = f"{current_date}_positions.csv"
             main_app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -727,7 +625,6 @@ class PositionManager:
             os.makedirs(logs_dir, exist_ok=True)
             filepath = os.path.join(logs_dir, filename)
 
-            # Save to CSV
             columns = [
                 "Timestamp", "Symbol", "Token", "IsNonZero", "NetQty", 
                 "BuyQty", "SellQty", "BuyPrice", "SellPrice", 
@@ -747,47 +644,42 @@ class PositionManager:
             return False
 
     def _close_application(self):
-        """Close application due to trade limit violation"""
         logger.critical("Closing application due to trade limit violation")
         self.ui.log_message("System", "Closing application due to trade limit violation")
         if hasattr(self.ui, 'app'):
             self.ui.app.quit()
         else:
+            import sys
             sys.exit(1)
 
-    def enhanced_get_strategy_for_position(self, symbol, token, net_qty):
-        """Get strategy from mapping - DO NOT auto-prompt user"""
-        logger.debug(f"enhanced_get_strategy_for_position called - symbol: {symbol}, token: {token}, net_qty: {net_qty}")
+    def get_strategy_for_position(self, symbol, token, net_qty=0):
+        logger.debug(f"get_strategy_for_position called - symbol: {symbol}, token: {token}, net_qty: {net_qty}")
         
         if not symbol or not token:
             return ""
         
-        # First try to get strategy from existing mapping
-        strategy = self.get_strategy_for_position(symbol, token)
+        strategy = self._get_strategy_from_mapping(symbol, token)
         logger.debug(f"Strategy from mapping: {strategy}")
         
-        # If no strategy found and position is active, return "Update Required"
         if not strategy and net_qty != 0:
-            logger.debug("No strategy found, returning 'Update Required'")
-            return "Update Required"
+            logger.debug("No strategy found, prompting user")
+            return self.prompt_strategy_selection(symbol, token)
         
         logger.debug(f"Returning strategy: {strategy}")
         return strategy
 
-    def get_strategy_for_position(self, symbol, token):
-        """Get strategy for a specific symbol-token combination - only if position exists"""
+    def _get_strategy_from_mapping(self, symbol, token):
         if not symbol or not token:
             logger.debug(f"Symbol or token is empty - symbol: {symbol}, token: {token}")
             return ""
         
-        # First check if this position exists currently
         current_positions = self._get_current_positions_symbols()
         logger.debug(f"Current positions from broker: {current_positions}")
         logger.debug(f"Looking for symbol: {symbol}")
         
         if symbol not in current_positions:
             logger.debug(f"SYMBOL NOT FOUND - {symbol} not in current positions")
-            return ""  # Don't return strategy for non-existent positions
+            return ""
         else:
             logger.debug(f"SYMBOL FOUND - {symbol} exists in current positions")
         
@@ -797,21 +689,18 @@ class PositionManager:
         strategy_data = self._strategy_symbol_token_map.get(key, {})
         logger.debug(f"Strategy data found: {strategy_data}")
         
-        # Handle both old (string) and new (dict) formats
         if isinstance(strategy_data, dict):
             strategy_name = strategy_data.get('strategy_name', '')
             logger.debug(f"Returning strategy name: {strategy_name}")
             return strategy_name
         else:
             logger.debug(f"Returning legacy strategy data: {strategy_data}")
-            return strategy_data  # For backward compatibility
+            return strategy_data
 
     def _get_symbol_token_key(self, symbol, token):
-        """Create unique key for symbol-token combination"""
         return f"{symbol}_{token}"
 
     def prompt_strategy_selection(self, symbol, token):
-        """Prompt user to select strategy for a position"""
         try:
             strategies = [
                 "IBBM Intraday", "General", "Intraday Strangle", 
@@ -849,20 +738,19 @@ class PositionManager:
             return "Error"
 
     def _get_current_spot_price(self):
-        """Get current NIFTY spot price with better error handling"""
         try:
             if hasattr(self.client_manager, 'clients') and self.client_manager.clients:
                 client = self.client_manager.clients[0][2]
                 quote = client.get_quotes('NSE', '26000')
                 
-                logger.debug(f"Spot price quote response: {quote}")  # ← Add logging
+                logger.debug(f"Spot price quote response: {quote}")
                 
                 if not quote or quote.get('stat') != 'Ok':
                     logger.error(f"Failed to get NIFTY quote: {quote}")
                     return 0.0
                     
                 spot_price = float(quote.get('lp', 0))
-                logger.info(f"Current NIFTY spot price: {spot_price}")  # ← Log the price
+                logger.info(f"Current NIFTY spot price: {spot_price}")
                 return spot_price
                 
             logger.error("No clients available for spot price")
@@ -872,32 +760,7 @@ class PositionManager:
             logger.error(f"Failed to get spot price: {str(e)}")
             return 0.0
 
-    def update_strategy_tracking(self, positions, force_update=False):
-        """COMMENT OUT - this causes incorrect auto-assignments"""
-        # if not self._current_strategy:
-        #     return
-        #     
-        # current_spot_price = self._get_current_spot_price()
-        # 
-        # for pos in positions:
-        #     symbol = pos.get("tsym", "")
-        #     token = pos.get("token", "")
-        #     net_qty = int(float(pos.get("netqty", 0)))
-        #     
-        #     if symbol and token and net_qty != 0:
-        #         key = f"{symbol}_{token}"
-        #         self._strategy_symbol_token_map[key] = {
-        #             'strategy_name': self._current_strategy,
-        #             'spot_price': current_spot_price,
-        #             'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
-        #         }
-        # 
-        # self._save_strategy_mapping()
-        
-        logger.debug("Strategy tracking disabled to prevent incorrect auto-assignments")
-
     def _save_strategy_mapping(self):
-        """Save strategy mapping to CSV file"""
         try:
             main_app_dir = os.path.dirname(os.path.abspath(__file__))
             logs_dir = os.path.join(main_app_dir, "logs")
@@ -947,7 +810,6 @@ class PositionManager:
             self.ui.log_message("StrategyError", error_msg)
 
     def _load_strategy_mapping(self):
-        """Load strategy mapping from latest available CSV file"""
         mapping = {}
         
         try:
@@ -955,21 +817,18 @@ class PositionManager:
             logs_dir = os.path.join(main_app_dir, "logs")
             os.makedirs(logs_dir, exist_ok=True)
             
-            # Get ALL strategy mapping files, not just today's
             csv_files = [f for f in os.listdir(logs_dir) if f.endswith('_strategy_mapping.csv')]
             
             if not csv_files:
                 logger.info("No strategy mapping files found in logs directory")
                 return mapping
                 
-            # Sort files by date (newest first)
             csv_files.sort(reverse=True)
             latest_file = csv_files[0]
             mapping_file = os.path.join(logs_dir, latest_file)
             
             logger.info(f"Loading strategy mappings from: {latest_file}")
             
-            # Read the latest mapping file
             df = pd.read_csv(mapping_file)
             has_spot_price = 'spot_price' in df.columns
             
@@ -1006,7 +865,6 @@ class PositionManager:
         return mapping
     
     def _get_current_positions_symbols(self):
-        """Get list of symbols from current positions"""
         current_symbols = set()
         
         try:
@@ -1028,12 +886,7 @@ class PositionManager:
         
         return current_symbols
 
-
     def get_all_strategy_assignments(self):
-        """
-        Returns all current strategy assignments with enhanced data.
-        Format: [ (strategy_name, symbol, token, net_qty, avg_price, entry_spot_price), ... ]
-        """
         assignments = []
         
         if not self._validate_clients():
@@ -1049,12 +902,10 @@ class PositionManager:
                 net_qty = int(float(pos.get("netqty", 0)))
                 
                 if symbol and token and net_qty != 0:
-                    # Get strategy with enhanced data
                     strategy_data = self._strategy_symbol_token_map.get(
                         self._get_symbol_token_key(symbol, token), {}
                     )
                     
-                    # Extract strategy name and spot price
                     if isinstance(strategy_data, dict):
                         strategy_name = strategy_data.get('strategy_name', '')
                         spot_price = strategy_data.get('spot_price', 0.0)
@@ -1075,7 +926,6 @@ class PositionManager:
         return assignments
 
     def _get_position_avg_price(self, pos):
-        """Get average price from position data"""
         try:
             return float(pos.get("netupldprc", 0) or 
                         pos.get("totbuyavgprc", 0) or 
@@ -1088,14 +938,13 @@ class PositionManager:
             return 0.0
 
     def _show_context_menu(self, position):
-        """Show context menu for strategy updates - manual assignment only"""
         try:
             row = self.ui.PositionTable.rowAt(position.y())
             if row < 0:
                 return
                 
             symbol_item = self.ui.PositionTable.item(row, 0)
-            token_item = self.ui.PositionTable.item(row, 2)  # Assuming token is in column 2
+            token_item = self.ui.PositionTable.item(row, 2)
             if not symbol_item or not token_item:
                 return
                 
@@ -1104,13 +953,11 @@ class PositionManager:
             
             menu = QMenu()
             
-            # Add "Assign Strategy" option
             assign_action = menu.addAction("Assign Strategy...")
             assign_action.triggered.connect(
                 lambda: self.manually_assign_strategy(symbol, token)
             )
             
-            # Add strategy options
             strategies = [
                 "IBBM Intraday", "General", "Intraday Strangle", 
                 "Intraday Straddle", "Strategy920AM", "Monthly Strangle", 
@@ -1131,17 +978,15 @@ class PositionManager:
             self.ui.log_message("UIError", error_msg)
 
     def _update_strategy_for_symbol(self, symbol, token, strategy):
-        """Update strategy for a specific symbol-token pair - FIX SPOT PRICE"""
         try:
             key = self._get_symbol_token_key(symbol, token)
             
-            # GET SPOT PRICE BEFORE SAVING
             spot_price = self._get_current_spot_price()
             logger.info(f"Capturing spot price {spot_price} for {symbol}")
             
             self._strategy_symbol_token_map[key] = {
                 'strategy_name': strategy,
-                'spot_price': spot_price,  # ← Now this will have actual value
+                'spot_price': spot_price,
                 'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
             }
             self._save_strategy_mapping()
@@ -1149,7 +994,6 @@ class PositionManager:
             log_msg = f"Updated {symbol} strategy to: {strategy} (Spot: {spot_price})"
             self.ui.log_message("Strategy", log_msg)
             
-            # Refresh the table to show updated strategy
             self.update_positions()
             
         except Exception as e:
@@ -1157,14 +1001,11 @@ class PositionManager:
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("StrategyError", error_msg)
 
-
     def manually_assign_strategy(self, symbol, token):
-        """Manually trigger strategy assignment for a position"""
         try:
             if not symbol or not token:
                 return ""
 
-            # Get current net quantity to check if position is active
             net_qty = 0
             if self._validate_clients():
                 client = self.client_manager.clients[0][2]
@@ -1174,7 +1015,6 @@ class PositionManager:
                         net_qty = int(float(pos.get("netqty", 0)))
                         break
 
-            # Only prompt if position is active
             if net_qty != 0:
                 return self.prompt_strategy_selection(symbol, token)
             else:
@@ -1185,17 +1025,14 @@ class PositionManager:
             logger.error(error_msg)
             return "Error"            
         
-
     def _is_market_hours(self):
-        """Check if current time is within market hours (9:15 AM - 3:30 PM IST, Monday-Friday)"""
         try:
             current_time = datetime.now(IST).time()
             current_date = datetime.now(IST)
-            is_weekday = current_date.weekday() < 5  # 0-4 = Monday-Friday
+            is_weekday = current_date.weekday() < 5
             
             in_market_hours = is_weekday and (self.MARKET_OPEN <= current_time <= self.MARKET_CLOSE)
             
-            # Update status bar
             status = "Market Hours - Auto-refresh Active" if in_market_hours else "Outside Market Hours - View Only"
             if hasattr(self, '_last_update'):
                 self.ui.statusBar().showMessage(f"{status} | Last update: {self._last_update}", 10000)
@@ -1204,4 +1041,4 @@ class PositionManager:
             
         except Exception as e:
             logger.error(f"Error checking market hours: {str(e)}")
-            return False       
+            return False
