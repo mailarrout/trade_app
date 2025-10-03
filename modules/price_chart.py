@@ -156,18 +156,21 @@ class GraphPlotTab:
                     self._update_sl_series(symbol, row['SLPrice'])
 
     def _convert_to_ist_qdatetime(self, dt):
-        """Convert datetime to IST-aware QDateTime"""
         try:
             if isinstance(dt, pd.Timestamp):
                 dt = dt.to_pydatetime()
-            
+
             if dt.tzinfo is None:
                 dt = self.ist.localize(dt)
             else:
                 dt = dt.astimezone(self.ist)
-            
-            utc_dt = dt.astimezone(pytz.UTC)
-            return QDateTime.fromMSecsSinceEpoch(int(utc_dt.timestamp() * 1000))
+
+            # Make it naive IST
+            naive_ist = dt.replace(tzinfo=None)
+
+            # Convert to epoch assuming IST
+            return QDateTime.fromMSecsSinceEpoch(int(naive_ist.timestamp() * 1000), Qt.LocalTime)
+
         except Exception as e:
             logger.error(f"Error converting datetime: {e}")
             return QDateTime.currentDateTime()

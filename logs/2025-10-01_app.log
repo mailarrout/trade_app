@@ -16645,3 +16645,439 @@ requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.shoonya.com',
 2025-10-01 22:50:40 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
 2025-10-01 22:50:42 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
 2025-10-01 22:50:43 IST - root - INFO - === APPLICATION EXITED NORMALLY ===
+2025-10-01 23:59:45 IST - root - INFO - Application starting - Logging to logs\2025-10-01_app.log (Mode: INFO)
+2025-10-01 23:59:45 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-10-01 23:59:45 IST - root - INFO - Successfully imported TradingUI
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported ClientManager
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported PositionManager
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported OptionLoader
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported OpstraOptionLoader
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported IBBMStrategy
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported IntradayStraddleStrategy
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported MonthlyStraddleStrategy
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported ApiStatus
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported GraphPlotTab
+2025-10-01 23:59:47 IST - root - INFO - Successfully imported PayoffGraphTab
+2025-10-01 23:59:47 IST - root - INFO - === APPLICATION STARTING ===
+2025-10-01 23:59:47 IST - root - INFO - === INITIALIZING TRADING APPLICATION ===
+2025-10-01 23:59:47 IST - root - INFO - Creating QApplication instance
+2025-10-01 23:59:47 IST - root - INFO - Loading Trading UI
+2025-10-01 23:59:47 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-10-01 23:59:48 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-10-01 23:59:47 IST
+2025-10-01 23:59:48 IST - root - INFO - Trading UI loaded successfully
+2025-10-01 23:59:48 IST - root - INFO - Setting up UI logging
+2025-10-01 23:59:48 IST - root - INFO - UI logging initialized successfully
+2025-10-01 23:59:48 IST - root - INFO - Initializing core managers
+2025-10-01 23:59:48 IST - root - INFO - Creating ClientManager instance
+2025-10-01 23:59:48 IST - modules.client_manager - INFO - ClientManager initialized at 2025-10-01 23:59:48 IST
+2025-10-01 23:59:48 IST - root - INFO - ClientManager initialized
+2025-10-01 23:59:48 IST - root - INFO - Creating PositionManager instance
+2025-10-01 23:59:48 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-10-01 23:59:48 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-10-01_strategy_mapping.csv
+2025-10-01 23:59:48 IST - modules.position_manager - INFO - Loaded 10 strategy mappings from 2025-10-01_strategy_mapping.csv
+2025-10-01 23:59:48 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-10-01 23:59:48 IST - root - INFO - PositionManager initialized
+2025-10-01 23:59:48 IST - root - INFO - Creating OptionLoader instance
+2025-10-01 23:59:48 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-10-01 23:59:48 IST
+2025-10-01 23:59:48 IST - root - INFO - OptionLoader initialized
+2025-10-01 23:59:48 IST - root - INFO - Wiring managers to UI
+2025-10-01 23:59:48 IST - root - INFO - Managers wired to UI successfully
+2025-10-01 23:59:48 IST - root - INFO - Initializing background services
+2025-10-01 23:59:48 IST - root - INFO - Starting API Status Monitor
+2025-10-01 23:59:49 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-01 23:59:49 IST - modules.api_status - INFO - API status monitoring started
+2025-10-01 23:59:49 IST - root - INFO - API Status Monitor started
+2025-10-01 23:59:49 IST - root - INFO - Creating OpstraOptionLoader instance
+2025-10-01 23:59:49 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-10-01 23:59:49 IST - root - INFO - OpstraOptionLoader initialized
+2025-10-01 23:59:49 IST - root - INFO - Initializing graph tabs
+2025-10-01 23:59:49 IST - root - INFO - Creating GraphPlotTab instance
+2025-10-01 23:59:49 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-10-01 23:59:49 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-10-01 23:59:49 IST - root - INFO - GraphPlotTab initialized
+2025-10-01 23:59:49 IST - root - INFO - Creating PayoffGraphTab instance
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Loading historical adjustment values
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Loading from latest adjustment file: 2025-10-01_adjustment_values.csv
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Loaded historical adjustment values from 2025-10-01_adjustment_values.csv
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Setting up spot price timer
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Spot price timer started - first update in 10 seconds
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Setting up payoff chart timer
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - Payoff chart timer started
+2025-10-01 23:59:49 IST - modules.payoff_graph - INFO - PayoffGraphTab initialized successfully
+2025-10-01 23:59:49 IST - root - INFO - PayoffGraphTab initialized
+2025-10-01 23:59:49 IST - root - INFO - Scheduled payoff calculation
+2025-10-01 23:59:49 IST - root - INFO - Initializing trading strategies
+2025-10-01 23:59:49 IST - root - INFO - Creating IBBMStrategy instance
+2025-10-01 23:59:49 IST - modules.strategy_ibbm - INFO - Initializing IBBMStrategy
+2025-10-01 23:59:49 IST - modules.strategy_ibbm - INFO - Recovered last status from file: RECOVERED
+2025-10-01 23:59:49 IST - modules.strategy_ibbm - INFO - IBBMStrategy initialized successfully; state=RECOVERED
+2025-10-01 23:59:49 IST - root - INFO - IBBMStrategy initialized successfully
+2025-10-01 23:59:49 IST - root - INFO - Creating IntradayStraddleStrategy instance
+2025-10-01 23:59:49 IST - modules.strategy_intraday_straddle - INFO - No intraday straddle state file to recover.
+2025-10-01 23:59:49 IST - modules.strategy_intraday_straddle - INFO - IntradayStraddleStrategy initialized; state=WAITING
+2025-10-01 23:59:49 IST - root - INFO - Intraday Straddle strategy timer STOPPED
+2025-10-01 23:59:49 IST - root - INFO - Intraday Straddle monitor timer STOPPED
+2025-10-01 23:59:49 IST - root - INFO - IntradayStraddleStrategy initialized successfully (auto-run disabled)
+2025-10-01 23:59:49 IST - root - INFO - Creating MonthlyStraddleStrategy instance
+2025-10-01 23:59:49 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-10-01 23:59:49 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-10-01 23:59:49 IST - root - INFO - Monthly Straddle strategy timer STOPPED
+2025-10-01 23:59:49 IST - root - INFO - MonthlyStraddleStrategy initialized successfully (auto-run disabled)
+2025-10-01 23:59:49 IST - root - INFO - Setting position manager references for strategies
+2025-10-01 23:59:49 IST - root - INFO - Current strategy set to: IBBM Intraday
+2025-10-01 23:59:49 IST - root - INFO - IBBM auto-run enabled: True
+2025-10-01 23:59:49 IST - root - INFO - Intraday Straddle auto-run disabled: True
+2025-10-01 23:59:49 IST - root - INFO - Monthly Straddle auto-run disabled: True
+2025-10-01 23:59:49 IST - root - INFO - Setting up UI signal connections
+2025-10-01 23:59:49 IST - root - INFO - Strategy combobox populated with all strategies
+2025-10-01 23:59:49 IST - root - INFO - Connected LoadOpstraPushButton
+2025-10-01 23:59:49 IST - root - INFO - Connected strategy execution controls
+2025-10-01 23:59:49 IST - root - INFO - IBBM auto-run enabled - strategy handles its own execution
+2025-10-01 23:59:49 IST - root - INFO - UI signal connections setup completed
+2025-10-01 23:59:49 IST - root - INFO - Attempting auto-load of clients
+2025-10-01 23:59:49 IST - modules.interface_loader - INFO - Client loading initiated at 23:59:49 IST
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - Starting client loading process
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 23:59:49 IST
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.49 seconds
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-10-01 23:59:49 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-10-01 23:59:50 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-10-01 23:59:50 IST - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-10-01-day_available_margin_detl.csv
+2025-10-01 23:59:50 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-10-01 23:59:50 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-10-01 23:59:50 IST - modules.position_manager - INFO - Starting positions update
+2025-10-01 23:59:53 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-10-01 23:59:53 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-10-01 23:59:53 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-10-01 23:59:54 IST - modules.client_manager - INFO - Loaded 5 expiry dates in 0.25 seconds
+2025-10-01 23:59:54 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.25 seconds
+2025-10-01 23:59:54 IST - modules.interface_loader - INFO - Client loading process completed in 4.99 seconds
+2025-10-01 23:59:54 IST - root - INFO - Clients auto-loaded successfully
+2025-10-01 23:59:54 IST - root - INFO - Application will auto-close at 2025-10-02 15:31:00 IST
+2025-10-01 23:59:54 IST - root - INFO - Scheduling strategy state recovery
+2025-10-01 23:59:54 IST - root - INFO - Strategy recovery scheduled for 15 seconds after startup
+2025-10-01 23:59:54 IST - root - INFO - === TRADING APPLICATION INITIALIZED SUCCESSFULLY ===
+2025-10-01 23:59:54 IST - root - INFO - UI displayed at 2025-10-01 23:59:54 IST
+2025-10-01 23:59:54 IST - root - INFO - === APPLICATION RUNNING ===
+2025-10-01 23:59:54 IST - root - INFO - Start time: 2025-10-01 23:59:54 IST
+2025-10-01 23:59:54 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Starting adjustment point calculation
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Saving adjustment values to CSV
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Adjustment values saved to c:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-01_adjustment_values.csv
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-01 23:59:57 IST - modules.payoff_graph - INFO - Adjustment points calculated successfully
+2025-10-01 23:59:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-01 23:59:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-01 23:59:59 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:00:09 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:09 IST - root - INFO - === ATTEMPTING STRATEGY STATE RECOVERY ===
+2025-10-02 00:00:09 IST - root - INFO - Attempting recovery for: IBBM Intraday
+2025-10-02 00:00:09 IST - root - INFO - Calling attempt_recovery for IBBM Intraday
+2025-10-02 00:00:09 IST - modules.strategy_ibbm - INFO - Attempting IBBM strategy recovery
+2025-10-02 00:00:09 IST - modules.strategy_ibbm - INFO - Recovered last status from file: RECOVERED
+2025-10-02 00:00:09 IST - modules.strategy_ibbm - INFO - IBBM strategy recovered from state file
+2025-10-02 00:00:09 IST - root - INFO - Recovery for IBBM Intraday: SUCCESS
+2025-10-02 00:00:09 IST - root - INFO - Attempting recovery for: Intraday Straddle
+2025-10-02 00:00:09 IST - root - INFO - Calling attempt_recovery for Intraday Straddle
+2025-10-02 00:00:09 IST - modules.strategy_intraday_straddle - INFO - Attempting Intraday Straddle strategy recovery
+2025-10-02 00:00:09 IST - modules.strategy_intraday_straddle - INFO - No intraday straddle state file to recover.
+2025-10-02 00:00:09 IST - modules.strategy_intraday_straddle - INFO - Attempting to recover Intraday Straddle from positions
+2025-10-02 00:00:10 IST - modules.strategy_intraday_straddle - INFO - No Intraday Straddle positions found for recovery
+2025-10-02 00:00:10 IST - modules.strategy_intraday_straddle - INFO - Intraday Straddle recovery failed
+2025-10-02 00:00:10 IST - root - INFO - Recovery for Intraday Straddle: FAILED
+2025-10-02 00:00:10 IST - root - INFO - Attempting recovery for: Monthly Straddle
+2025-10-02 00:00:10 IST - root - INFO - Calling attempt_recovery for Monthly Straddle
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Attempting Monthly Straddle strategy recovery
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Strategy recovered from state file: ACTIVE
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Recovered 4 positions
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Current NIFTY spot: 24836.30
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Current NIFTY spot price: 24836.3
+2025-10-02 00:00:10 IST - modules.strategy_monthly_straddle - INFO - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-02 00:00:11 IST - modules.strategy_monthly_straddle - DEBUG - LTP for 60455: 0.0
+2025-10-02 00:00:11 IST - modules.strategy_monthly_straddle - DEBUG - LTP for 60500: 0.0
+2025-10-02 00:00:12 IST - modules.strategy_monthly_straddle - DEBUG - LTP for 60566: 0.0
+2025-10-02 00:00:12 IST - modules.strategy_monthly_straddle - DEBUG - LTP for 60358: 0.0
+2025-10-02 00:00:12 IST - modules.strategy_monthly_straddle - DEBUG - State logged: ACTIVE - Recovered from state file
+2025-10-02 00:00:12 IST - modules.strategy_monthly_straddle - INFO - Monthly Straddle recovered from state file
+2025-10-02 00:00:12 IST - root - INFO - Recovery for Monthly Straddle: SUCCESS
+2025-10-02 00:00:12 IST - root - INFO - === STRATEGY RECOVERY COMPLETED ===
+2025-10-02 00:00:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:00:19 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:00:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:00:40 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:51 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:51 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:00:53 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:00:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:00:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:01:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:01:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:01:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:01:09 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:01:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:01:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:01:19 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:01:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:01:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:01:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:01:31 IST - modules.option_loader - INFO - Starting option chain loading process
+2025-10-02 00:01:31 IST - modules.option_loader - INFO - Found 0 positions with non-zero quantity
+2025-10-02 00:01:31 IST - modules.option_loader - INFO - Updating spot price
+2025-10-02 00:01:32 IST - modules.option_loader - INFO - All expiries: ['07-Oct-2025', '14-Oct-2025', '20-Oct-2025', '28-Oct-2025', '04-Nov-2025']
+2025-10-02 00:01:32 IST - modules.option_loader - INFO - Current month expiries: [Timestamp('2025-10-07 00:00:00'), Timestamp('2025-10-14 00:00:00'), Timestamp('2025-10-20 00:00:00'), Timestamp('2025-10-28 00:00:00')]
+2025-10-02 00:01:32 IST - modules.option_loader - INFO - Monthly expiry resolved to: 28-OCT-2025
+2025-10-02 00:01:32 IST - modules.option_loader - INFO - Monthly FUTIDX Token: 52168
+2025-10-02 00:01:33 IST - modules.option_loader - INFO - Spot price updated: 24982.80, Rounded: 25000
+2025-10-02 00:01:33 IST - modules.option_loader - INFO - Loading option chain data
+2025-10-02 00:01:33 IST - modules.option_loader - INFO - Creating option chain table model
+2025-10-02 00:02:30 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:02:30 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:02:31 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:02:32 IST - modules.option_loader - INFO - Position highlighting complete: 0 positions highlighted out of 0 total positions
+2025-10-02 00:02:32 IST - modules.option_loader - INFO - Option chain data loaded successfully
+2025-10-02 00:02:32 IST - modules.option_loader - INFO - Option chain loading completed in 61.18 seconds
+2025-10-02 00:02:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:02:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:02:41 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:02:50 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:02:50 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:02:53 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:02:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:02:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:10 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:20 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:20 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:22 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:03:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:03:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:03:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:09 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:20 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:42 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:50 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:50 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:04:52 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:04:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:04:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:10 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:20 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:20 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:23 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:31 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:05:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:05:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:05:59 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:06:09 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:06:19 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:06:30 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:06:40 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:53 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:53 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:06:55 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:06:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:06:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:01 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:11 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:20 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:50 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:50 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:52 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:07:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:07:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:07:59 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:08:10 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:19 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:19 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:08:20 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:08:31 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:08:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:08:50 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:08:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:08:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:09:01 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:09:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:09:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:09:11 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:09:23 IST - modules.api_status - WARNING - API went OFFLINE: Timeout after 5 seconds
+2025-10-02 00:09:23 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:09:23 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:10:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:11:01 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:11:01 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:11:22 IST - modules.payoff_graph - ERROR - Spot price update error: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x00000257295BED90>, 'Connection to api.shoonya.com timed out. (connect timeout=None)'))
+2025-10-02 00:11:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:11:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:12:29 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:12:35 IST - modules.api_status - ERROR - API remains OFFLINE: Timeout after 5 seconds (consecutive failures: 3)
+2025-10-02 00:12:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:12:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:13:18 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:13:20 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-02 00:13:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:13:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:13:30 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:13:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:13:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:13:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:13:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:13:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:13:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:13:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:13:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:13:59 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:14:09 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:20 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:20 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:14:21 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:14:31 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:14:40 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:14:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:14:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:14:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:15:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:15:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:15:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:15:24 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:15:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:15:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:15:30 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:15:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:15:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:15:42 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:15:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:15:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:15:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:15:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:15:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:16:13 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:16:24 IST - modules.api_status - WARNING - API went OFFLINE: Timeout after 5 seconds
+2025-10-02 00:16:24 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:16:24 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:16:44 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:16:50 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-02 00:16:50 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:16:50 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:16:51 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:16:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:16:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:00 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:17:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:17:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:19 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:17:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:17:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:32 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:17:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:17:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:39 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:17:49 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:17:49 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:49 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:17:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:17:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:17:59 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:18:09 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:18:09 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:18:11 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:18:26 IST - modules.api_status - WARNING - API went OFFLINE: Timeout after 5 seconds
+2025-10-02 00:18:26 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:18:26 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:18:44 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:18:56 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:18:56 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:19:16 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:19:24 IST - modules.api_status - ERROR - API remains OFFLINE: Timeout after 5 seconds (consecutive failures: 3)
+2025-10-02 00:19:24 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:19:24 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:19:36 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:19:39 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:19:39 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:19:46 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:19:53 IST - modules.api_status - ERROR - API remains OFFLINE: Timeout after 5 seconds (consecutive failures: 4)
+2025-10-02 00:19:53 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:19:53 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:20:54 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:20:59 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:20:59 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:21:21 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:21:28 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-02 00:21:29 IST - modules.payoff_graph - INFO - Drawing payoff chart
+2025-10-02 00:21:29 IST - modules.payoff_graph - INFO - Payoff chart drawn successfully
+2025-10-02 00:21:32 IST - modules.payoff_graph - INFO - Spot price updated: 24836.3
+2025-10-02 00:21:36 IST - root - INFO - === APPLICATION EXITED NORMALLY ===

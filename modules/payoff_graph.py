@@ -1,570 +1,492 @@
-import os
+# modules/payoff_graph.py
+"""
+PayoffGraphTab - Short Strangle Payoff Visualization
+Simplified version with detailed logging
+"""
+
+import numpy as np
+import matplotlib
+matplotlib.use("Qt5Agg")
+
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtCore import QTimer
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 import logging
-import pandas as pd
-import pytz
-from datetime import datetime
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis
-from PyQt5.QtCore import Qt, QTimer, QPointF, QMargins
-from PyQt5.QtGui import QPainter, QColor, QPen, QFont, QBrush
-from PyQt5.QtWidgets import QVBoxLayout, QGraphicsSimpleTextItem, QMessageBox
-import winsound
-import sip
+import re
 
 logger = logging.getLogger(__name__)
 
 
-class PayoffGraphTab:
-    """Handles Payoff Graph and Adjustment Calculations"""
-
-    def __init__(self, ui, client_manager):
-        logger.info("Initializing PayoffGraphTab")
+class PayoffGraphTab(QWidget):
+    def __init__(self, ui, client_manager, parent=None):
+        super().__init__(parent)
+        logger.info("Initializing PayoffGraphTab - Simplified Version")
+        
         self.ui = ui
         self.client_manager = client_manager
-        self.ist = pytz.timezone('Asia/Kolkata')
-        self._spot_price_raw = None
-        self._spot_price_valid = False
-        self._payoff_values = None
+        
+        # Initialize client
+        self.client = None
+        self.client_name = "Unknown"
+        
+        # Matplotlib figure & canvas with dark background
+        self.fig = Figure(facecolor="#002B36", figsize=(10, 6))
+        self.canvas = FigureCanvas(self.fig)
+        self.ax = self.fig.add_subplot(111)
 
-        # Connect UI buttons
-        self.ui.CalculateAdjustmentPointQPushButton.clicked.connect(self.calculate_adjustment_points)
+        # Embed canvas into the QFrame
+        logger.info("Embedding matplotlib canvas into PayOffGraph QFrame")
+        layout = QVBoxLayout(self.ui.PayOffGraph)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.canvas)
 
-        # Load historical adjustments first
-        self._load_historical_adjustments()
+        # Connect adjustment calculation button
+        try:
+            self.ui.CalculateAdjustmentPointQPushButton.clicked.connect(self.calculate_adjustment_points)
+            logger.info("Connected CalculateAdjustmentPointQPushButton")
+        except Exception as e:
+            logger.warning(f"Could not connect adjustment calculation button: {e}")
 
-        # Setup timers
-        self._setup_spot_timer()
-        self._setup_payoff_timer()
+        # Poll every 10 seconds
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_graph)
+        self.timer.start(10_000)
+        logger.info("Started payoff graph update timer (10 seconds)")
 
-        logger.info("PayoffGraphTab initialized successfully")
+        # first draw after short delay
+        QTimer.singleShot(2000, self.update_graph)
 
     def _validate_clients(self):
-        """Validate clients with debug logging"""
-        has_clients = hasattr(self, 'client_manager') and bool(self.client_manager.clients)
-        logger.debug(f"Client validation: {has_clients}")
-        if has_clients:
-            logger.debug(f"Number of clients: {len(self.client_manager.clients)}")
-        return has_clients
-
-    # ----------------- TIMER SETUP -----------------
-    def _setup_spot_timer(self):
-        """Set up timer for spot price updates"""
-        logger.info("Setting up spot price timer")
-        self.spot_timer = QTimer()
-        self.spot_timer.setInterval(10000)  # 10 seconds
-        self.spot_timer.timeout.connect(self._update_spot_price)
-        self.spot_timer.start()
-        logger.info("Spot price timer started - first update in 10 seconds")
-        
-        # Trigger first update immediately
-        QTimer.singleShot(1000, self._update_spot_price)
-
-    def _setup_payoff_timer(self):
-        """Set up timer for payoff chart updates"""
-        logger.info("Setting up payoff chart timer")
-        self.payoff_timer = QTimer()
-        self.payoff_timer.setInterval(10000)  # 10 seconds
-        self.payoff_timer.timeout.connect(self._draw_payoff_chart)
-        self.payoff_timer.start()
-        logger.info("Payoff chart timer started")
-
-    # ----------------- ADJUSTMENT CALCULATIONS -----------------
-    def calculate_adjustment_points(self):
-        """Calculate CE/PE adjustment ranges with proper validation"""
+        """Validate clients"""
         try:
-            logger.info("Starting adjustment point calculation")
-            
-            # Validate range inputs
-            if not self.ui.LowerRangeQLineEdit.text() or not self.ui.HigherRangeQLineEdit.text():
-                error_msg = "Please enter both lower and higher range values"
-                logger.error(error_msg)
-                QMessageBox.warning(self.ui, "Input Error", error_msg)
-                return
-
-            lower_range = float(self.ui.LowerRangeQLineEdit.text())
-            higher_range = float(self.ui.HigherRangeQLineEdit.text())
-            
-            if higher_range <= lower_range:
-                error_msg = "Higher range must be greater than lower range"
-                logger.error(error_msg)
-                QMessageBox.warning(self.ui, "Input Error", error_msg)
-                return
-
-            logger.debug(f"Range values: lower={lower_range}, higher={higher_range}")
-
-            # Determine price source
-            manual_spot_text = self.ui.SpotPriceQLineEdit.text().strip()
-            if manual_spot_text:
-                self.calculation_price = float(manual_spot_text)
-                source = "Manual Entry"
-                logger.debug(f"Using manual spot price: {self.calculation_price}")
-            elif self._spot_price_valid:
-                self.calculation_price = float(self._spot_price_raw) - 80
-                source = "Running Spot (Raw - 80)"
-                self.ui.SpotPriceQLineEdit.setText(f"{self.calculation_price:.2f}")
-                logger.debug(f"Using running spot price (raw-80): {self.calculation_price}")
-            else:
-                error_msg = "No valid price source available. Please enter spot price manually."
-                logger.error(error_msg)
-                QMessageBox.warning(self.ui, "Price Error", error_msg)
-                return
-
-            # Calculate adjustments
-            adjustment = (higher_range - self.calculation_price) / 3
-            ce_adjustment = self.calculation_price - adjustment
-            pe_adjustment = self.calculation_price + adjustment
-
-            # Calculate differences
-            ce_diff = ce_adjustment - lower_range
-            pe_diff = higher_range - pe_adjustment
-
-            # Update UI
-            self.ui.CESellingAdjustment.setText(
-                f"Till BreakEven: {ce_diff:.2f} | "
-                f"CE Adj: {ce_adjustment:.2f} "
-                f"(Δ: {adjustment:.2f})"
-            )
-
-            self.ui.PESellingAdjustment.setText(
-                f"Δ: {adjustment:.2f} "
-                f"(PE Adj: {pe_adjustment:.2f}) | "
-                f"Till BreakEven: {pe_diff:.2f}"
-            )
-
-            # Store values for payoff chart
-            self._payoff_values = {
-                'lower_range': lower_range,
-                'higher_range': higher_range,
-                'ce_adj': ce_adjustment,
-                'pe_adj': pe_adjustment,
-                'current_price': self.calculation_price,
-                'adjustment': adjustment
-            }
-
-            # Save to CSV
-            self._save_adjustment_values(
-                spot_price=self.calculation_price,
-                lower_range=lower_range,
-                higher_range=higher_range,
-                ce_adjustment=ce_adjustment,
-                pe_adjustment=pe_adjustment,
-                adjustment_value=adjustment,
-                ce_diff=ce_diff,
-                pe_diff=pe_diff,
-                source=source
-            )
-
-            # Draw payoff chart
-            self._draw_payoff_chart()
-            logger.info("Adjustment points calculated successfully")
-
-        except ValueError as e:
-            error_msg = "Please enter valid numbers for all fields"
-            logger.error(f"{error_msg}: {e}")
-            QMessageBox.warning(self.ui, "Input Error", error_msg)
-        except Exception as e:
-            error_msg = f"Failed to calculate adjustments: {str(e)}"
-            logger.error(error_msg)
-            QMessageBox.critical(self.ui, "Calculation Error", error_msg)
-
-    def _save_adjustment_values(self, spot_price, lower_range, higher_range, ce_adjustment, 
-                              pe_adjustment, adjustment_value, ce_diff, pe_diff, source):
-        """Save adjustment values to CSV file"""
-        try:
-            logger.info("Saving adjustment values to CSV")
-            
-            # Get logs directory
-            main_app_dir = os.path.dirname(os.path.abspath(__file__))
-            logs_dir = os.path.join(main_app_dir, "logs")
-            os.makedirs(logs_dir, exist_ok=True)
-            
-            # Create filename with current date
-            date_str = datetime.now(self.ist).strftime('%Y-%m-%d')
-            csv_file = os.path.join(logs_dir, f"{date_str}_adjustment_values.csv")
-            
-            # Prepare data
-            data = {
-                'DateTime': [datetime.now(self.ist)],
-                'SpotPrice': [spot_price],
-                'LowerRange': [lower_range],
-                'HigherRange': [higher_range],
-                'CEAdjustment': [ce_adjustment],
-                'PEAdjustment': [pe_adjustment],
-                'AdjustmentValue': [adjustment_value],
-                'CEDifference': [ce_diff],
-                'PEDifference': [pe_diff],
-                'Source': [source]
-            }
-            
-            df = pd.DataFrame(data)
-            
-            # Append to existing file or create new
-            if os.path.exists(csv_file):
-                df.to_csv(csv_file, mode='a', header=False, index=False)
-            else:
-                df.to_csv(csv_file, index=False)
-                
-            logger.info(f"Adjustment values saved to {csv_file}")
-            
-        except Exception as e:
-            error_msg = f"Failed to save adjustment values: {str(e)}"
-            logger.error(error_msg)
-
-    # ----------------- PAYOFF CHART -----------------
-    def _draw_payoff_chart(self):
-        """Draw the payoff chart with reference lines"""
-        try:
-            logger.info("Drawing payoff chart")
-            
-            if not self._payoff_values:
-                logger.warning("No payoff values available for chart - trying to load historical data")
-                if not self._load_historical_adjustments():
-                    logger.warning("No historical adjustment data found either")
-                    return False
-
-            vals = self._payoff_values
-            lower_range = vals['lower_range']
-            higher_range = vals['higher_range']
-            ce_adj = vals['ce_adj']
-            pe_adj = vals['pe_adj']
-            current_price = vals['current_price']
-            
-            # Check for proximity alerts
-            self._check_adjustment_proximity(ce_adj, pe_adj)
-
-            # Create chart
-            chart = QChart()
-            chart.setTitle("Payoff Chart")
-            
-            # ✅ DARK THEME STYLING
-            chart.setTitleBrush(QBrush(Qt.white))
-            chart.setBackgroundBrush(QBrush(QColor("#002B36")))  # Dark background
-            chart.legend().setAlignment(Qt.AlignRight)
-            chart.setMargins(QMargins(15, 15, 15, 35))
-            chart.legend().setLabelBrush(QBrush(Qt.white))
-
-            # Create axes
-            axisX = QValueAxis()
-            axisY = QValueAxis()
-            
-            # ✅ AXIS STYLING FOR DARK THEME (lighter grid lines)
-            axisX.setLabelsBrush(QBrush(Qt.white))
-            axisX.setTitleBrush(QBrush(Qt.white))
-            axisX.setLinePen(QPen(Qt.white))
-            light_grid_pen = QPen(QColor(255, 255, 255, 35))  # white with ~14% opacity
-            axisX.setGridLinePen(light_grid_pen)
-            axisX.setMinorGridLinePen(light_grid_pen)  # also dim minor grids
-            axisX.setLabelFormat("%.0f")
-            axisX.setTitleText("Price Levels")
-
-            axisY.setLabelsBrush(QBrush(Qt.white))
-            axisY.setTitleBrush(QBrush(Qt.white))
-            axisY.setLinePen(QPen(Qt.white))
-            axisY.setGridLinePen(light_grid_pen)
-            axisY.setMinorGridLinePen(light_grid_pen)  # also dim minor grids
-            axisY.setTitleText("P&L")
-
-            chart.addAxis(axisX, Qt.AlignBottom)
-            chart.addAxis(axisY, Qt.AlignLeft)
-
-            # Calculate axis ranges
-            min_x = min(lower_range, current_price, ce_adj) - 200
-            max_x = max(higher_range, current_price, pe_adj) + 200
-            axisX.setRange(min_x, max_x)
-
-            # Calculate premium for Y-axis scaling
-            total_premium = self._calculate_total_premium()
-            min_y = -total_premium * 1.5 if total_premium > 0 else -10000
-            max_y = total_premium * 2.5 if total_premium > 0 else 10000
-            axisY.setRange(min_y, max_y)
-
-            # Reference lines (all using hex colors)
-            reference_points = [
-                ('Calc Price', current_price, "#FFFFFF", Qt.SolidLine, 3),  # White
-                ('Live Spot', self._spot_price_raw if self._spot_price_valid else None, 
-                "#87CEFA", Qt.DashLine, 3),  # Light blue
-                ('Lower Range', lower_range, "#FF6347", Qt.DashLine, 2),  # Tomato red
-                ('Higher Range', higher_range, "#FF6347", Qt.DashLine, 2),  # Tomato red
-                ('CE Adj', ce_adj, "#FFD700", Qt.DashLine, 2),  # Gold
-                ('PE Adj', pe_adj, "#FFD700", Qt.DashLine, 2)   # Gold
-            ]
-
-            # Draw reference lines
-            for name, value, color_hex, style, width in reference_points:
-                if value is None:
-                    continue  # Skip if no value
-                    
-                line = QLineSeries()
-                line.setName(f"{name}: {value:.2f}")
-                line.append(value, min_y)
-                line.append(value, max_y)
-                line.setPen(QPen(QColor(color_hex), width, style))
-                chart.addSeries(line)
-                line.attachAxis(axisX)
-                line.attachAxis(axisY)
-
-            # Add zero line
-            zero_line = QLineSeries()
-            zero_line.setName("Zero Line")
-            zero_line.append(min_x, 0)
-            zero_line.append(max_x, 0)
-            zero_line.setPen(QPen(QColor("#FFFFFF"), 1, Qt.DashLine))  # White
-            chart.addSeries(zero_line)
-            zero_line.attachAxis(axisX)
-            zero_line.attachAxis(axisY)
-
-            # Add premium line if premium exists
-            if total_premium > 0:
-                premium_line = QLineSeries()
-                premium_line.setName(f"Premium: {total_premium:.2f}")
-                premium_line.append(min_x, total_premium)
-                premium_line.append(max_x, total_premium)
-                premium_line.setPen(QPen(QColor("#00FFFF"), 2, Qt.DashLine))  # Cyan
-                chart.addSeries(premium_line)
-                premium_line.attachAxis(axisX)
-                premium_line.attachAxis(axisY)
-
-            # Create chart view
-            chart_view = QChartView(chart)
-            chart_view.setRenderHint(QPainter.Antialiasing)
-
-            # Update UI layout
-            if self.ui.PayOffGraph.layout() is None:
-                self.ui.PayOffGraph.setLayout(QVBoxLayout())
-            else:
-                # Clear existing chart
-                while self.ui.PayOffGraph.layout().count():
-                    child = self.ui.PayOffGraph.layout().takeAt(0)
-                    if child.widget():
-                        child.widget().deleteLater()
-
-            self.ui.PayOffGraph.layout().addWidget(chart_view)
-            self.payoff_chart_view = chart_view
-
-            # Add labels after chart is rendered
-            QTimer.singleShot(100, lambda: self._add_payoff_labels(
-                chart_view, current_price, lower_range, higher_range, ce_adj, pe_adj, total_premium))
-
-            logger.info("Payoff chart drawn successfully")
-            return True
-
-        except Exception as e:
-            error_msg = f"Payoff chart failed: {str(e)}"
-            logger.error(error_msg)
-            return False
-
-    def _calculate_total_premium(self):
-        """Calculate total premium from positions"""
-        try:
-            total_premium = 0
-            positions_file = self._get_data_filename('positions')
-            
-            if os.path.exists(positions_file):
-                df = pd.read_csv(positions_file)
-                short_positions = df[df['NetQty'] < 0]
-                
-                for _, row in short_positions.iterrows():
-                    if 'C' in row['Symbol'] or 'P' in row['Symbol']:
-                        total_premium += abs(row['NetQty']) * row['SellPrice']
-            
-            logger.debug(f"Calculated total premium: {total_premium}")
-            return total_premium
-            
-        except Exception as e:
-            logger.error(f"Error calculating premium: {str(e)}")
-            return 0
-
-    def _add_payoff_labels(self, chart_view, current_price, lower_range, higher_range, ce_adj, pe_adj, total_premium):
-        """Add text labels to the payoff chart"""
-        try:
-            # ✅ Prevent using a deleted chart_view in PyQt5
-            if chart_view is None or sip.isdeleted(chart_view):
-                return
-            if not chart_view.scene():
-                return
-
-            # Add labels for key price levels
-            self._add_vertical_label(chart_view, current_price, f"Calc: {current_price:.2f}", Qt.blue)
-
-            if self._spot_price_valid:
-                self._add_vertical_label(chart_view, self._spot_price_raw, f"Spot: {self._spot_price_raw:.2f}", Qt.green)
-
-            self._add_vertical_label(chart_view, lower_range, f"Low: {lower_range:.2f}", Qt.red)
-            self._add_vertical_label(chart_view, higher_range, f"High: {higher_range:.2f}", Qt.red)
-            self._add_vertical_label(chart_view, ce_adj, f"CE: {ce_adj:.2f}", QColor(255, 165, 0))
-            self._add_vertical_label(chart_view, pe_adj, f"PE: {pe_adj:.2f}", QColor(255, 165, 0))
-
-            if total_premium > 0:
-                self._add_vertical_label(chart_view, chart_view.chart().axisX().min() + 50,
-                                        f"Premium: {total_premium:.2f}", QColor(0, 102, 102))
-
-            logger.debug("Payoff labels added successfully")
-
-        except Exception as e:
-            logger.error(f"Failed to add payoff labels: {str(e)}")
-
-
-    def _add_vertical_label(self, chart_view, price, text, color):
-        """Add a label at the top of a vertical line"""
-        try:
-            chart = chart_view.chart()
-            axisY = chart.axisY()
-            if not axisY:
-                return
-                
-            point = chart.mapToPosition(QPointF(price, axisY.max()))
-            label = QGraphicsSimpleTextItem(text)
-            label.setPos(point.x() - 30, point.y() + 5)
-            label.setBrush(QBrush(color))
-            label.setFont(QFont("Arial", 8, QFont.Bold))
-            chart_view.scene().addItem(label)
-            
-            logger.debug(f"Added vertical label: {text} at price {price}")
-        except Exception as e:
-            logger.error(f"Failed to add label at {price}: {str(e)}")
-
-    def _check_adjustment_proximity(self, ce_adj, pe_adj):
-        """Check if current price is near adjustment points and alert"""
-        try:
-            if not self._spot_price_valid:
-                return
-                
-            threshold = 15
-            current_price = self._spot_price_raw
-            
-            if abs(current_price - ce_adj) <= threshold:
-                logger.info(f"Current price {current_price:.2f} near CE adjustment {ce_adj:.2f}")
-                try:
-                    winsound.Beep(1000, 300)  # High beep for CE
-                except:
-                    logger.warning("Could not play proximity beep sound")
-                    
-            elif abs(current_price - pe_adj) <= threshold:
-                logger.info(f"Current price {current_price:.2f} near PE adjustment {pe_adj:.2f}")
-                try:
-                    winsound.Beep(800, 300)  # Lower beep for PE
-                except:
-                    logger.warning("Could not play proximity beep sound")
-                    
-        except Exception as e:
-            logger.error(f"Proximity check error: {e}")
-
-    # ----------------- SPOT PRICE HANDLING -----------------
-    def _update_spot_price(self):
-        """Update the spot price from NIFTY futures"""
-        try:
-            logger.debug("Starting spot price update")
-            
-            if not self._validate_clients():
-                error_msg = "No active client available for spot price update"
-                logger.warning(error_msg)
-                self._spot_price_valid = False
-                self.ui.RunningSpot.setText("No client")
-                return
-
-            logger.debug("Client validated, getting NIFTY spot price")
-            
-            client = self.client_manager.clients[0][2]
-            logger.debug(f"Using client: {type(client).__name__}")
-            
-            # Try getting NIFTY spot price (NSE index)
-            quote = client.get_quotes('NSE', '26000')
-            logger.debug(f"Quote response: {quote}")
-            
-            if quote and quote.get('stat') == 'Ok' and 'lp' in quote:
-                spot_price = float(quote['lp'])
-                self._spot_price_raw = spot_price
-                self._spot_price_valid = True
-                logger.info(f"Spot price updated: {spot_price}")
-                self.update_running_spot()
-            else:
-                error_msg = f"Invalid spot quote response: {quote}"
-                logger.warning(error_msg)
-                self._spot_price_valid = False
-                self.ui.RunningSpot.setText("Invalid quote")
-                
-        except Exception as e:
-            error_msg = f"Spot price update error: {e}"
-            logger.error(error_msg)
-            self._spot_price_valid = False
-            self.ui.RunningSpot.setText("Error")
-
-    def update_running_spot(self):
-        """Update the RunningSpot label with current spot price"""
-        try:
-            if self._spot_price_valid:
-                self.ui.RunningSpot.setText(f"Nifty: {self._spot_price_raw:.2f}")
-                logger.debug(f"Running spot updated: {self._spot_price_raw}")
-            else:
-                self.ui.RunningSpot.setText("Trying in next 10 sec")
-                logger.debug("Running spot update failed, will retry")
-                
-        except Exception as e:
-            error_msg = f"Running spot update error: {e}"
-            logger.error(error_msg)
-            self.ui.RunningSpot.setText("Update error")
-
-    # ----------------- UTILITY METHODS -----------------
-    def _get_data_filename(self, file_type):
-        """Generate standardized filename for data files"""
-        main_app_dir = os.path.dirname(os.path.abspath(__file__))
-        logs_dir = os.path.join(main_app_dir, "logs")
-        date_str = datetime.now(self.ist).strftime('%Y-%m-%d')
-        filename = os.path.join(logs_dir, f"{date_str}_{file_type}.csv")
-        return filename
-    
-    def _load_historical_adjustments(self):
-        """Load historical adjustment values from the latest CSV file"""
-        try:
-            logger.info("Loading historical adjustment values")
-            main_app_dir = os.path.dirname(os.path.abspath(__file__))
-            logs_dir = os.path.join(main_app_dir, "logs")
-            
-            # Get all adjustment files
-            adjustment_files = [f for f in os.listdir(logs_dir) 
-                            if f.endswith('_adjustment_values.csv')]
-            
-            if not adjustment_files:
-                logger.warning("No historical adjustment files found")
+            if not hasattr(self, 'client_manager') or not self.client_manager.clients:
+                logger.warning("No clients available")
                 return False
                 
-            # Sort files by date (newest first)
-            adjustment_files.sort(reverse=True)
-            latest_file = adjustment_files[0]
-            csv_file = os.path.join(logs_dir, latest_file)
+            if self.client is None and self.client_manager.clients:
+                self.client = self.client_manager.clients[0][2]
+                self.client_name = self.client_manager.clients[0][0]  # Get client name
+                logger.info(f"Client set to: {self.client_name} ({type(self.client).__name__})")
+                
+            return True
             
-            logger.info(f"Loading from latest adjustment file: {latest_file}")
-            
-            df = pd.read_csv(csv_file, parse_dates=['DateTime'])
-            
-            if not df.empty:
-                # Get the latest entry
-                latest = df.iloc[-1]
-                
-                # Update UI fields if they're empty
-                if not self.ui.SpotPriceQLineEdit.text():
-                    self.ui.SpotPriceQLineEdit.setText(f"{latest['SpotPrice']:.2f}")
-                
-                if not self.ui.LowerRangeQLineEdit.text():
-                    self.ui.LowerRangeQLineEdit.setText(f"{latest['LowerRange']:.2f}")
-                
-                if not self.ui.HigherRangeQLineEdit.text():
-                    self.ui.HigherRangeQLineEdit.setText(f"{latest['HigherRange']:.2f}")
-                
-                # Set payoff values for chart
-                self._payoff_values = {
-                    'lower_range': latest['LowerRange'],
-                    'higher_range': latest['HigherRange'],
-                    'ce_adj': latest['CEAdjustment'],
-                    'pe_adj': latest['PEAdjustment'],
-                    'current_price': latest['SpotPrice'],
-                    'adjustment': latest['AdjustmentValue']
-                }
-                
-                logger.info(f"Loaded historical adjustment values from {latest_file}")
-                return True
-                
         except Exception as e:
-            error_msg = f"Failed to load historical adjustments: {str(e)}"
-            logger.error(error_msg)
+            logger.error(f"Client validation error: {e}")
+            return False
+
+    def fetch_spot_price(self):
+        """Fetch current NIFTY spot price"""
+        try:
+            if not self._validate_clients():
+                return None
+
+            quote = self.client.get_quotes("NSE", "26000")
+            lp = quote.get("lp") or quote.get("ltp") or quote.get("lastprice")
+            if not lp:
+                return None
+                
+            spot_price = float(lp)
+            logger.debug(f"Fetched spot price: {spot_price}")
+            return spot_price
+            
+        except Exception as e:
+            logger.error(f"Failed to fetch spot price: {e}")
+            return None
+
+    def log_all_positions(self, positions):
+        """Log all positions for debugging"""
+        logger.info("=== ALL POSITIONS DUMP ===")
+        logger.info(f"Total positions: {len(positions)}")
         
-        return False
+        for i, pos in enumerate(positions):
+            try:
+                symbol = pos.get('tsym', 'N/A')
+                netqty = int(float(pos.get('netqty', 0)))
+                product = pos.get('s_prdt_ali', 'N/A')
+                exchange = pos.get('exch', 'N/A')
+                
+                logger.info(f"Position {i+1}:")
+                logger.info(f"  Symbol: {symbol}")
+                logger.info(f"  NetQty: {netqty}")
+                logger.info(f"  Product: {product}")
+                logger.info(f"  Exchange: {exchange}")
+                
+            except Exception as e:
+                logger.error(f"Error logging position {i}: {e}")
+        
+        logger.info("=== END POSITIONS DUMP ===")
+
+    def extract_strangle_from_positions(self):
+        """
+        Extract short strangle positions from portfolio
+        Returns: (put_strike, put_premium, call_strike, call_premium, total_units)
+        """
+        try:
+            if not self._validate_clients():
+                return None, None, None, None, 0
+
+            positions = self.client.get_positions() or []
+            logger.info(f"Processing {len(positions)} positions from {self.client_name}")
+            
+            # Log all positions for debugging
+            self.log_all_positions(positions)
+            
+            # Find short options (netqty < 0)
+            short_options = []
+            for pos in positions:
+                try:
+                    net_qty = int(float(pos.get("netqty", 0)))
+                    symbol = pos.get("tsym", "").strip()
+                    
+                    logger.debug(f"Checking position: {symbol}, netqty: {net_qty}")
+                    
+                    # Skip non-short positions and non-option products
+                    if net_qty >= 0:
+                        logger.debug(f"Skipping - not short: {symbol}")
+                        continue
+                    
+                    # Check if it's an option (should contain strike price numbers)
+                    if not any(char.isdigit() for char in symbol):
+                        logger.debug(f"Skipping - no digits in symbol: {symbol}")
+                        continue
+                        
+                    # Parse option type and strike - handle formats like:
+                    # NIFTY14OCT25P24750, NIFTY14OCT25C25150
+                    opt_type = None
+                    strike = None
+                    
+                    # Method 1: Look for P/C at the end before numbers
+                    if symbol.upper().endswith('P') or 'PE' in symbol.upper():
+                        opt_type = 'PE'
+                    elif symbol.upper().endswith('C') or 'CE' in symbol.upper():
+                        opt_type = 'CE'
+                    
+                    # Method 2: Look for P/C before the strike numbers
+                    if not opt_type:
+                        # Look for pattern like ...P24750 or ...C25150
+                        strike_match = re.search(r'(\d+)(C|CE|P|PE)$', symbol.upper())
+                        if strike_match:
+                            strike = float(strike_match.group(1))
+                            opt_type = 'CE' if strike_match.group(2) in ['C', 'CE'] else 'PE'
+                    
+                    # Method 3: Extract from the end - last character before numbers
+                    if not opt_type:
+                        # Reverse the string and find where letters end and numbers begin
+                        reversed_symbol = symbol.upper()[::-1]
+                        digit_pos = 0
+                        for i, char in enumerate(reversed_symbol):
+                            if not char.isdigit():
+                                digit_pos = i
+                                break
+                        
+                        if digit_pos > 0:
+                            last_char = reversed_symbol[digit_pos] if digit_pos < len(reversed_symbol) else ''
+                            if last_char == 'P':
+                                opt_type = 'PE'
+                            elif last_char == 'C':
+                                opt_type = 'CE'
+                    
+                    if not opt_type:
+                        logger.warning(f"Could not determine option type for: {symbol}")
+                        continue
+                    
+                    # Extract strike price - find all numbers at the end
+                    strike_match = re.findall(r'\d+', symbol)
+                    if strike_match:
+                        strike = float(strike_match[-1])  # Take the last number group
+                    else:
+                        logger.warning(f"Could not extract strike from: {symbol}")
+                        continue
+                    
+                    # Get premium
+                    premium = 0.0
+                    sell_price = float(pos.get("netupldprc", 0)) or float(pos.get("totsellavgprc", 0))
+                    if sell_price > 0:
+                        premium = sell_price
+                    else:
+                        premium = float(pos.get("netavgprc", 0))
+                    
+                    # Get quantity and lot size
+                    quantity = abs(net_qty)
+                    lotsize = int(float(pos.get("prcftr", pos.get("lot", 75))))
+                    
+                    option_data = {
+                        'type': opt_type,
+                        'strike': strike,
+                        'premium': premium,
+                        'quantity': quantity,
+                        'lotsize': lotsize,
+                        'symbol': symbol
+                    }
+                    
+                    short_options.append(option_data)
+                    
+                    logger.info(f"Found short {opt_type}: Strike {strike} @ {premium:.2f}, Qty: {quantity}, Symbol: {symbol}")
+                    
+                except Exception as e:
+                    logger.error(f"Error processing position {pos.get('tsym', '')}: {e}")
+                    continue
+
+            # Log what we found
+            logger.info(f"Short options found: {len(short_options)}")
+            for opt in short_options:
+                logger.info(f"  - {opt['type']} {opt['strike']} @ {opt['premium']:.2f}")
+
+            # Separate CE and PE positions
+            ce_positions = [p for p in short_options if p['type'] == 'CE']
+            pe_positions = [p for p in short_options if p['type'] == 'PE']
+            
+            logger.info(f"CE positions: {len(ce_positions)}, PE positions: {len(pe_positions)}")
+            
+            if not ce_positions or not pe_positions:
+                logger.warning(f"Need both CE and PE positions for strangle. Found CE: {len(ce_positions)}, PE: {len(pe_positions)}")
+                return None, None, None, None, 0
+
+            # Take first of each (simplified - you can extend for multiple lots)
+            ce_leg = ce_positions[0]
+            pe_leg = pe_positions[0]
+            
+            # Calculate total units (minimum quantity between legs)
+            total_units = min(ce_leg['quantity'], pe_leg['quantity']) * ce_leg['lotsize']
+            
+            logger.info(f"Strangle identified: PE {pe_leg['strike']} @ {pe_leg['premium']:.2f}, CE {ce_leg['strike']} @ {ce_leg['premium']:.2f}, Units: {total_units}")
+            
+            return (pe_leg['strike'], pe_leg['premium'], 
+                    ce_leg['strike'], ce_leg['premium'], total_units)
+            
+        except Exception as e:
+            logger.error(f"Error extracting strangle: {e}")
+            return None, None, None, None, 0
+
+    def calculate_short_strangle_payoff(self, spot_price, put_strike, put_premium, call_strike, call_premium, total_units):
+        """
+        Calculate short strangle payoff - based on your script
+        """
+        try:
+            # Premium calculations
+            total_premium_per_unit = put_premium + call_premium
+            total_premium_total = total_premium_per_unit * total_units
+
+            # Breakeven points
+            lower_breakeven = put_strike - total_premium_per_unit
+            upper_breakeven = call_strike + total_premium_per_unit
+
+            # Price range for plotting - extended range
+            min_price = min(put_strike, spot_price) - 1500
+            max_price = max(call_strike, spot_price) + 1500
+            price_range = np.arange(max(0, min_price), max_price + 1, 1)
+
+            # Payoff calculations (SHORT strangle)
+            put_payoff_per_unit = put_premium - np.maximum(put_strike - price_range, 0)
+            call_payoff_per_unit = call_premium - np.maximum(price_range - call_strike, 0)
+            
+            strategy_payoff_per_unit = put_payoff_per_unit + call_payoff_per_unit
+            strategy_payoff_total = strategy_payoff_per_unit * total_units
+
+            # Max profit
+            max_profit_total = total_premium_total
+
+            logger.info(f"Strangle Analysis:")
+            logger.info(f"  PE {put_strike} @ {put_premium:.2f}, CE {call_strike} @ {call_premium:.2f}")
+            logger.info(f"  Breakevens: {lower_breakeven:.2f} - {upper_breakeven:.2f}")
+            logger.info(f"  Max Profit: {max_profit_total:.2f}")
+            logger.info(f"  Total Units: {total_units}")
+
+            return price_range, strategy_payoff_total, lower_breakeven, upper_breakeven, max_profit_total
+            
+        except Exception as e:
+            logger.error(f"Error calculating payoff: {e}")
+            return None, None, None, None, None
+
+    def update_graph(self):
+        """Update the payoff graph"""
+        try:
+            # Fetch data
+            spot = self.fetch_spot_price()
+            if spot is None:
+                self._draw_empty_chart("No spot price available")
+                return
+
+            # Update running spot
+            if spot:
+                self.ui.RunningSpot.setText(f"Nifty: {spot:.2f}")
+
+            # Extract strangle positions
+            put_strike, put_premium, call_strike, call_premium, total_units = self.extract_strangle_from_positions()
+            
+            if put_strike is None:
+                self._draw_empty_chart("No short strangle positions\n(Need short CE & PE)")
+                return
+
+            # Calculate payoff
+            result = self.calculate_short_strangle_payoff(spot, put_strike, put_premium, call_strike, call_premium, total_units)
+            if result[0] is None:
+                self._draw_empty_chart("Error calculating payoff")
+                return
+
+            price_range, payoff_total, lower_be, upper_be, max_profit = result
+            
+            # Auto-fill the range fields with breakeven points
+            self.ui.LowerRangeQLineEdit.setText(f"{lower_be:.2f}")
+            self.ui.HigherRangeQLineEdit.setText(f"{upper_be:.2f}")
+            self.ui.SpotPriceQLineEdit.setText(f"{spot:.2f}")
+            
+            # Calculate adjustment points (profit bend points)
+            adjustment = (upper_be - spot) / 3
+            ce_adjustment = spot - adjustment  # Left side bend (CE adjustment)
+            pe_adjustment = spot + adjustment  # Right side bend (PE adjustment)
+            
+            # Update adjustment labels
+            self.ui.CESellingAdjustment.setText(f"{ce_adjustment:.2f}")
+            self.ui.PESellingAdjustment.setText(f"{pe_adjustment:.2f}")
+            
+            logger.info(f"Auto-filled ranges: Lower={lower_be:.2f}, Higher={upper_be:.2f}")
+            logger.info(f"Adjustment points: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
+            
+            # Draw chart
+            self._draw_payoff_chart(spot, price_range, payoff_total, lower_be, upper_be, max_profit,
+                                  put_strike, put_premium, call_strike, call_premium, total_units,
+                                  ce_adjustment, pe_adjustment)
+            
+            logger.info("Payoff graph updated successfully")
+            
+        except Exception as e:
+            logger.error(f"Error updating graph: {e}")
+            self._draw_empty_chart("Error updating graph")
+
+    def _draw_payoff_chart(self, spot, price_range, payoff_total, lower_be, upper_be, max_profit,
+                          put_strike, put_premium, call_strike, call_premium, total_units,
+                          ce_adjustment, pe_adjustment):
+        """Draw the payoff chart with adjustment points"""
+        try:
+            self.ax.clear()
+            self.fig.patch.set_facecolor("#002B36")
+            self.ax.set_facecolor("#002B36")
+
+            # Set Y-axis range to show bottom till -30000
+            y_min = -30000
+            y_max = max_profit * 1.2  # Some padding above max profit
+            
+            # Plot payoff curve
+            self.ax.plot(price_range, payoff_total, color="cyan", linewidth=2, label='Short Strangle Payoff')
+
+            # Key lines
+            self.ax.axhline(0, color='white', linestyle='--')
+            self.ax.axvline(spot, color='red', linestyle='--', label=f'Spot: {spot:.0f}')
+            
+            # Breakeven points
+
+            self.ax.text(lower_be, 0, f' {lower_be:.0f}', color='lime', va='bottom')
+            self.ax.text(upper_be, 0, f' {upper_be:.0f}', color='lime', va='bottom')
+            
+            # Max profit line
+            self.ax.hlines(max_profit, price_range.min(), price_range.max(), 
+                          colors='yellow', linestyles=':', label=f'Max Profit: {max_profit:.0f}')
+
+            # Strike lines
+            self.ax.axvline(put_strike, color='orange', linestyle=':', alpha=0.6, label=f'PE: {put_strike}')
+            self.ax.axvline(call_strike, color='magenta', linestyle=':', alpha=0.6, label=f'CE: {call_strike}')
+            
+            # Adjustment points (profit bend points)
+            self.ax.axvline(ce_adjustment, color='lightblue', linestyle='--', alpha=0.7, label=f'CE Adj: {ce_adjustment:.0f}')
+            self.ax.axvline(pe_adjustment, color='lightgreen', linestyle='--', alpha=0.7, label=f'PE Adj: {pe_adjustment:.0f}')
+            
+            # Mark adjustment points on the payoff curve
+            ce_idx = np.abs(price_range - ce_adjustment).argmin()
+            pe_idx = np.abs(price_range - pe_adjustment).argmin()
+            
+            self.ax.scatter([ce_adjustment, pe_adjustment], 
+                          [payoff_total[ce_idx], payoff_total[pe_idx]])
+            
+            # Chart styling
+            self.ax.set_title('Nifty Short Strangle Payoff', color='white', pad=20)
+            self.ax.set_xlabel('Nifty Price', color='white')
+            self.ax.set_ylabel('P/L (INR)', color='white')
+            self.ax.grid(True, color='gray', alpha=0.3)
+            self.ax.tick_params(colors='white')
+            
+            # Set Y-axis limits
+            self.ax.set_ylim(y_min, y_max)
+            
+            # Legend
+            legend = self.ax.legend(facecolor='#002B36', edgecolor='white', 
+                                   loc='lower center', bbox_to_anchor=(0.5, -0.3),
+                                   ncol=3, fontsize=12)
+            for text in legend.get_texts():
+                text.set_color('white')
+
+            self.fig.tight_layout()
+            self.canvas.draw()
+            
+        except Exception as e:
+            logger.error(f"Error drawing chart: {e}")
+            raise
+
+    def _draw_empty_chart(self, message):
+        """Draw empty chart with message"""
+        try:
+            self.ax.clear()
+            self.fig.patch.set_facecolor("#002B36")
+            self.ax.set_facecolor("#002B36")
+            self.ax.text(0.5, 0.5, message, color="white", ha="center", va="center", 
+                        transform=self.ax.transAxes, fontsize=11)
+            self.ax.set_xticks([])
+            self.ax.set_yticks([])
+            for spine in self.ax.spines.values():
+                spine.set_visible(False)
+            self.canvas.draw()
+        except Exception as e:
+            logger.error(f"Error drawing empty chart: {e}")
+
+    def calculate_adjustment_points(self):
+        """Manual adjustment calculation"""
+        try:
+            # Get inputs
+            lower_text = self.ui.LowerRangeQLineEdit.text().strip()
+            higher_text = self.ui.HigherRangeQLineEdit.text().strip()
+            
+            if not lower_text or not higher_text:
+                logger.error("Please enter both lower and higher range values")
+                return
+
+            lower_range = float(lower_text)
+            higher_range = float(higher_text)
+            
+            if higher_range <= lower_range:
+                logger.error("Higher range must be greater than lower range")
+                return
+
+            # Get spot price
+            spot = self.fetch_spot_price()
+            if spot is None:
+                logger.error("No spot price available")
+                return
+
+            # Update spot price field
+            self.ui.SpotPriceQLineEdit.setText(f"{spot:.2f}")
+
+            # Calculate adjustment points
+            adjustment = (higher_range - spot) / 3
+            ce_adjustment = spot - adjustment  # Left side bend (CE adjustment)
+            pe_adjustment = spot + adjustment  # Right side bend (PE adjustment)
+
+            # Update adjustment labels
+            self.ui.CESellingAdjustment.setText(f"{ce_adjustment:.2f}")
+            self.ui.PESellingAdjustment.setText(f"{pe_adjustment:.2f}")
+
+            logger.info(f"Adjustments calculated: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
+
+        except ValueError as e:
+            logger.error(f"Invalid number input: {e}")
+        except Exception as e:
+            logger.error(f"Adjustment calculation failed: {e}")
+
+    def stop_updates(self):
+        """Stop timer"""
+        try:
+            if hasattr(self, 'timer') and self.timer.isActive():
+                self.timer.stop()
+                logger.info("Payoff graph timer stopped")
+        except Exception as e:
+            logger.error(f"Error stopping timer: {e}")

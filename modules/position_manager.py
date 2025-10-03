@@ -11,7 +11,7 @@ IST = timezone('Asia/Kolkata')
 logger = logging.getLogger(__name__)
 
 class PositionManager:
-    MAX_TOTAL_SELL_QTY = 450
+    MAX_TOTAL_SELL_QTY = 900
     DEFAULT_TARGET = 30000.0
     DEFAULT_SL = -30000.0
     AUTO_REFRESH_INTERVAL = 10000
@@ -494,6 +494,10 @@ class PositionManager:
                 return
                 
             exit_count = 0
+            # Define strategies to exit and strategies to keep
+            strategies_to_exit = ["IBBM Intraday", "Intraday Straddle"]
+            strategies_to_keep = ["Monthly Strangle", "Monthly Straddle"]
+            
             for name, client_id, client in self.client_manager.clients:
                 if client_name and name != client_name:
                     continue
@@ -504,6 +508,28 @@ class PositionManager:
                     if symbol and pos.get("tsym") != symbol:
                         continue   
 
+                    pos_symbol = pos.get("tsym", "")
+                    pos_token = pos.get("token", "")
+                    
+                    # Get strategy for this position
+                    strategy = self.get_strategy_for_position(pos_symbol, pos_token)
+                    strategy_name = ""
+                    
+                    if isinstance(strategy, dict):
+                        strategy_name = strategy.get('strategy_name', '')
+                    else:
+                        strategy_name = str(strategy)
+                    
+                    # Skip all monthly strategies
+                    if any(monthly_strat in strategy_name for monthly_strat in strategies_to_keep):
+                        logger.info(f"Skipping monthly strategy position: {pos_symbol} - {strategy_name}")
+                        continue
+                    
+                    # Only exit positions with the specified intraday strategies
+                    if strategy_name not in strategies_to_exit:
+                        logger.info(f"Skipping non-target strategy: {pos_symbol} - {strategy_name}")
+                        continue
+
                     net_qty = int(float(pos.get("netqty", 0)))
                     if net_qty != 0:
                         exit_count += self._exit_single_position(client, pos, net_qty, name)
@@ -512,8 +538,8 @@ class PositionManager:
                 logger.info("No positions found to exit with given filters")
                 self.ui.log_message("System", "No positions found to exit")
             else:
-                logger.info(f"Exit operation completed - {exit_count} positions exited")
-                self.ui.log_message("System", f"Exit operation completed - {exit_count} positions exited")
+                logger.info(f"Exit operation completed - {exit_count} intraday positions exited")
+                self.ui.log_message("System", f"Exit operation completed - {exit_count} intraday positions exited")
                 
             QTimer.singleShot(3000, self.update_positions)
 

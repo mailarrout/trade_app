@@ -170,14 +170,15 @@ class TradingApp:
             # --- Initialize Graph Tabs ---
             self.initialize_graph_tabs()
 
+
+            # --- Auto-load clients ---
+            self.auto_load_clients()
+
             # --- Initialize Strategies ---
             self.initialize_strategies()
 
             # --- Setup UI Connections ---
-            self.setup_ui_connections()
-
-            # --- Auto-load clients ---
-            self.auto_load_clients()
+            self.setup_ui_connections()            
 
             # --- Auto-close at 15:31 IST ---
             self.setup_auto_close()
@@ -289,6 +290,13 @@ class TradingApp:
             
             self.strategies = {}
             
+            # Check if clients are available
+            if not self.client_manager or not hasattr(self.client_manager, 'clients') or not self.client_manager.clients:
+                logger.warning("No clients available during strategy initialization - will retry")
+                # Schedule retry after client loading
+                QTimer.singleShot(10000, self._retry_strategy_init)
+                return
+            
             # IBBM Strategy
             try:
                 logger.info("Creating IBBMStrategy instance")
@@ -304,7 +312,6 @@ class TradingApp:
                 intraday_straddle_strategy = IntradayStraddleStrategy(self.ui, self.client_manager, self.position_manager)
                 self.strategies["Intraday Straddle"] = intraday_straddle_strategy
                 
-                # STOP the timers to prevent auto-execution
                 if hasattr(intraday_straddle_strategy, 'strategy_timer') and intraday_straddle_strategy.strategy_timer.isActive():
                     intraday_straddle_strategy.strategy_timer.stop()
                     logger.info("Intraday Straddle strategy timer STOPPED")
@@ -322,7 +329,6 @@ class TradingApp:
                 monthly_straddle_strategy = MonthlyStraddleStrategy(self.ui, self.client_manager, self.position_manager)
                 self.strategies["Monthly Straddle"] = monthly_straddle_strategy
                 
-                # STOP the timer to prevent auto-execution
                 if hasattr(monthly_straddle_strategy, 'strategy_timer') and monthly_straddle_strategy.strategy_timer.isActive():
                     monthly_straddle_strategy.strategy_timer.stop()
                     logger.info("Monthly Straddle strategy timer STOPPED")
@@ -380,6 +386,21 @@ class TradingApp:
             
         except Exception as e:
             logger.error(f"UI connections setup failed: {e}")
+
+    def _retry_strategy_init(self):
+        """Retry strategy initialization if clients weren't ready"""
+        try:
+            if not self.client_manager or not hasattr(self.client_manager, 'clients') or not self.client_manager.clients:
+                logger.warning("Retry strategy init - still no clients, trying again in 10s")
+                QTimer.singleShot(10000, self._retry_strategy_init)
+                return
+                
+            logger.info("Clients now available - initializing strategies")
+            self.initialize_strategies()
+            
+        except Exception as e:
+            logger.error(f"Retry strategy initialization failed: {e}")
+
 
     def auto_load_clients(self):
         """Auto-load clients at startup"""

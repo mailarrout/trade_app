@@ -30,6 +30,7 @@ ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
 # EOD_EXIT_TIME = dt_time(23, 59)      # Don't auto-exit during testing
 # ENTRY_MINUTES = list(range(0, 60))   # Allow entry ANY minute
 
+ENTRY_MODE_9_45_ONLY = True  # Set to True for 9:45 AM only, False for any monitoring minute
 
 MONITORING_MINUTES = [15, 45]
 
@@ -103,14 +104,16 @@ class IBBMStrategy:
             self.client_manager = client_manager
             self.position_manager = position_manager
 
-            # Initialize state file FIRST to ensure recovery
+            # === SIMPLE SAFETY CHECK ===
+            if not client_manager:
+                logger.warning("Client manager not available - IBBM strategy will initialize but may not function properly")
+            # === END SAFETY CHECK ===
+
+            # Initialize state file path
             self.current_state_file = os.path.join(LOG_DIR, f"{ISTTimeUtils.current_date_str()}_ibbm_actual_state.csv")
             
-            # Create initial state file entry immediately
-            self._ensure_state_file_exists()
-            
             self.state: str = "WAITING"
-
+            
             self.positions: Dict[str, Dict[str, Any]] = {
                 'ce': self._empty_position(),
                 'pe': self._empty_position()
@@ -130,42 +133,47 @@ class IBBMStrategy:
             self._first_monitoring_logged = False
             self._entry_attempted = False
 
-            # Initialize timers with error handling
+            # Initialize timers (don't start yet)
             self.strategy_timer = QTimer()
             self.monitor_timer = QTimer()
             
             try:
                 self.strategy_timer.timeout.connect(self._check_and_execute_strategy)
+                self.monitor_timer.timeout.connect(self._monitor_all)
+            except Exception as e:
+                logger.error(f"Failed to connect timer signals: {e}")
+                raise
+
+            # Attempt recovery BEFORE starting timers
+            recovery_success = self._try_recover_from_state_file()
+            
+            if not recovery_success:
+                # Create initial state file for fresh start
+                self._log_state("WAITING", "Fresh start - no recovery data")
+
+            # Start timers AFTER recovery
+            try:
                 self.strategy_timer.start(STRATEGY_CHECK_INTERVAL)
                 logger.debug("Strategy timer started.")
+                
+                # Only start monitor timer if we have active positions
+                if self.state == "ACTIVE":
+                    self.monitor_timer.start(MONITORING_INTERVAL)
+                    logger.debug("Monitor timer started.")
             except Exception as e:
-                logger.error(f"Failed to start strategy timer: {e}")
+                logger.error(f"Failed to start timers: {e}")
 
-            try:
-                self.monitor_timer.timeout.connect(self._monitor_all)
-                self.monitor_timer.start(MONITORING_INTERVAL)
-                logger.debug("Monitor timer started.")
-            except Exception as e:
-                logger.error(f"Failed to start monitor timer: {e}")
-
-            # Bind UI button if present
+            # Bind UI button
             try:
                 if hasattr(self.ui, 'ExecuteStrategyQPushButton'):
                     self.ui.ExecuteStrategyQPushButton.clicked.connect(self.on_execute_strategy_clicked)
             except Exception as e:
                 logger.debug(f"Could not bind UI execute button: {e}")
 
-            # Attempt recovery - this will create state file if missing
-            recovery_success = self._try_recover_from_state_file()
-            if not recovery_success:
-                # If recovery fails, create fresh state file
-                self._log_state("WAITING", "Fresh start - no recovery data found")
-            
             logger.info(f"IBBMStrategy initialized successfully; state={self.state}")
 
         except Exception as e:
             logger.critical(f"CRITICAL: IBBMStrategy initialization failed: {e}")
-            # Even if initialization fails, try to create state file for debugging
             try:
                 self._log_state("ERROR", f"Initialization failed: {e}")
             except:
@@ -211,24 +219,28 @@ class IBBMStrategy:
     # ===== Recovery & State Management =====
     @safe_log("recovery")
     def _try_recover_from_state_file(self):
-        """Recover strategy state from CSV file with enhanced error handling"""
+        """Recover strategy state from CSV file"""
         try:
+            # === ADD CLIENT CHECK ===
+            if not self.client_manager:
+                logger.warning("Cannot recover - client manager not available")
+                return False
+            # === END CLIENT CHECK ===
+            
             if not os.path.exists(self.current_state_file):
                 logger.info("No state file found for today; starting fresh.")
-                self._log_state("WAITING", "No state file found - fresh start")
                 return False
 
             df = pd.read_csv(self.current_state_file)
             if df.empty:
                 logger.info("State file empty for today.")
-                self._log_state("WAITING", "Empty state file - fresh start")
                 return False
 
             last = df.iloc[-1]
             last_status = str(last.get('status', 'WAITING')).strip()
             logger.info(f"Recovered last status from file: {last_status}")
 
-            # Validate broker positions for ACTIVE/STOPPED_OUT states
+            # Check broker positions for ACTIVE/STOPPED_OUT states
             if last_status in ['ACTIVE', 'STOPPED_OUT']:
                 broker_positions = self._get_broker_positions()
                 ce_sym = last.get('ce_symbol', None)
@@ -239,10 +251,13 @@ class IBBMStrategy:
                 if broker_positions:
                     try:
                         if ce_sym and not pd.isna(ce_sym):
-                            found_ce = any(self._is_symbol_in_pos(ce_sym, bp) for bp in broker_positions)
+                            ce_sym_str = str(ce_sym).strip()
+                            found_ce = any(bp.get('tsym', '') == ce_sym_str for bp in broker_positions)
                         if pe_sym and not pd.isna(pe_sym):
-                            found_pe = any(self._is_symbol_in_pos(pe_sym, bp) for bp in broker_positions)
-                    except Exception:
+                            pe_sym_str = str(pe_sym).strip()
+                            found_pe = any(bp.get('tsym', '') == pe_sym_str for bp in broker_positions)
+                    except Exception as e:
+                        logger.error(f"Error checking broker positions: {e}")
                         found_ce = found_pe = False
 
                 if not found_ce and not found_pe:
@@ -274,7 +289,6 @@ class IBBMStrategy:
                         self.positions[leg]['real_entered'] = True
                         self.positions[leg]['trailing_step'] = int(last.get(f'{leg}_trailing_step', 0))
                         
-                        # Get token from symbol
                         token = self._get_token_from_symbol(self.positions[leg]['symbol'])
                         if token:
                             self.positions[leg]['token'] = token
@@ -297,7 +311,6 @@ class IBBMStrategy:
 
         except Exception as e:
             logger.error(f"State file recovery failed: {e}")
-            self._log_state("ERROR", f"Recovery failed: {e}")
             return False
 
     def _is_symbol_in_pos(self, symbol: str, broker_pos: dict) -> bool:
@@ -462,6 +475,19 @@ class IBBMStrategy:
         logger.info("Running entry cycle")
         self._run_strategy_cycle()
 
+    def debug_strategy_flow(self):
+        """Debug method to log strategy state"""
+        try:
+            logger.info(f"=== DEBUG STRATEGY FLOW ===")
+            logger.info(f"Current time: {ISTTimeUtils.now()}")
+            logger.info(f"Strategy state: {self.state}")
+            logger.info(f"CE Position: {self.positions['ce']}")
+            logger.info(f"PE Position: {self.positions['pe']}")
+            logger.info(f"Market data - Close: {self.current_close}, MA12: {self.current_ma12}, Trend: {self.current_trend}")
+            logger.info(f"=== END DEBUG ===")
+        except Exception as e:
+            logger.error(f"Debug flow error: {e}")
+
     # ===== Core Strategy Logic =====
     def _check_and_execute_strategy(self):
         current_time = ISTTimeUtils.current_time()
@@ -497,17 +523,31 @@ class IBBMStrategy:
             
             should_enter = False
             
-            # Entry at 9:45 AM
-            if (current_time.hour == 9 and current_time.minute == 45 and 
-                not self._entry_attempted):
-                should_enter = True
-                self._entry_attempted = True
-                logger.info("9:45 AM entry time detected")
+            if ENTRY_MODE_9_45_ONLY:
+                # === MODE 1: 9:45 AM ONLY ===
+                if (current_time.hour == 9 and current_time.minute == 45 and 
+                    not self._entry_attempted):
+                    should_enter = True
+                    self._entry_attempted = True
+                    logger.info("9:45 AM entry condition met")
+                
+                # Or if trend changes during monitoring minutes (re-entry after trend change)
+                elif current_time.minute in MONITORING_MINUTES:
+                    should_enter = True
+                    logger.info("Monitoring minute entry (trend change re-entry)")
+                    
+            else:
+                # === MODE 2: ANY MONITORING MINUTE ===
+                if current_time.minute in MONITORING_MINUTES:
+                    should_enter = True
+                    logger.info(f"Monitoring minute entry triggered at {current_time}")
+                    
+                    # Only set _entry_attempted for 9:45 to avoid blocking other entries
+                    if current_time.hour == 9 and current_time.minute == 45:
+                        self._entry_attempted = True
+                        logger.info("9:45 AM first entry marked")
             
-            # Or if trend changes during monitoring minutes (re-entry after trend change)
-            elif current_time.minute in MONITORING_MINUTES:
-                should_enter = True
-                logger.info("Monitoring minute - checking for entry")
+            logger.info(f"Should enter: {should_enter}")
             
             if should_enter:
                 if os.path.exists(self.current_state_file):
@@ -1067,8 +1107,9 @@ class IBBMStrategy:
 
     # ===== Broker Communication =====
     def _get_primary_client(self):
-        if self.client_manager:
+        if self.client_manager and hasattr(self.client_manager, 'get_primary_client'):
             return self.client_manager.get_primary_client()
+        logger.warning("Client manager not ready")
         return None
 
     def _get_broker_positions(self):

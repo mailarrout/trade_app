@@ -91,6 +91,11 @@ class IBBMStrategy:
             self.client_manager = client_manager
             self.position_manager = position_manager
 
+            # === ADD THIS SAFETY CHECK ===
+            if not client_manager:
+                logger.warning("Client manager not available - IBBM strategy will initialize but may not function properly")
+            # === END SAFETY CHECK ===
+
             # Initialize state file FIRST to ensure recovery
             self.current_state_file = os.path.join(LOG_DIR, f"{ISTTimeUtils.current_date_str()}_ibbm_strategy_state.csv")
             
@@ -193,6 +198,12 @@ class IBBMStrategy:
     def _try_recover_from_state_file(self):
         """Recover strategy state from CSV file with enhanced error handling"""
         try:
+            # === ADD CLIENT CHECK ===
+            if not self.client_manager:
+                logger.warning("Cannot recover - client manager not available")
+                return False
+            # === END CLIENT CHECK ===
+            
             if not os.path.exists(self.current_state_file):
                 logger.info("No state file found for today; starting fresh.")
                 self._log_state("WAITING", "No state file found - fresh start")
@@ -890,11 +901,16 @@ class IBBMStrategy:
 
     def _get_primary_client(self):
         try:
-            if self.client_manager and hasattr(self.client_manager, "clients") and self.client_manager.clients:
+            if self.client_manager and hasattr(self.client_manager, "get_primary_client"):
+                return self.client_manager.get_primary_client()
+            elif self.client_manager and hasattr(self.client_manager, "clients") and self.client_manager.clients:
                 return self.client_manager.clients[0][2]
-        except Exception:
-            logger.exception("Error fetching primary client")
-        return None
+            else:
+                logger.debug("Primary client not available")
+                return None
+        except Exception as e:
+            logger.debug(f"Error getting primary client: {e}")
+            return None
 
     def _validate_active_positions_exist(self):
         try:

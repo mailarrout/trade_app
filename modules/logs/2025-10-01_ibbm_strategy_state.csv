@@ -51,3 +51,5 @@ timestamp,status,comments,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_real_en
 2025-10-01 21:41:59,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
 2025-10-01 22:44:09,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
 2025-10-01 22:44:39,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-01 23:59:49,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:00:09,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0

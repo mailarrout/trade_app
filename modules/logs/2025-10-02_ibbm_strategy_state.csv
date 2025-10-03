@@ -1,0 +1,14 @@
+timestamp,status,comments,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_real_entered,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_real_entered,ce_hedge_symbol,ce_hedge_entry,pe_hedge_symbol,pe_hedge_entry
+2025-10-02 00:36:47,INITIALIZING,State file created during initialization,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:36:47,RECOVERED,Successfully recovered state: INITIALIZING,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:37:08,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:42:29,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:43:03,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:46:03,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:46:35,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:47:32,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:47:55,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:53:28,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:53:55,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 00:59:44,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
+2025-10-02 01:00:06,RECOVERED,Successfully recovered state: RECOVERED,,0.0,0.0,0.0,False,,0.0,0.0,0.0,False,,0.0,,0.0
