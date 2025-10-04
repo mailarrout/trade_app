@@ -14987,3 +14987,393 @@ ValueError: time data 'nan' does not match format '%Y-%m-%d'
 2025-10-03 17:22:13,091 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
 2025-10-03 17:22:13,097 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
 2025-10-03 17:22:13,098 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 18:19:38,021 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 18:19:38,024 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 18:19:53,492 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 18:19:53,523 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 18:19:53,523 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 18:19:53,976 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 18:19:54,902 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 18:19:54,902 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 18:19:55,386 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 18:19:55,839 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 18:19:56,277 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 18:19:56,730 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 18:19:56,745 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 18:19:56,745 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 18:28:23,994 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 18:28:23,994 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 18:28:39,475 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 18:28:39,477 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 18:28:39,477 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 18:28:39,929 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 18:28:40,378 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 18:28:40,378 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 18:28:40,811 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 18:28:41,260 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 18:28:41,711 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 18:28:42,160 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 18:28:42,160 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 18:28:42,160 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 18:58:00,595 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 18:58:00,622 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 18:58:16,737 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 18:58:16,749 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 18:58:16,755 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 18:58:17,213 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 18:58:17,725 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 18:58:17,735 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 18:58:18,184 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 18:58:18,666 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 18:58:19,117 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 18:58:19,582 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 18:58:19,589 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 18:58:19,590 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 19:00:26,416 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 19:00:26,417 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 19:00:41,988 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 19:00:42,035 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 19:00:42,038 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 19:00:42,496 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 19:00:42,946 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 19:00:42,953 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 19:00:43,437 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 19:00:43,920 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 19:00:44,398 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 19:00:44,858 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 19:00:44,866 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 19:00:44,866 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 19:02:33,716 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 19:02:33,718 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 19:02:49,217 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 19:02:49,252 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 19:02:49,252 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 19:02:49,705 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 19:02:50,135 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 19:02:50,135 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 19:02:50,597 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 19:02:51,054 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 19:02:51,498 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 19:02:51,941 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 19:02:51,957 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 19:02:51,957 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-03 19:06:03,181 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-03 19:06:03,184 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-03 19:06:18,712 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-03 19:06:18,752 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-03 19:06:18,752 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-03 19:06:19,205 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-03 19:06:19,677 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-03 19:06:19,677 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-03 19:06:20,123 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-03 19:06:20,579 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-03 19:06:21,025 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-03 19:06:21,481 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-03 19:06:21,481 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-03 19:06:21,481 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 00:03:33,599 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 00:03:33,600 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 00:03:57,459 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 00:03:57,476 - INFO - modules.strategy_monthly_straddle - Using latest state file: a2025-09-18_monthly_straddle_state.csv
+2025-10-04 00:03:57,527 - WARNING - modules.strategy_monthly_straddle - Could not parse date: 30-SEP-25, using default 2025-10-31
+2025-10-04 00:03:57,527 - WARNING - modules.strategy_monthly_straddle - Could not parse date: 18-SEP-25, using default 2025-10-04
+2025-10-04 00:03:57,527 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 00:03:57,527 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 00:03:58,970 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-04 00:04:00,917 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-04 00:04:00,917 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-04 00:04:03,287 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 00:04:07,015 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 00:04:11,786 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 00:04:14,141 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 00:04:14,141 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 00:04:14,141 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 00:13:54,918 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 00:13:54,929 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 00:14:12,058 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 00:14:12,077 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 00:14:12,077 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 00:14:14,558 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-04 00:14:16,398 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-04 00:14:16,405 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-04 00:14:18,974 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 00:14:22,370 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 00:14:23,808 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 00:14:25,225 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 00:14:25,225 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 00:14:25,225 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 00:42:57,355 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 00:42:57,359 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 00:43:13,195 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 00:43:13,213 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 00:43:13,213 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 00:43:13,654 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-04 00:43:14,152 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-04 00:43:14,158 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-04 00:43:15,306 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 00:43:16,337 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 00:43:17,436 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 00:43:17,947 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 00:43:17,947 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 00:43:17,947 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 00:47:00,833 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 00:47:00,835 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 00:47:20,784 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 00:47:20,792 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 00:47:20,792 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 00:47:23,447 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 24894.25
+2025-10-04 00:47:24,463 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 24894.25
+2025-10-04 00:47:24,478 - INFO - modules.strategy_monthly_straddle - Registered Monthly Straddle strategy positions with PositionManager
+2025-10-04 00:47:25,957 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 00:47:30,173 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 00:47:31,431 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 00:47:32,688 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 00:47:32,688 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 00:47:32,688 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 07:58:29,210 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 07:58:29,536 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 07:58:45,107 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 07:58:45,109 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 07:58:45,109 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 07:58:45,557 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 27515.90
+2025-10-04 07:58:46,442 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 27515.9
+2025-10-04 07:58:46,556 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 07:58:46,556 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 07:58:46,556 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 07:58:46,556 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 07:58:46,556 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 07:58:47,019 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 07:58:47,462 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 07:58:47,890 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 07:58:48,355 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 07:58:48,357 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 07:58:48,357 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 07:59:36,750 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 07:59:36,750 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 07:59:41,300 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 07:59:41,300 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 07:59:52,265 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 07:59:52,265 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 07:59:52,265 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 07:59:52,714 - ERROR - modules.strategy_monthly_straddle - Failed to get NIFTY quote
+2025-10-04 07:59:53,179 - DEBUG - modules.strategy_monthly_straddle - Broker positions response is empty
+2025-10-04 07:59:53,617 - ERROR - modules.strategy_monthly_straddle - Failed to get NIFTY quote: None
+2025-10-04 07:59:53,617 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 07:59:53,617 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 07:59:53,617 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 07:59:53,617 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 07:59:53,642 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 07:59:54,082 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 07:59:54,545 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 07:59:54,981 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 07:59:55,430 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 07:59:55,430 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 07:59:55,430 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 07:59:58,702 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 07:59:58,726 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 07:59:58,726 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 07:59:59,187 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 27515.90
+2025-10-04 08:00:00,324 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 27515.9
+2025-10-04 08:00:00,324 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:00:00,324 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:00:00,340 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:00:00,340 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:00:00,350 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:00:01,169 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:00:01,648 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:00:02,157 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:00:02,596 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:00:02,611 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:00:02,611 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:10:03,585 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:10:03,587 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:10:21,714 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:10:21,738 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:10:21,739 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:10:22,174 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 27332.15
+2025-10-04 08:10:23,058 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 27332.15
+2025-10-04 08:10:23,058 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:10:23,058 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:10:23,075 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:10:23,075 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:10:23,087 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:10:23,523 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:10:23,978 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:10:24,408 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:10:24,857 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:10:24,857 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:10:24,857 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:12:18,987 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:12:18,988 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:12:36,574 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:12:36,612 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:12:36,612 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:12:37,057 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 27332.15
+2025-10-04 08:12:37,942 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 27332.15
+2025-10-04 08:12:37,942 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:12:37,942 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:12:37,942 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:12:37,942 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:12:37,942 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:12:38,397 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:12:38,842 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:12:39,275 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:12:39,725 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:12:39,756 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:12:39,777 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:16:12,239 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:16:12,243 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:20:50,572 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:20:50,574 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:21:09,109 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:21:09,132 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:21:09,132 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:21:09,591 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26551.30
+2025-10-04 08:21:10,510 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26508.45
+2025-10-04 08:21:10,510 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:21:10,510 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:21:10,510 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:21:10,520 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:21:10,526 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:21:11,025 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:21:11,481 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:21:11,942 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:21:12,391 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:21:12,391 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:21:12,391 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:24:19,555 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:24:19,557 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:24:57,429 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:24:57,457 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:24:57,460 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:24:57,931 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26657.90
+2025-10-04 08:24:58,826 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26657.2
+2025-10-04 08:24:58,836 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:24:58,837 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:24:58,838 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:24:58,845 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:24:58,855 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:24:59,328 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:24:59,776 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:25:00,243 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:25:00,710 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:25:00,710 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:25:00,710 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:29:22,668 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:29:22,670 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:33:08,615 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:33:08,617 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:33:24,153 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:33:24,173 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:33:24,174 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:33:24,620 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26425.55
+2025-10-04 08:33:25,511 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26425.55
+2025-10-04 08:33:25,511 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:33:25,511 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:33:25,511 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:33:25,511 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:33:25,531 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:33:25,980 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:33:26,430 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:33:26,968 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:33:27,464 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:33:27,466 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:33:27,466 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:39:04,637 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:39:04,639 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:39:20,146 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:39:20,177 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:39:20,179 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:39:20,628 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26540.10
+2025-10-04 08:39:21,511 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26540.1
+2025-10-04 08:39:21,531 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:39:21,538 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:39:21,539 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:39:21,541 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:39:21,547 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:39:21,998 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:39:22,443 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:39:22,876 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:39:23,327 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:39:23,343 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:39:23,343 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:42:12,833 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:42:12,835 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:42:28,350 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:42:28,390 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:42:28,391 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:42:28,839 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26459.35
+2025-10-04 08:42:29,728 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26457.85
+2025-10-04 08:42:29,728 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:42:29,728 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:42:29,728 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:42:29,728 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:42:29,728 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:42:30,178 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:42:30,614 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:42:31,072 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:42:32,178 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:42:32,178 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:42:32,178 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:43:33,983 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:43:33,985 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:43:49,539 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:43:49,577 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:43:49,579 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:43:50,049 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26417.90
+2025-10-04 08:43:50,932 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26406.1
+2025-10-04 08:43:50,933 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:43:50,935 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:43:50,937 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:43:50,940 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:43:50,950 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:43:51,394 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:43:51,844 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:43:52,310 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:43:52,744 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:43:52,760 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:43:52,760 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:44:52,790 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:44:52,791 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:45:08,342 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:45:08,367 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:45:08,369 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:45:08,818 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26525.20
+2025-10-04 08:45:09,714 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26525.2
+2025-10-04 08:45:09,783 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:45:09,809 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:45:09,810 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:45:09,823 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:45:09,903 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:45:10,383 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:45:10,827 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:45:11,277 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:45:11,716 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:45:11,721 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:45:11,721 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 08:45:31,002 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:45:31,003 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:46:46,979 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 08:46:46,981 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 08:47:05,028 - INFO - modules.strategy_monthly_straddle - Attempting Monthly Straddle strategy recovery
+2025-10-04 08:47:05,062 - INFO - modules.strategy_monthly_straddle - Strategy recovered from state file: ACTIVE
+2025-10-04 08:47:05,069 - INFO - modules.strategy_monthly_straddle - Recovered 4 positions
+2025-10-04 08:47:05,510 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot: 26527.30
+2025-10-04 08:47:06,394 - INFO - modules.strategy_monthly_straddle - Current NIFTY spot price: 26535.4
+2025-10-04 08:47:06,394 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C24650 not found in broker positions, skipping registration
+2025-10-04 08:47:06,394 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P25500 not found in broker positions, skipping registration
+2025-10-04 08:47:06,394 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25C26200 not found in broker positions, skipping registration
+2025-10-04 08:47:06,394 - WARNING - modules.strategy_monthly_straddle - Position NIFTY30SEP25P23850 not found in broker positions, skipping registration
+2025-10-04 08:47:06,412 - INFO - modules.strategy_monthly_straddle - Registered 0 Monthly Straddle strategy positions with PositionManager (verified in broker)
+2025-10-04 08:47:06,843 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60455
+2025-10-04 08:47:07,300 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60500
+2025-10-04 08:47:07,743 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60566
+2025-10-04 08:47:08,177 - WARNING - modules.strategy_monthly_straddle - Invalid quote response for token 60358
+2025-10-04 08:47:08,195 - DEBUG - modules.strategy_monthly_straddle - State logged: ACTIVE - Recovered from state file
+2025-10-04 08:47:08,195 - INFO - modules.strategy_monthly_straddle - Monthly Straddle recovered from state file
+2025-10-04 09:04:20,877 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:04:20,879 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:08:58,593 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:08:58,594 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:17:34,255 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:17:34,257 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)

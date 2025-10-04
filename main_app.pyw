@@ -12,15 +12,18 @@ from PyQt5.QtCore import QTimer
 # ===== CONFIGURATION FLAG =====
 DEBUG_MODE = False  # True for detailed debugging
 # ==============================
+
 # ===== STRATEGY CONFIGURATION =====
 # Choose default strategy from: 
 # "IBBM Intraday", "Intraday Straddle", "Monthly Straddle"
 DEFAULT_STRATEGY = "IBBM Intraday"
 ENABLE_AUTO_RUN = True  # Set to False if you don't want IBBM auto-execution
+
 # ADD THESE NEW FLAGS TO CONTROL STRATEGY AUTO-RUN
 ENABLE_INTRADAY_STRADDLE_AUTO_RUN = False  # Set to False to prevent auto-run
 ENABLE_MONTHLY_STRADDLE_AUTO_RUN = False   # Set to False to prevent auto-run
 # ==============================
+
 # ===== Logging Configuration =====
 IST = timezone("Asia/Kolkata")
 
@@ -284,7 +287,7 @@ class TradingApp:
             logger.error(f"Graph tabs initialization failed: {e}")
 
     def initialize_strategies(self):
-        """Initialize trading strategies"""
+        """Initialize trading strategies with proper auto-run control"""
         try:
             logger.info("Initializing trading strategies")
             
@@ -302,38 +305,62 @@ class TradingApp:
                 logger.info("Creating IBBMStrategy instance")
                 ibbm_strategy = IBBMStrategy(self.ui, self.client_manager, self.position_manager)
                 self.strategies["IBBM Intraday"] = ibbm_strategy
+                
+                # Stop IBBM auto-run if disabled
+                if not self.enable_auto_run:
+                    if hasattr(ibbm_strategy, 'strategy_timer') and ibbm_strategy.strategy_timer.isActive():
+                        ibbm_strategy.strategy_timer.stop()
+                        logger.info("IBBM strategy timer STOPPED")
+                
                 logger.info("IBBMStrategy initialized successfully")
             except Exception as e:
                 logger.error(f"IBBMStrategy initialization failed: {e}")
             
-            # Intraday Straddle Strategy - STOP AUTO-RUN
+            # Intraday Straddle Strategy - COMPLETE AUTO-RUN CONTROL
             try:
                 logger.info("Creating IntradayStraddleStrategy instance")
                 intraday_straddle_strategy = IntradayStraddleStrategy(self.ui, self.client_manager, self.position_manager)
                 self.strategies["Intraday Straddle"] = intraday_straddle_strategy
                 
-                if hasattr(intraday_straddle_strategy, 'strategy_timer') and intraday_straddle_strategy.strategy_timer.isActive():
-                    intraday_straddle_strategy.strategy_timer.stop()
-                    logger.info("Intraday Straddle strategy timer STOPPED")
-                if hasattr(intraday_straddle_strategy, 'monitor_timer') and intraday_straddle_strategy.monitor_timer.isActive():
-                    intraday_straddle_strategy.monitor_timer.stop()
-                    logger.info("Intraday Straddle monitor timer STOPPED")
+                # COMPREHENSIVELY STOP ALL TIMERS AND ACTIVITY FOR INTRADAY STRADDLE
+                if not ENABLE_INTRADAY_STRADDLE_AUTO_RUN:
+                    # Stop all possible timers
+                    timer_names = ['strategy_timer', 'monitor_timer', 'recovery_timer', 'quote_timer', 'position_timer']
+                    for timer_name in timer_names:
+                        timer = getattr(intraday_straddle_strategy, timer_name, None)
+                        if timer and hasattr(timer, 'isActive') and timer.isActive():
+                            timer.stop()
+                            logger.info(f"Stopped {timer_name} for Intraday Straddle")
+                    
+                    logger.info("Intraday Straddle strategy COMPLETELY STOPPED - no auto-run activity")
+                else:
+                    logger.info("Intraday Straddle strategy auto-run ENABLED")
                 
-                logger.info("IntradayStraddleStrategy initialized successfully (auto-run disabled)")
+                logger.info("IntradayStraddleStrategy initialized successfully")
             except Exception as e:
                 logger.error(f"IntradayStraddleStrategy initialization failed: {e}")
             
-            # Monthly Straddle Strategy - STOP AUTO-RUN
+            # Monthly Straddle Strategy - COMPLETE AUTO-RUN CONTROL
             try:
                 logger.info("Creating MonthlyStraddleStrategy instance")
                 monthly_straddle_strategy = MonthlyStraddleStrategy(self.ui, self.client_manager, self.position_manager)
                 self.strategies["Monthly Straddle"] = monthly_straddle_strategy
                 
-                if hasattr(monthly_straddle_strategy, 'strategy_timer') and monthly_straddle_strategy.strategy_timer.isActive():
-                    monthly_straddle_strategy.strategy_timer.stop()
-                    logger.info("Monthly Straddle strategy timer STOPPED")
+                # COMPREHENSIVELY STOP ALL TIMERS AND ACTIVITY FOR MONTHLY STRADDLE
+                if not ENABLE_MONTHLY_STRADDLE_AUTO_RUN:
+                    # Stop all possible timers
+                    timer_names = ['strategy_timer', 'monitor_timer', 'recovery_timer', 'quote_timer', 'position_timer']
+                    for timer_name in timer_names:
+                        timer = getattr(monthly_straddle_strategy, timer_name, None)
+                        if timer and hasattr(timer, 'isActive') and timer.isActive():
+                            timer.stop()
+                            logger.info(f"Stopped {timer_name} for Monthly Straddle")
+                    
+                    logger.info("Monthly Straddle strategy COMPLETELY STOPPED - no auto-run activity")
+                else:
+                    logger.info("Monthly Straddle strategy auto-run ENABLED")
                 
-                logger.info("MonthlyStraddleStrategy initialized successfully (auto-run disabled)")
+                logger.info("MonthlyStraddleStrategy initialized successfully")
             except Exception as e:
                 logger.error(f"MonthlyStraddleStrategy initialization failed: {e}")
             
@@ -348,8 +375,8 @@ class TradingApp:
             self.enable_auto_run = ENABLE_AUTO_RUN
             logger.info(f"Current strategy set to: {self.current_strategy}")
             logger.info(f"IBBM auto-run enabled: {self.enable_auto_run}")
-            logger.info(f"Intraday Straddle auto-run disabled: {not ENABLE_INTRADAY_STRADDLE_AUTO_RUN}")
-            logger.info(f"Monthly Straddle auto-run disabled: {not ENABLE_MONTHLY_STRADDLE_AUTO_RUN}")
+            logger.info(f"Intraday Straddle auto-run enabled: {ENABLE_INTRADAY_STRADDLE_AUTO_RUN}")
+            logger.info(f"Monthly Straddle auto-run enabled: {ENABLE_MONTHLY_STRADDLE_AUTO_RUN}")
             
         except Exception as e:
             logger.error(f"Strategy initialization failed: {e}")
@@ -401,7 +428,6 @@ class TradingApp:
         except Exception as e:
             logger.error(f"Retry strategy initialization failed: {e}")
 
-
     def auto_load_clients(self):
         """Auto-load clients at startup"""
         try:
@@ -440,25 +466,31 @@ class TradingApp:
             logger.error(f"Strategy change handler failed: {e}")
 
     def execute_selected_strategy(self):
-        """Execute the currently selected strategy"""
+        """Execute the currently selected strategy with proper timer management"""
         try:
             strategy_name = self.ui.StrategyNameQComboBox.currentText()
             logger.info(f"=== MANUAL STRATEGY EXECUTION: {strategy_name} ===")
             self.current_strategy = strategy_name
             
-            # For Intraday Straddle and Monthly Straddle, restart timers if they were stopped
-            if strategy_name in ["Intraday Straddle", "Monthly Straddle"]:
+            # For strategies with auto-run disabled, ensure timers are started ONLY for manual execution
+            if strategy_name == "Intraday Straddle" and not ENABLE_INTRADAY_STRADDLE_AUTO_RUN:
                 strategy_obj = self.strategies.get(strategy_name)
                 if strategy_obj:
-                    # Restart strategy timer for manual execution
+                    # Start timers only for manual execution
                     if hasattr(strategy_obj, 'strategy_timer') and not strategy_obj.strategy_timer.isActive():
                         strategy_obj.strategy_timer.start()
-                        logger.info(f"Restarted strategy timer for {strategy_name}")
+                        logger.info(f"Started strategy timer for {strategy_name} (manual execution)")
                     
-                    # For Intraday Straddle, also restart monitor timer
-                    if strategy_name == "Intraday Straddle" and hasattr(strategy_obj, 'monitor_timer') and not strategy_obj.monitor_timer.isActive():
+                    if hasattr(strategy_obj, 'monitor_timer') and not strategy_obj.monitor_timer.isActive():
                         strategy_obj.monitor_timer.start()
-                        logger.info(f"Restarted monitor timer for {strategy_name}")
+                        logger.info(f"Started monitor timer for {strategy_name} (manual execution)")
+            
+            elif strategy_name == "Monthly Straddle" and not ENABLE_MONTHLY_STRADDLE_AUTO_RUN:
+                strategy_obj = self.strategies.get(strategy_name)
+                if strategy_obj:
+                    if hasattr(strategy_obj, 'strategy_timer') and not strategy_obj.strategy_timer.isActive():
+                        strategy_obj.strategy_timer.start()
+                        logger.info(f"Started strategy timer for {strategy_name} (manual execution)")
             
             self.start_strategy(strategy_name)
         except Exception as e:
@@ -498,10 +530,21 @@ class TradingApp:
             logger.error(f"Strategy recovery scheduling failed: {e}")
 
     def recover_strategy_state(self):
-        """Recover strategy states - let each strategy handle its own recovery"""
+        """Recover strategy states - respect auto-run flags to prevent unwanted activity"""
         try:
             logger.info("=== ATTEMPTING STRATEGY STATE RECOVERY ===")
             for strategy_name, strategy_obj in self.strategies.items():
+                # RESPECT AUTO-RUN FLAGS - Skip recovery for strategies with auto-run disabled
+                if strategy_name == "IBBM Intraday" and not self.enable_auto_run:
+                    logger.info(f"Skipping recovery for {strategy_name} - auto-run disabled")
+                    continue
+                elif strategy_name == "Intraday Straddle" and not ENABLE_INTRADAY_STRADDLE_AUTO_RUN:
+                    logger.info(f"Skipping recovery for {strategy_name} - auto-run disabled")
+                    continue
+                elif strategy_name == "Monthly Straddle" and not ENABLE_MONTHLY_STRADDLE_AUTO_RUN:
+                    logger.info(f"Skipping recovery for {strategy_name} - auto-run disabled")
+                    continue
+                
                 logger.info(f"Attempting recovery for: {strategy_name}")
                 try:
                     # Let each strategy handle its own recovery logic
@@ -510,16 +553,22 @@ class TradingApp:
                         success = strategy_obj.attempt_recovery()
                         logger.info(f"Recovery for {strategy_name}: {'SUCCESS' if success else 'FAILED'}")
                         
-                        # If recovery succeeded for Intraday Straddle or Monthly Straddle, stop their timers
+                        # If recovery succeeded for Intraday Straddle or Monthly Straddle, stop their timers if auto-run is disabled
                         if success and strategy_name in ["Intraday Straddle", "Monthly Straddle"]:
-                            if hasattr(strategy_obj, 'strategy_timer') and strategy_obj.strategy_timer.isActive():
-                                strategy_obj.strategy_timer.stop()
-                                logger.info(f"Stopped auto-run timer for recovered {strategy_name}")
-                            
-                            if strategy_name == "Intraday Straddle" and hasattr(strategy_obj, 'monitor_timer') and strategy_obj.monitor_timer.isActive():
-                                strategy_obj.monitor_timer.stop()
-                                logger.info(f"Stopped monitor timer for recovered {strategy_name}")
+                            if strategy_name == "Intraday Straddle" and not ENABLE_INTRADAY_STRADDLE_AUTO_RUN:
+                                if hasattr(strategy_obj, 'strategy_timer') and strategy_obj.strategy_timer.isActive():
+                                    strategy_obj.strategy_timer.stop()
+                                    logger.info(f"Stopped auto-run timer for recovered {strategy_name} (auto-run disabled)")
                                 
+                                if hasattr(strategy_obj, 'monitor_timer') and strategy_obj.monitor_timer.isActive():
+                                    strategy_obj.monitor_timer.stop()
+                                    logger.info(f"Stopped monitor timer for recovered {strategy_name} (auto-run disabled)")
+                            
+                            elif strategy_name == "Monthly Straddle" and not ENABLE_MONTHLY_STRADDLE_AUTO_RUN:
+                                if hasattr(strategy_obj, 'strategy_timer') and strategy_obj.strategy_timer.isActive():
+                                    strategy_obj.strategy_timer.stop()
+                                    logger.info(f"Stopped auto-run timer for recovered {strategy_name} (auto-run disabled)")
+                                    
                     elif hasattr(strategy_obj, 'recover_from_state_file'):
                         logger.info(f"Calling recover_from_state_file for {strategy_name}")
                         success = strategy_obj.recover_from_state_file()
@@ -548,7 +597,7 @@ class TradingApp:
                 logger.info(f"Cleaning up strategy: {strategy_name}")
                 try:
                     # Stop strategy timers - strategy handles its own timer management
-                    for timer_attr in ["strategy_timer", "monitor_timer"]:
+                    for timer_attr in ["strategy_timer", "monitor_timer", "recovery_timer", "quote_timer"]:
                         timer = getattr(strategy_obj, timer_attr, None)
                         if timer and hasattr(timer, 'isActive') and timer.isActive():
                             timer.stop()

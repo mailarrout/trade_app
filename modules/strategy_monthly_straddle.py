@@ -346,10 +346,22 @@ class MonthlyStraddleStrategy:
                 logger.error("No position manager available for registration")
                 return False
 
+            # Get current broker positions to verify
+            broker_positions = self._get_broker_positions()
+            broker_symbols = {pos.get('tsym', '') for pos in broker_positions}
+            
             spot_price = self._get_current_spot_price()
+            registered_count = 0
             
             for leg, pos in self.positions.items():
                 if pos and pos.get('symbol') and pos.get('net_qty', 0) != 0:
+                    # Check if this position exists in broker positions
+                    symbol_in_broker = pos['symbol'] in broker_symbols
+                    
+                    if not symbol_in_broker:
+                        logger.warning(f"Position {pos['symbol']} not found in broker positions, skipping registration")
+                        continue
+                    
                     key = f"{pos['symbol']}_{pos.get('token', '')}"
                     strategy_name = "Monthly Straddle"
                     if "buy" in leg:
@@ -358,12 +370,14 @@ class MonthlyStraddleStrategy:
                     target_manager._strategy_symbol_token_map[key] = {
                         'strategy_name': strategy_name,
                         'spot_price': spot_price,
-                        'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
+                        'timestamp': datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S"),
+                        'verified_in_broker': True  # Add verification flag
                     }
+                    registered_count += 1
             
             target_manager._save_strategy_mapping()
-            logger.info("Registered Monthly Straddle strategy positions with PositionManager")
-            return True
+            logger.info(f"Registered {registered_count} Monthly Straddle strategy positions with PositionManager (verified in broker)")
+            return registered_count > 0
             
         except Exception as e:
             logger.error(f"Failed to register strategy positions: {str(e)}")
@@ -1038,21 +1052,38 @@ class MonthlyStraddleStrategy:
         try:
             client = self._get_primary_client()
             if not client:
+                logger.warning("No client available to fetch broker positions")
                 return []
+
             res = client.get_positions()
             if not res:
+                logger.debug("Broker positions response is empty")
                 return []
-            if isinstance(res, dict) and 'data' in res:
-                data = res['data']
-                if isinstance(data, list):
-                    return data
-                if isinstance(data, dict):
-                    return list(data.values())
-            if isinstance(res, list):
+
+            # Handle different response formats
+            if isinstance(res, dict):
+                if 'data' in res:
+                    data = res['data']
+                    if isinstance(data, list):
+                        return data
+                    elif isinstance(data, dict):
+                        return list(data.values())
+                    else:
+                        logger.warning(f"Unexpected data format in positions response: {type(data)}")
+                        return []
+                else:
+                    # Some brokers might return positions directly in dict
+                    return [res] if any(key in res for key in ['tsym', 'token', 'netqty']) else []
+            
+            elif isinstance(res, list):
                 return res
-            return []
+            
+            else:
+                logger.warning(f"Unexpected positions response type: {type(res)}")
+                return []
+
         except Exception as e:
-            logger.warning("Failed to get broker positions: %s", e)
+            logger.error(f"Failed to get broker positions: {e}")
             return []
 
     def _log_state(self, status, comments="", **kwargs):

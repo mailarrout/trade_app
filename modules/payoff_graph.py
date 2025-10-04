@@ -14,6 +14,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import logging
 import re
+import pandas as pd
+from datetime import datetime
+import os
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +29,7 @@ class PayoffGraphTab(QWidget):
         
         self.ui = ui
         self.client_manager = client_manager
+        self.ist = pytz.timezone('Asia/Kolkata')  # Add this line
         
         # Initialize client
         self.client = None
@@ -104,13 +109,7 @@ class PayoffGraphTab(QWidget):
                 symbol = pos.get('tsym', 'N/A')
                 netqty = int(float(pos.get('netqty', 0)))
                 product = pos.get('s_prdt_ali', 'N/A')
-                exchange = pos.get('exch', 'N/A')
-                
-                logger.info(f"Position {i+1}:")
-                logger.info(f"  Symbol: {symbol}")
-                logger.info(f"  NetQty: {netqty}")
-                logger.info(f"  Product: {product}")
-                logger.info(f"  Exchange: {exchange}")
+                exchange = pos.get('exch', 'N/A')                
                 
             except Exception as e:
                 logger.error(f"Error logging position {i}: {e}")
@@ -222,22 +221,17 @@ class PayoffGraphTab(QWidget):
                     
                     short_options.append(option_data)
                     
-                    logger.info(f"Found short {opt_type}: Strike {strike} @ {premium:.2f}, Qty: {quantity}, Symbol: {symbol}")
-                    
                 except Exception as e:
                     logger.error(f"Error processing position {pos.get('tsym', '')}: {e}")
                     continue
 
-            # Log what we found
-            logger.info(f"Short options found: {len(short_options)}")
             for opt in short_options:
-                logger.info(f"  - {opt['type']} {opt['strike']} @ {opt['premium']:.2f}")
+                # logger.info(f"  - {opt['type']} {opt['strike']} @ {opt['premium']:.2f}")
+                pass
 
             # Separate CE and PE positions
             ce_positions = [p for p in short_options if p['type'] == 'CE']
             pe_positions = [p for p in short_options if p['type'] == 'PE']
-            
-            logger.info(f"CE positions: {len(ce_positions)}, PE positions: {len(pe_positions)}")
             
             if not ce_positions or not pe_positions:
                 logger.warning(f"Need both CE and PE positions for strangle. Found CE: {len(ce_positions)}, PE: {len(pe_positions)}")
@@ -287,11 +281,6 @@ class PayoffGraphTab(QWidget):
             # Max profit
             max_profit_total = total_premium_total
 
-            logger.info(f"Strangle Analysis:")
-            logger.info(f"  PE {put_strike} @ {put_premium:.2f}, CE {call_strike} @ {call_premium:.2f}")
-            logger.info(f"  Breakevens: {lower_breakeven:.2f} - {upper_breakeven:.2f}")
-            logger.info(f"  Max Profit: {max_profit_total:.2f}")
-            logger.info(f"  Total Units: {total_units}")
 
             return price_range, strategy_payoff_total, lower_breakeven, upper_breakeven, max_profit_total
             
@@ -317,12 +306,19 @@ class PayoffGraphTab(QWidget):
             
             if put_strike is None:
                 self._draw_empty_chart("No short strangle positions\n(Need short CE & PE)")
+                # Update adjustment distances even if no strangle (uses manual adjustments)
+                self.update_adjustment_points_distance()
                 return
+
+            # Get strategy spot price for calculations
+            strategy_spot = self.get_strategy_spot_price()
+            calculation_spot = strategy_spot if strategy_spot is not None else spot
 
             # Calculate payoff
             result = self.calculate_short_strangle_payoff(spot, put_strike, put_premium, call_strike, call_premium, total_units)
             if result[0] is None:
                 self._draw_empty_chart("Error calculating payoff")
+                self.update_adjustment_points_distance()
                 return
 
             price_range, payoff_total, lower_be, upper_be, max_profit = result
@@ -330,24 +326,25 @@ class PayoffGraphTab(QWidget):
             # Auto-fill the range fields with breakeven points
             self.ui.LowerRangeQLineEdit.setText(f"{lower_be:.2f}")
             self.ui.HigherRangeQLineEdit.setText(f"{upper_be:.2f}")
-            self.ui.SpotPriceQLineEdit.setText(f"{spot:.2f}")
+            # Update SpotPriceQLineEdit with strategy spot
+            self.ui.SpotPriceQLineEdit.setText(f"{calculation_spot:.2f}")
             
-            # Calculate adjustment points (profit bend points)
-            adjustment = (upper_be - spot) / 3
-            ce_adjustment = spot - adjustment  # Left side bend (CE adjustment)
-            pe_adjustment = spot + adjustment  # Right side bend (PE adjustment)
+            # Calculate adjustment points (profit bend points) from strategy spot
+            adjustment = (upper_be - calculation_spot) / 3
+            ce_adjustment = calculation_spot - adjustment  # Left side bend (CE adjustment)
+            pe_adjustment = calculation_spot + adjustment  # Right side bend (PE adjustment)
             
             # Update adjustment labels
             self.ui.CESellingAdjustment.setText(f"{ce_adjustment:.2f}")
             self.ui.PESellingAdjustment.setText(f"{pe_adjustment:.2f}")
             
-            logger.info(f"Auto-filled ranges: Lower={lower_be:.2f}, Higher={upper_be:.2f}")
-            logger.info(f"Adjustment points: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
+            # Update adjustment distances
+            self.update_adjustment_points_distance()
             
             # Draw chart
             self._draw_payoff_chart(spot, price_range, payoff_total, lower_be, upper_be, max_profit,
-                                  put_strike, put_premium, call_strike, call_premium, total_units,
-                                  ce_adjustment, pe_adjustment)
+                                put_strike, put_premium, call_strike, call_premium, total_units,
+                                ce_adjustment, pe_adjustment)
             
             logger.info("Payoff graph updated successfully")
             
@@ -356,9 +353,9 @@ class PayoffGraphTab(QWidget):
             self._draw_empty_chart("Error updating graph")
 
     def _draw_payoff_chart(self, spot, price_range, payoff_total, lower_be, upper_be, max_profit,
-                          put_strike, put_premium, call_strike, call_premium, total_units,
-                          ce_adjustment, pe_adjustment):
-        """Draw the payoff chart with adjustment points"""
+                  put_strike, put_premium, call_strike, call_premium, total_units,
+                  ce_adjustment, pe_adjustment):
+        """Draw the payoff chart with adjustment points and strategy spot"""
         try:
             self.ax.clear()
             self.fig.patch.set_facecolor("#002B36")
@@ -373,16 +370,23 @@ class PayoffGraphTab(QWidget):
 
             # Key lines
             self.ax.axhline(0, color='white', linestyle='--')
-            self.ax.axvline(spot, color='red', linestyle='--', label=f'Spot: {spot:.0f}')
             
-            # Breakeven points
-
+            # Current spot line (thick red line)
+            self.ax.axvline(spot, color='red', linestyle='-', linewidth=2, 
+                        label=f'Current Spot: {spot:.0f}')
+            
+            # Strategy spot line (thin pink line) - ADDED THIS
+            if hasattr(self, 'strategy_spot_price') and self.strategy_spot_price is not None:
+                self.ax.axvline(self.strategy_spot_price, color="#FCFCFC", linestyle='-', 
+                            linewidth=1, alpha=0.8, label=f'Strategy Spot: {self.strategy_spot_price:.0f}')
+            
+            # Breakeven points - only text, no dots
             self.ax.text(lower_be, 0, f' {lower_be:.0f}', color='lime', va='bottom')
             self.ax.text(upper_be, 0, f' {upper_be:.0f}', color='lime', va='bottom')
             
             # Max profit line
             self.ax.hlines(max_profit, price_range.min(), price_range.max(), 
-                          colors='yellow', linestyles=':', label=f'Max Profit: {max_profit:.0f}')
+                        colors='yellow', linestyles=':', label=f'Max Profit: {max_profit:.0f}')
 
             # Strike lines
             self.ax.axvline(put_strike, color='orange', linestyle=':', alpha=0.6, label=f'PE: {put_strike}')
@@ -391,16 +395,9 @@ class PayoffGraphTab(QWidget):
             # Adjustment points (profit bend points)
             self.ax.axvline(ce_adjustment, color='lightblue', linestyle='--', alpha=0.7, label=f'CE Adj: {ce_adjustment:.0f}')
             self.ax.axvline(pe_adjustment, color='lightgreen', linestyle='--', alpha=0.7, label=f'PE Adj: {pe_adjustment:.0f}')
-            
-            # Mark adjustment points on the payoff curve
-            ce_idx = np.abs(price_range - ce_adjustment).argmin()
-            pe_idx = np.abs(price_range - pe_adjustment).argmin()
-            
-            self.ax.scatter([ce_adjustment, pe_adjustment], 
-                          [payoff_total[ce_idx], payoff_total[pe_idx]])
-            
+
             # Chart styling
-            self.ax.set_title('Nifty Short Strangle Payoff', color='white', pad=20)
+            self.ax.set_title('Nifty Payoff', color='white', pad=20)
             self.ax.set_xlabel('Nifty Price', color='white')
             self.ax.set_ylabel('P/L (INR)', color='white')
             self.ax.grid(True, color='gray', alpha=0.3)
@@ -409,10 +406,10 @@ class PayoffGraphTab(QWidget):
             # Set Y-axis limits
             self.ax.set_ylim(y_min, y_max)
             
-            # Legend
+            # Legend - increased rows to accommodate both spot prices
             legend = self.ax.legend(facecolor='#002B36', edgecolor='white', 
-                                   loc='lower center', bbox_to_anchor=(0.5, -0.3),
-                                   ncol=3, fontsize=12)
+                                loc='lower center', bbox_to_anchor=(0.5, -0.4),
+                                ncol=3, fontsize=10)
             for text in legend.get_texts():
                 text.set_color('white')
 
@@ -457,25 +454,25 @@ class PayoffGraphTab(QWidget):
                 logger.error("Higher range must be greater than lower range")
                 return
 
-            # Get spot price
-            spot = self.fetch_spot_price()
-            if spot is None:
-                logger.error("No spot price available")
+            # Get strategy spot price for calculations
+            strategy_spot = self.get_strategy_spot_price()
+            if strategy_spot is None:
+                logger.error("No strategy spot price available")
                 return
 
-            # Update spot price field
-            self.ui.SpotPriceQLineEdit.setText(f"{spot:.2f}")
+            # Update spot price field with strategy spot
+            self.ui.SpotPriceQLineEdit.setText(f"{strategy_spot:.2f}")
 
-            # Calculate adjustment points
-            adjustment = (higher_range - spot) / 3
-            ce_adjustment = spot - adjustment  # Left side bend (CE adjustment)
-            pe_adjustment = spot + adjustment  # Right side bend (PE adjustment)
+            # Calculate adjustment points from strategy spot
+            adjustment = (higher_range - strategy_spot) / 3
+            ce_adjustment = strategy_spot - adjustment  # Left side bend (CE adjustment)
+            pe_adjustment = strategy_spot + adjustment  # Right side bend (PE adjustment)
 
             # Update adjustment labels
             self.ui.CESellingAdjustment.setText(f"{ce_adjustment:.2f}")
             self.ui.PESellingAdjustment.setText(f"{pe_adjustment:.2f}")
 
-            logger.info(f"Adjustments calculated: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
+            logger.info(f"Adjustments calculated from strategy spot {strategy_spot:.2f}: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
 
         except ValueError as e:
             logger.error(f"Invalid number input: {e}")
@@ -490,3 +487,122 @@ class PayoffGraphTab(QWidget):
                 logger.info("Payoff graph timer stopped")
         except Exception as e:
             logger.error(f"Error stopping timer: {e}")
+
+    def update_adjustment_points_distance(self):
+        """Calculate and display points to CE/PE adjustment from strategy spot"""
+        try:
+            # Get strategy spot price for calculations
+            strategy_spot = self.get_strategy_spot_price()
+            if strategy_spot is None:
+                logger.debug("No strategy spot available for distance calculation")
+                return
+
+            # Store strategy spot for chart marking
+            self.strategy_spot_price = strategy_spot
+
+            # Get adjustment values from UI
+            ce_adj_text = self.ui.CESellingAdjustment.text().strip()
+            pe_adj_text = self.ui.PESellingAdjustment.text().strip()
+            
+            if not ce_adj_text or not pe_adj_text:
+                return
+                
+            try:
+                ce_adj = float(ce_adj_text)
+                pe_adj = float(pe_adj_text)
+                
+                # Calculate distances FROM STRATEGY SPOT
+                points_to_ce = strategy_spot - ce_adj  # Positive if strategy spot > CE adj
+                points_to_pe = pe_adj - strategy_spot  # Positive if PE adj > strategy spot
+                
+                # Update the label
+                self.ui.AdjPointsFromSpot.setText(
+                    f"{points_to_ce:.0f} Points to CE Adjustment and {points_to_pe:.0f} Points to PE Adjustment"
+                )
+                
+            except ValueError:
+                pass
+                
+        except Exception as e:
+            logger.error(f"Error updating adjustment distances: {e}")     
+
+    def get_strategy_spot_price(self):
+        """Get spot price from strategy mapping CSV for the latest active position"""
+        try:          
+            # Get logs directory
+            main_app_dir = os.path.dirname(os.path.abspath(__file__))
+            logs_dir = os.path.join(main_app_dir, "logs")
+            
+            # Create filename with current date
+            date_str = datetime.now(self.ist).strftime('%Y-%m-%d')
+            csv_file = os.path.join(logs_dir, f"{date_str}_strategy_mapping.csv")
+            
+            if not os.path.exists(csv_file):
+                logger.warning(f"Strategy mapping file not found: {csv_file}")
+                return None
+                
+            # Read the CSV
+            df = pd.read_csv(csv_file)
+            
+            # Filter active positions
+            active_positions = df[df['status'] == 'Active']
+            if active_positions.empty:
+                logger.warning("No active positions found in strategy mapping")
+                return None
+                
+            # Convert assigned_date to datetime for proper sorting
+            active_positions = active_positions.copy()
+            active_positions['assigned_date'] = pd.to_datetime(active_positions['assigned_date'])
+            
+            # Sort by assigned_date descending (newest first)
+            latest_position = active_positions.sort_values('assigned_date', ascending=False).iloc[0]
+            strategy_spot = latest_position['spot_price']
+            
+            return strategy_spot
+            
+        except Exception as e:
+            logger.error(f"Error reading strategy spot price: {e}")
+            return None
+
+    def update_adjustment_points_distance(self):
+        """Calculate and display points to CE/PE adjustment from spot"""
+        try:
+            # Get current spot price AND strategy spot price
+            current_spot = self.fetch_spot_price()
+            strategy_spot = self.get_strategy_spot_price()
+            
+            # Use strategy spot if available, otherwise current spot
+            spot = strategy_spot if strategy_spot is not None else current_spot
+            if spot is None:
+                return
+
+            # Store strategy spot for chart marking
+            self.strategy_spot_price = strategy_spot
+
+            # Get adjustment values from UI
+            ce_adj_text = self.ui.CESellingAdjustment.text().strip()
+            pe_adj_text = self.ui.PESellingAdjustment.text().strip()
+            
+            if not ce_adj_text or not pe_adj_text:
+                return
+                
+            try:
+                ce_adj = float(ce_adj_text)
+                pe_adj = float(pe_adj_text)
+                
+                # Calculate distances
+                points_to_ce = spot - ce_adj  # Positive if spot > CE adj
+                points_to_pe = pe_adj - spot  # Positive if PE adj > spot
+                
+                # Update the label
+                self.ui.AdjPointsFromSpot.setText(
+                    f"{points_to_ce:.0f} Points to CE Adjustment and {points_to_pe:.0f} Points to PE Adjustment"
+                )
+                
+                source = "Strategy" if strategy_spot else "Live"
+                
+            except ValueError:
+                pass
+                
+        except Exception as e:
+            logger.error(f"Error updating adjustment distances: {e}")               
