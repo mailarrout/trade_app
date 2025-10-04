@@ -56,7 +56,8 @@ class PayoffGraphTab(QWidget):
         # Poll every 10 seconds
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_graph)
-        self.timer.start(10_000)
+        # self.timer.start(10_000)
+        self.timer.start(300_000)
         logger.info("Started payoff graph update timer (10 seconds)")
 
         # first draw after short delay
@@ -225,7 +226,7 @@ class PayoffGraphTab(QWidget):
                     logger.error(f"Error processing position {pos.get('tsym', '')}: {e}")
                     continue
 
-            for opt in short_options:
+            for opt in short_options: 
                 # logger.info(f"  - {opt['type']} {opt['strike']} @ {opt['premium']:.2f}")
                 pass
 
@@ -473,6 +474,8 @@ class PayoffGraphTab(QWidget):
             self.ui.PESellingAdjustment.setText(f"{pe_adjustment:.2f}")
 
             logger.info(f"Adjustments calculated from strategy spot {strategy_spot:.2f}: CE={ce_adjustment:.2f}, PE={pe_adjustment:.2f}")
+
+            self.update_graph()
 
         except ValueError as e:
             logger.error(f"Invalid number input: {e}")

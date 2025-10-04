@@ -15377,3 +15377,11 @@ ValueError: time data 'nan' does not match format '%Y-%m-%d'
 2025-10-04 09:08:58,594 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
 2025-10-04 09:17:34,255 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
 2025-10-04 09:17:34,257 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:20:25,895 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:20:25,897 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:41:30,036 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:41:30,038 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:43:06,255 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:43:06,257 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 09:44:25,280 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 09:44:25,281 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)

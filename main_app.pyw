@@ -17,7 +17,7 @@ DEBUG_MODE = False  # True for detailed debugging
 # Choose default strategy from: 
 # "IBBM Intraday", "Intraday Straddle", "Monthly Straddle"
 DEFAULT_STRATEGY = "IBBM Intraday"
-ENABLE_AUTO_RUN = True  # Set to False if you don't want IBBM auto-execution
+ENABLE_IBBM_AUTO_RUN = True  # Set to False if you don't want IBBM auto-execution
 
 # ADD THESE NEW FLAGS TO CONTROL STRATEGY AUTO-RUN
 ENABLE_INTRADAY_STRADDLE_AUTO_RUN = False  # Set to False to prevent auto-run
@@ -307,7 +307,7 @@ class TradingApp:
                 self.strategies["IBBM Intraday"] = ibbm_strategy
                 
                 # Stop IBBM auto-run if disabled
-                if not self.enable_auto_run:
+                if not self.enable_ibbm_auto_run:
                     if hasattr(ibbm_strategy, 'strategy_timer') and ibbm_strategy.strategy_timer.isActive():
                         ibbm_strategy.strategy_timer.stop()
                         logger.info("IBBM strategy timer STOPPED")
@@ -372,7 +372,7 @@ class TradingApp:
                     logger.debug(f"Position manager set for {strategy_name}")
             
             self.current_strategy = DEFAULT_STRATEGY
-            self.enable_auto_run = ENABLE_AUTO_RUN
+            self.enable_auto_run = ENABLE_IBBM_AUTO_RUN
             logger.info(f"Current strategy set to: {self.current_strategy}")
             logger.info(f"IBBM auto-run enabled: {self.enable_auto_run}")
             logger.info(f"Intraday Straddle auto-run enabled: {ENABLE_INTRADAY_STRADDLE_AUTO_RUN}")
