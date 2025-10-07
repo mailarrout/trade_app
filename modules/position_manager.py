@@ -82,7 +82,7 @@ class PositionManager:
             if not self._is_market_hours():
                 current_time = datetime.now(IST).time()
                 # Market close exit window (if enabled)
-                if self._enable_market_close_exit and time(15, 15) <= current_time <= time(15, 16) and not self._exit_triggered:
+                if self._enable_market_close_exit and time(15, 20) <= current_time <= time(15, 21) and not self._exit_triggered:
                     logger.info("Market close time reached - triggering exit")
                     self.ui.log_message("System", "Market close time reached - exiting all positions")
                     self.exit_all_positions()
@@ -96,7 +96,7 @@ class PositionManager:
             self.update_all_clients_mtm()
 
             current_time = update_time.time()
-            if self._enable_market_close_exit and time(15, 15) <= current_time <= time(15, 16) and not self._exit_triggered:
+            if self._enable_market_close_exit and time(15, 20) <= current_time <= time(15, 21) and not self._exit_triggered:
                 logger.info("Market close time reached - triggering exit")
                 self.ui.log_message("System", "Market close time reached - exiting all positions")
                 self.exit_all_positions()

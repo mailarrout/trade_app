@@ -1,0 +1,1434 @@
+2025-10-07 09:15:02 IST - root - INFO - Application starting - Logging to logs\2025-10-07_app.log (Mode: INFO)
+2025-10-07 09:15:02 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-10-07 09:15:02 IST - root - INFO - Successfully imported TradingUI
+2025-10-07 09:15:10 IST - root - INFO - Successfully imported ClientManager
+2025-10-07 09:15:10 IST - root - INFO - Successfully imported PositionManager
+2025-10-07 09:15:10 IST - root - INFO - Successfully imported OptionLoader
+2025-10-07 09:15:12 IST - root - INFO - Successfully imported OpstraOptionLoader
+2025-10-07 09:15:17 IST - root - INFO - Successfully imported IBBMStrategy
+2025-10-07 09:15:17 IST - root - INFO - Successfully imported IntradayStraddleStrategy
+2025-10-07 09:15:17 IST - root - INFO - Successfully imported MonthlyStraddleStrategy
+2025-10-07 09:15:17 IST - root - INFO - Successfully imported ApiStatus
+2025-10-07 09:15:17 IST - root - INFO - Successfully imported GraphPlotTab
+2025-10-07 09:15:20 IST - root - INFO - Successfully imported PayoffGraphTab
+2025-10-07 09:15:20 IST - root - INFO - === APPLICATION STARTING ===
+2025-10-07 09:15:20 IST - root - INFO - === INITIALIZING TRADING APPLICATION ===
+2025-10-07 09:15:20 IST - root - INFO - Creating QApplication instance
+2025-10-07 09:15:20 IST - root - INFO - Loading Trading UI
+2025-10-07 09:15:20 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-10-07 09:15:22 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-10-07 09:15:20 IST
+2025-10-07 09:15:22 IST - root - INFO - Trading UI loaded successfully
+2025-10-07 09:15:22 IST - root - INFO - Setting up UI logging
+2025-10-07 09:15:22 IST - root - INFO - UI logging initialized successfully
+2025-10-07 09:15:22 IST - root - INFO - Initializing core managers
+2025-10-07 09:15:22 IST - root - INFO - Creating ClientManager instance
+2025-10-07 09:15:22 IST - modules.client_manager - INFO - ClientManager initialized at 2025-10-07 09:15:22 IST
+2025-10-07 09:15:22 IST - root - INFO - ClientManager initialized
+2025-10-07 09:15:22 IST - root - INFO - Creating PositionManager instance
+2025-10-07 09:15:22 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-10-07 09:15:22 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-10-06_strategy_mapping.csv
+2025-10-07 09:15:22 IST - modules.position_manager - INFO - Loaded 2 strategy mappings from 2025-10-06_strategy_mapping.csv
+2025-10-07 09:15:22 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-10-07 09:15:22 IST - root - INFO - PositionManager initialized
+2025-10-07 09:15:22 IST - root - INFO - Creating OptionLoader instance
+2025-10-07 09:15:22 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-10-07 09:15:22 IST
+2025-10-07 09:15:22 IST - root - INFO - OptionLoader initialized
+2025-10-07 09:15:22 IST - root - INFO - Wiring managers to UI
+2025-10-07 09:15:22 IST - root - INFO - Managers wired to UI successfully
+2025-10-07 09:15:22 IST - root - INFO - Initializing background services
+2025-10-07 09:15:22 IST - root - INFO - Starting API Status Monitor
+2025-10-07 09:15:23 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-07 09:15:23 IST - modules.api_status - INFO - API status monitoring started
+2025-10-07 09:15:23 IST - root - INFO - API Status Monitor started
+2025-10-07 09:15:23 IST - root - INFO - Creating OpstraOptionLoader instance
+2025-10-07 09:15:23 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-10-07 09:15:23 IST - root - INFO - OpstraOptionLoader initialized
+2025-10-07 09:15:23 IST - root - INFO - Initializing graph tabs
+2025-10-07 09:15:23 IST - root - INFO - Creating GraphPlotTab instance
+2025-10-07 09:15:23 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-10-07 09:15:23 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-10-07 09:15:23 IST - root - INFO - GraphPlotTab initialized
+2025-10-07 09:15:23 IST - root - INFO - Creating PayoffGraphTab instance
+2025-10-07 09:15:23 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab - Simplified Version
+2025-10-07 09:15:23 IST - modules.payoff_graph - INFO - Embedding matplotlib canvas into PayOffGraph QFrame
+2025-10-07 09:15:23 IST - modules.payoff_graph - INFO - Connected CalculateAdjustmentPointQPushButton
+2025-10-07 09:15:23 IST - modules.payoff_graph - INFO - Started payoff graph update timer (10 seconds)
+2025-10-07 09:15:23 IST - root - INFO - PayoffGraphTab initialized
+2025-10-07 09:15:23 IST - root - INFO - Scheduled payoff calculation
+2025-10-07 09:15:23 IST - root - INFO - Attempting auto-load of clients
+2025-10-07 09:15:23 IST - modules.interface_loader - INFO - Client loading initiated at 09:15:23 IST
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - Starting client loading process
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 09:15:23 IST
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.50 seconds
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-10-07 09:15:23 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-10-07 09:15:24 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-10-07 09:15:24 IST - modules.client_manager - INFO - Created new margin details file: 2025-10-07-day_available_margin_detl.csv with 1 clients
+2025-10-07 09:15:24 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-10-07 09:15:24 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-10-07 09:15:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:15:28 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-10-07 09:15:28 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-10-07 09:15:28 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-10-07 09:15:29 IST - modules.client_manager - INFO - Loaded 6 expiry dates in 0.47 seconds
+2025-10-07 09:15:29 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.47 seconds
+2025-10-07 09:15:29 IST - modules.interface_loader - INFO - Client loading process completed in 5.96 seconds
+2025-10-07 09:15:29 IST - root - INFO - Clients auto-loaded successfully
+2025-10-07 09:15:29 IST - root - INFO - Initializing trading strategies
+2025-10-07 09:15:29 IST - root - INFO - Creating IBBMStrategy instance
+2025-10-07 09:15:29 IST - modules.strategy_ibbm_actual - INFO - Initializing IBBMStrategy
+2025-10-07 09:15:29 IST - modules.strategy_ibbm_actual - INFO - No state file found for today - FRESH START
+2025-10-07 09:15:29 IST - modules.strategy_ibbm_actual - INFO - Strategy starting in WAITING state - ready for first entry
+2025-10-07 09:15:29 IST - modules.strategy_ibbm_actual - INFO - IBBMStrategy initialized successfully; state=WAITING
+2025-10-07 09:15:29 IST - root - INFO - IBBMStrategy initialized successfully
+2025-10-07 09:15:29 IST - root - INFO - Creating IntradayStraddleStrategy instance
+2025-10-07 09:15:29 IST - modules.strategy_intraday_straddle - INFO - No intraday straddle state file to recover.
+2025-10-07 09:15:29 IST - modules.strategy_intraday_straddle - INFO - IntradayStraddleStrategy initialized; state=WAITING
+2025-10-07 09:15:29 IST - root - INFO - Stopped strategy_timer for Intraday Straddle
+2025-10-07 09:15:29 IST - root - INFO - Stopped monitor_timer for Intraday Straddle
+2025-10-07 09:15:29 IST - root - INFO - Intraday Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-07 09:15:29 IST - root - INFO - IntradayStraddleStrategy initialized successfully
+2025-10-07 09:15:29 IST - root - INFO - Creating MonthlyStraddleStrategy instance
+2025-10-07 09:15:29 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-10-07 09:15:29 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-10-07 09:15:29 IST - root - INFO - Stopped strategy_timer for Monthly Straddle
+2025-10-07 09:15:29 IST - root - INFO - Monthly Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-07 09:15:29 IST - root - INFO - MonthlyStraddleStrategy initialized successfully
+2025-10-07 09:15:29 IST - root - INFO - Setting position manager references for strategies
+2025-10-07 09:15:29 IST - root - INFO - Current strategy set to: IBBM Intraday
+2025-10-07 09:15:29 IST - root - INFO - IBBM auto-run enabled: True
+2025-10-07 09:15:29 IST - root - INFO - Intraday Straddle auto-run enabled: False
+2025-10-07 09:15:29 IST - root - INFO - Monthly Straddle auto-run enabled: False
+2025-10-07 09:15:29 IST - root - INFO - Setting up UI signal connections
+2025-10-07 09:15:29 IST - root - INFO - Strategy combobox populated with all strategies
+2025-10-07 09:15:29 IST - root - INFO - Connected LoadOpstraPushButton
+2025-10-07 09:15:29 IST - root - INFO - Connected strategy execution controls
+2025-10-07 09:15:29 IST - root - INFO - IBBM auto-run enabled - strategy handles its own execution
+2025-10-07 09:15:29 IST - root - INFO - UI signal connections setup completed
+2025-10-07 09:15:29 IST - root - INFO - Application will auto-close at 2025-10-07 15:31:00 IST
+2025-10-07 09:15:29 IST - root - INFO - Scheduling strategy state recovery
+2025-10-07 09:15:29 IST - root - INFO - Strategy recovery scheduled for 15 seconds after startup
+2025-10-07 09:15:29 IST - root - INFO - === TRADING APPLICATION INITIALIZED SUCCESSFULLY ===
+2025-10-07 09:15:29 IST - root - INFO - UI displayed at 2025-10-07 09:15:29 IST
+2025-10-07 09:15:29 IST - root - INFO - === APPLICATION RUNNING ===
+2025-10-07 09:15:29 IST - root - INFO - Start time: 2025-10-07 09:15:29 IST
+2025-10-07 09:15:29 IST - modules.payoff_graph - INFO - Client set to: AMIYA RANJAN ROUT (ShoonyaApiPy)
+2025-10-07 09:15:30 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:15:30 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:15:30 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:15:30 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:15:30 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:15:30 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:15:30 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:15:31 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:15:31 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:15:31 IST - modules.payoff_graph - ERROR - No strategy spot price available
+2025-10-07 09:15:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:15:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:15:49 IST - root - INFO - === ATTEMPTING STRATEGY STATE RECOVERY ===
+2025-10-07 09:15:49 IST - root - INFO - Attempting recovery for: IBBM Intraday
+2025-10-07 09:15:49 IST - root - INFO - Calling attempt_recovery for IBBM Intraday
+2025-10-07 09:15:49 IST - modules.strategy_ibbm_actual - INFO - Attempting IBBM strategy recovery
+2025-10-07 09:15:49 IST - modules.strategy_ibbm_actual - INFO - Found state file with status: WAITING
+2025-10-07 09:15:49 IST - modules.strategy_ibbm_actual - INFO - State file exists but status is WAITING - FRESH START
+2025-10-07 09:15:49 IST - modules.strategy_ibbm_actual - INFO - IBBM strategy recovery failed
+2025-10-07 09:15:49 IST - root - INFO - Recovery for IBBM Intraday: FAILED
+2025-10-07 09:15:49 IST - root - INFO - Skipping recovery for Intraday Straddle - auto-run disabled
+2025-10-07 09:15:49 IST - root - INFO - Skipping recovery for Monthly Straddle - auto-run disabled
+2025-10-07 09:15:49 IST - root - INFO - === STRATEGY RECOVERY COMPLETED ===
+2025-10-07 09:15:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:16:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:17:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:18:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:19:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:20:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:20:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:20:24 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:20:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:20:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:21:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:22:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:23:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:24:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:25:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:25:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:25:24 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:25:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:25:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:26:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:27:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:28:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:29:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:30:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:30:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:30:24 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:30:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:30:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:31:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:32:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:33:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:34:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:35:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:35:24 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:35:24 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:35:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:35:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:36:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:37:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:38:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:39:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:39:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:39:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:39:31 IST - modules.option_loader - INFO - Starting option chain loading process
+2025-10-07 09:39:31 IST - modules.option_loader - INFO - Found 2 positions with non-zero quantity
+2025-10-07 09:39:31 IST - modules.option_loader - INFO - Updating spot price
+2025-10-07 09:39:32 IST - modules.option_loader - INFO - All expiries: ['07-Oct-2025', '14-Oct-2025', '20-Oct-2025', '28-Oct-2025', '04-Nov-2025', '25-Nov-2025']
+2025-10-07 09:39:32 IST - modules.option_loader - INFO - Current month expiries: [Timestamp('2025-10-07 00:00:00'), Timestamp('2025-10-14 00:00:00'), Timestamp('2025-10-20 00:00:00'), Timestamp('2025-10-28 00:00:00')]
+2025-10-07 09:39:32 IST - modules.option_loader - INFO - Monthly expiry resolved to: 28-OCT-2025
+2025-10-07 09:39:32 IST - modules.option_loader - INFO - Monthly FUTIDX Token: 52168
+2025-10-07 09:39:33 IST - modules.option_loader - INFO - Spot price updated: 25227.90, Rounded: 25250
+2025-10-07 09:39:33 IST - modules.option_loader - INFO - Loading option chain data
+2025-10-07 09:39:33 IST - modules.option_loader - INFO - Creating option chain table model
+2025-10-07 09:40:21 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:40:26 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-07 09:40:26 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:40:26 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-07 09:40:26 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:40:26 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:40:26 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:40:27 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-07_strategy_mapping.csv
+2025-10-07 09:40:27 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:40:27 IST - modules.option_loader - INFO - Position highlighting complete: 2 positions highlighted out of 2 total positions
+2025-10-07 09:40:27 IST - modules.option_loader - INFO - Option chain data loaded successfully
+2025-10-07 09:40:27 IST - modules.option_loader - INFO - Option chain loading completed in 56.31 seconds
+2025-10-07 09:40:31 IST - modules.option_loader - INFO - Attempting to place B order for NIFTY14OCT25P24000
+2025-10-07 09:40:33 IST - modules.option_loader - INFO - B order placed for NIFTY14OCT25P24000 at 09:40:31 IST
+2025-10-07 09:40:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:40:40 IST - modules.position_manager - INFO - Current NIFTY spot price: 25137.6
+2025-10-07 09:40:40 IST - modules.position_manager - INFO - Assigned strategy IBBM Intraday to NIFTY14OCT25P24000
+2025-10-07 09:40:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:40:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:41:03 IST - modules.option_loader - INFO - Attempting to place B order for NIFTY14OCT25C25800
+2025-10-07 09:41:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:41:11 IST - modules.position_manager - INFO - Current NIFTY spot price: 25141.35
+2025-10-07 09:41:11 IST - modules.position_manager - INFO - Assigned strategy IBBM Intraday to NIFTY14OCT25C25800
+2025-10-07 09:41:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:41:26 IST - modules.option_loader - INFO - B order placed for NIFTY14OCT25C25800 at 09:41:03 IST
+2025-10-07 09:41:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:41:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:41:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:42:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:42:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:42:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:42:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:42:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:43:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:44:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:44:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:44:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:44:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:44:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:45:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:45:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - Processing 4 positions from AMIYA RANJAN ROUT
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - Total positions: 4
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:45:25 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - === DEBUG STRATEGY FLOW ===
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - Current time: 2025-10-07 09:45:29.292034+05:30
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - Strategy state: WAITING
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - CE Position: {'symbol': None, 'token': None, 'ltp': 0.0, 'entry_price': 0.0, 'initial_sl': 0.0, 'current_sl': 0.0, 'sl_hit': False, 'max_profit_price': 0.0, 'trailing_step': 0, 'real_entered': False, 'order_id': None}
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - PE Position: {'symbol': None, 'token': None, 'ltp': 0.0, 'entry_price': 0.0, 'initial_sl': 0.0, 'current_sl': 0.0, 'sl_hit': False, 'max_profit_price': 0.0, 'trailing_step': 0, 'real_entered': False, 'order_id': None}
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - Market data - Close: None, MA12: None, Trend: None
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - === END DEBUG ===
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - 9:45 AM entry condition met
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: True
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - === Running Strategy Cycle ===
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - === Running Strategy Cycle ===
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - ERROR - Insufficient data points for MA12. Got 7, need 12
+2025-10-07 09:45:29 IST - modules.strategy_ibbm_actual - ERROR - Failed to get market data for strategy cycle
+2025-10-07 09:45:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:45:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:45:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:46:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:46:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:47:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:47:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:48:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:48:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:49:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:49:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:50:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:50:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:50:24 IST - modules.payoff_graph - INFO - Processing 4 positions from AMIYA RANJAN ROUT
+2025-10-07 09:50:25 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:50:25 IST - modules.payoff_graph - INFO - Total positions: 4
+2025-10-07 09:50:25 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:50:25 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:50:26 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:50:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:50:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:50:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:50:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:51:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:51:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:51:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:51:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:51:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:51:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:53:04 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:53:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:53:36 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:53:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:54:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:54:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:54:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:54:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:54:41 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:54:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:55:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:55:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - Processing 4 positions from AMIYA RANJAN ROUT
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - Total positions: 4
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 09:55:25 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 09:55:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:55:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:55:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:55:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:56:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:56:54 IST - modules.option_loader - INFO - Starting option chain loading process
+2025-10-07 09:56:54 IST - modules.option_loader - INFO - Found 4 positions with non-zero quantity
+2025-10-07 09:56:54 IST - modules.option_loader - INFO - Updating spot price
+2025-10-07 09:56:55 IST - modules.option_loader - INFO - All expiries: ['07-Oct-2025', '14-Oct-2025', '20-Oct-2025', '28-Oct-2025', '04-Nov-2025', '25-Nov-2025']
+2025-10-07 09:56:55 IST - modules.option_loader - INFO - Current month expiries: [Timestamp('2025-10-07 00:00:00'), Timestamp('2025-10-14 00:00:00'), Timestamp('2025-10-20 00:00:00'), Timestamp('2025-10-28 00:00:00')]
+2025-10-07 09:56:55 IST - modules.option_loader - INFO - Monthly expiry resolved to: 28-OCT-2025
+2025-10-07 09:56:55 IST - modules.option_loader - INFO - Monthly FUTIDX Token: 52168
+2025-10-07 09:56:56 IST - modules.option_loader - INFO - Spot price updated: 25285.50, Rounded: 25300
+2025-10-07 09:56:56 IST - modules.option_loader - INFO - Loading option chain data
+2025-10-07 09:56:56 IST - modules.option_loader - INFO - Creating option chain table model
+2025-10-07 09:57:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:57:52 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:57:52 IST - modules.option_loader - INFO - Position highlighting complete: 3 positions highlighted out of 4 total positions
+2025-10-07 09:57:52 IST - modules.option_loader - INFO - Option chain data loaded successfully
+2025-10-07 09:57:52 IST - modules.option_loader - INFO - Option chain loading completed in 57.97 seconds
+2025-10-07 09:57:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:33 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:58:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:58:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:59:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:59:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:59:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 09:59:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:59:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 09:59:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:00:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:00:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - Processing 4 positions from AMIYA RANJAN ROUT
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - Total positions: 4
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - Strangle identified: PE 25100.0 @ 113.10, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 10:00:26 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 10:00:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:00:30 IST - modules.option_loader - INFO - Attempting to place B order for NIFTY14OCT25P25100
+2025-10-07 10:00:32 IST - modules.option_loader - INFO - B order placed for NIFTY14OCT25P25100 at 10:00:30 IST
+2025-10-07 10:00:34 IST - modules.option_loader - INFO - Attempting to place S order for NIFTY14OCT25P25200
+2025-10-07 10:00:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:00:36 IST - modules.position_manager - INFO - Cleaned up 1 inactive strategy mappings
+2025-10-07 10:00:42 IST - modules.position_manager - INFO - Current NIFTY spot price: 25184.3
+2025-10-07 10:00:42 IST - modules.position_manager - INFO - Assigned strategy IBBM Intraday to NIFTY14OCT25P25200
+2025-10-07 10:00:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:01:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:01:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:01:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:01:35 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:01:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:01:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:02:05 IST - modules.option_loader - INFO - S order placed for NIFTY14OCT25P25200 at 10:00:34 IST
+2025-10-07 10:02:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:02:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:02:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:02:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:03:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:03:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:03:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:03:34 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:03:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:03:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:04:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:04:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:04:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:04:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:04:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:05:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:05:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:05:26 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 10:05:26 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 10:05:26 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 10:05:26 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 10:05:26 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 10:05:27 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 10:05:29 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:05:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:05:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:06:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:06:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:06:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:06:34 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:06:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:06:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:07:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:07:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:07:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:07:34 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 10:07:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 10:07:45 IST - root - INFO - === APPLICATION EXITED NORMALLY ===
+2025-10-07 12:50:27 IST - root - INFO - Application starting - Logging to logs\2025-10-07_app.log (Mode: INFO)
+2025-10-07 12:50:27 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-10-07 12:50:27 IST - root - INFO - Successfully imported TradingUI
+2025-10-07 12:50:28 IST - root - INFO - Successfully imported ClientManager
+2025-10-07 12:50:28 IST - root - INFO - Successfully imported PositionManager
+2025-10-07 12:50:28 IST - root - INFO - Successfully imported OptionLoader
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported OpstraOptionLoader
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported IBBMStrategy
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported IntradayStraddleStrategy
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported MonthlyStraddleStrategy
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported ApiStatus
+2025-10-07 12:50:29 IST - root - INFO - Successfully imported GraphPlotTab
+2025-10-07 12:50:30 IST - root - INFO - Successfully imported PayoffGraphTab
+2025-10-07 12:50:30 IST - root - INFO - === APPLICATION STARTING ===
+2025-10-07 12:50:30 IST - root - INFO - === INITIALIZING TRADING APPLICATION ===
+2025-10-07 12:50:30 IST - root - INFO - Creating QApplication instance
+2025-10-07 12:50:30 IST - root - INFO - Loading Trading UI
+2025-10-07 12:50:30 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-10-07 12:50:31 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-10-07 12:50:30 IST
+2025-10-07 12:50:31 IST - root - INFO - Trading UI loaded successfully
+2025-10-07 12:50:31 IST - root - INFO - Setting up UI logging
+2025-10-07 12:50:31 IST - root - INFO - UI logging initialized successfully
+2025-10-07 12:50:31 IST - root - INFO - Initializing core managers
+2025-10-07 12:50:31 IST - root - INFO - Creating ClientManager instance
+2025-10-07 12:50:31 IST - modules.client_manager - INFO - ClientManager initialized at 2025-10-07 12:50:31 IST
+2025-10-07 12:50:31 IST - root - INFO - ClientManager initialized
+2025-10-07 12:50:31 IST - root - INFO - Creating PositionManager instance
+2025-10-07 12:50:31 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-10-07 12:50:31 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-10-07_strategy_mapping.csv
+2025-10-07 12:50:31 IST - modules.position_manager - INFO - Loaded 4 strategy mappings from 2025-10-07_strategy_mapping.csv
+2025-10-07 12:50:31 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-10-07 12:50:31 IST - root - INFO - PositionManager initialized
+2025-10-07 12:50:31 IST - root - INFO - Creating OptionLoader instance
+2025-10-07 12:50:31 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-10-07 12:50:31 IST
+2025-10-07 12:50:31 IST - root - INFO - OptionLoader initialized
+2025-10-07 12:50:31 IST - root - INFO - Wiring managers to UI
+2025-10-07 12:50:31 IST - root - INFO - Managers wired to UI successfully
+2025-10-07 12:50:31 IST - root - INFO - Initializing background services
+2025-10-07 12:50:31 IST - root - INFO - Starting API Status Monitor
+2025-10-07 12:50:32 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-07 12:50:32 IST - modules.api_status - INFO - API status monitoring started
+2025-10-07 12:50:32 IST - root - INFO - API Status Monitor started
+2025-10-07 12:50:32 IST - root - INFO - Creating OpstraOptionLoader instance
+2025-10-07 12:50:32 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-10-07 12:50:32 IST - root - INFO - OpstraOptionLoader initialized
+2025-10-07 12:50:32 IST - root - INFO - Initializing graph tabs
+2025-10-07 12:50:32 IST - root - INFO - Creating GraphPlotTab instance
+2025-10-07 12:50:32 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-10-07 12:50:32 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-10-07 12:50:32 IST - root - INFO - GraphPlotTab initialized
+2025-10-07 12:50:32 IST - root - INFO - Creating PayoffGraphTab instance
+2025-10-07 12:50:32 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab - Simplified Version
+2025-10-07 12:50:32 IST - modules.payoff_graph - INFO - Embedding matplotlib canvas into PayOffGraph QFrame
+2025-10-07 12:50:32 IST - modules.payoff_graph - INFO - Connected CalculateAdjustmentPointQPushButton
+2025-10-07 12:50:32 IST - modules.payoff_graph - INFO - Started payoff graph update timer (10 seconds)
+2025-10-07 12:50:32 IST - root - INFO - PayoffGraphTab initialized
+2025-10-07 12:50:32 IST - root - INFO - Scheduled payoff calculation
+2025-10-07 12:50:32 IST - root - INFO - Attempting auto-load of clients
+2025-10-07 12:50:32 IST - modules.interface_loader - INFO - Client loading initiated at 12:50:32 IST
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - Starting client loading process
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 12:50:32 IST
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.45 seconds
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-10-07 12:50:32 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-10-07 12:50:33 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-10-07 12:50:33 IST - modules.client_manager - INFO - Appended margin details for 1 clients to 2025-10-07-day_available_margin_detl.csv
+2025-10-07 12:50:33 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-10-07 12:50:33 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-10-07 12:50:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:50:42 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-10-07 12:50:42 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-10-07 12:50:42 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-10-07 12:50:43 IST - modules.client_manager - INFO - Loaded 6 expiry dates in 0.25 seconds
+2025-10-07 12:50:43 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.25 seconds
+2025-10-07 12:50:43 IST - modules.interface_loader - INFO - Client loading process completed in 10.65 seconds
+2025-10-07 12:50:43 IST - root - INFO - Clients auto-loaded successfully
+2025-10-07 12:50:43 IST - root - INFO - Initializing trading strategies
+2025-10-07 12:50:43 IST - root - INFO - Creating IBBMStrategy instance
+2025-10-07 12:50:43 IST - modules.strategy_ibbm_actual - INFO - Initializing IBBMStrategy
+2025-10-07 12:50:43 IST - modules.strategy_ibbm_actual - INFO - Found state file with status: WAITING
+2025-10-07 12:50:43 IST - modules.strategy_ibbm_actual - INFO - State file exists but status is WAITING - FRESH START
+2025-10-07 12:50:43 IST - modules.strategy_ibbm_actual - INFO - Strategy starting in WAITING state - ready for first entry
+2025-10-07 12:50:43 IST - modules.strategy_ibbm_actual - INFO - IBBMStrategy initialized successfully; state=WAITING
+2025-10-07 12:50:43 IST - root - INFO - IBBMStrategy initialized successfully
+2025-10-07 12:50:43 IST - root - INFO - Creating IntradayStraddleStrategy instance
+2025-10-07 12:50:43 IST - modules.strategy_intraday_straddle - INFO - No intraday straddle state file to recover.
+2025-10-07 12:50:43 IST - modules.strategy_intraday_straddle - INFO - IntradayStraddleStrategy initialized; state=WAITING
+2025-10-07 12:50:43 IST - root - INFO - Stopped strategy_timer for Intraday Straddle
+2025-10-07 12:50:43 IST - root - INFO - Stopped monitor_timer for Intraday Straddle
+2025-10-07 12:50:43 IST - root - INFO - Intraday Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-07 12:50:43 IST - root - INFO - IntradayStraddleStrategy initialized successfully
+2025-10-07 12:50:43 IST - root - INFO - Creating MonthlyStraddleStrategy instance
+2025-10-07 12:50:43 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-10-07 12:50:43 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-10-07 12:50:43 IST - root - INFO - Stopped strategy_timer for Monthly Straddle
+2025-10-07 12:50:43 IST - root - INFO - Monthly Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-07 12:50:43 IST - root - INFO - MonthlyStraddleStrategy initialized successfully
+2025-10-07 12:50:43 IST - root - INFO - Setting position manager references for strategies
+2025-10-07 12:50:43 IST - root - INFO - Current strategy set to: IBBM Intraday
+2025-10-07 12:50:43 IST - root - INFO - IBBM auto-run enabled: True
+2025-10-07 12:50:43 IST - root - INFO - Intraday Straddle auto-run enabled: False
+2025-10-07 12:50:43 IST - root - INFO - Monthly Straddle auto-run enabled: False
+2025-10-07 12:50:43 IST - root - INFO - Setting up UI signal connections
+2025-10-07 12:50:43 IST - root - INFO - Strategy combobox populated with all strategies
+2025-10-07 12:50:43 IST - root - INFO - Connected LoadOpstraPushButton
+2025-10-07 12:50:43 IST - root - INFO - Connected strategy execution controls
+2025-10-07 12:50:43 IST - root - INFO - IBBM auto-run enabled - strategy handles its own execution
+2025-10-07 12:50:43 IST - root - INFO - UI signal connections setup completed
+2025-10-07 12:50:43 IST - root - INFO - Application will auto-close at 2025-10-07 15:31:00 IST
+2025-10-07 12:50:43 IST - root - INFO - Scheduling strategy state recovery
+2025-10-07 12:50:43 IST - root - INFO - Strategy recovery scheduled for 15 seconds after startup
+2025-10-07 12:50:43 IST - root - INFO - === TRADING APPLICATION INITIALIZED SUCCESSFULLY ===
+2025-10-07 12:50:43 IST - root - INFO - UI displayed at 2025-10-07 12:50:43 IST
+2025-10-07 12:50:43 IST - root - INFO - === APPLICATION RUNNING ===
+2025-10-07 12:50:43 IST - root - INFO - Start time: 2025-10-07 12:50:43 IST
+2025-10-07 12:50:44 IST - modules.payoff_graph - INFO - Client set to: AMIYA RANJAN ROUT (ShoonyaApiPy)
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 12:50:45 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 12:50:49 IST - modules.payoff_graph - INFO - Adjustments calculated from strategy spot 25184.30: CE=25112.18, PE=25256.42
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 12:50:50 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 12:50:50 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:51:00 IST - root - INFO - === ATTEMPTING STRATEGY STATE RECOVERY ===
+2025-10-07 12:51:00 IST - root - INFO - Attempting recovery for: IBBM Intraday
+2025-10-07 12:51:00 IST - root - INFO - Calling attempt_recovery for IBBM Intraday
+2025-10-07 12:51:00 IST - modules.strategy_ibbm_actual - INFO - Attempting IBBM strategy recovery
+2025-10-07 12:51:00 IST - modules.strategy_ibbm_actual - INFO - Found state file with status: WAITING
+2025-10-07 12:51:00 IST - modules.strategy_ibbm_actual - INFO - State file exists but status is WAITING - FRESH START
+2025-10-07 12:51:00 IST - modules.strategy_ibbm_actual - INFO - IBBM strategy recovery failed
+2025-10-07 12:51:00 IST - root - INFO - Recovery for IBBM Intraday: FAILED
+2025-10-07 12:51:00 IST - root - INFO - Skipping recovery for Intraday Straddle - auto-run disabled
+2025-10-07 12:51:00 IST - root - INFO - Skipping recovery for Monthly Straddle - auto-run disabled
+2025-10-07 12:51:00 IST - root - INFO - === STRATEGY RECOVERY COMPLETED ===
+2025-10-07 12:51:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:51:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:51:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:51:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:51:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:52:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:52:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:52:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:52:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:52:53 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:53:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:53:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:53:38 IST - modules.opstra_option_loader - INFO - Attempt 1 to fetch option chain for 07OCT2025
+2025-10-07 12:53:45 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-10-07 12:53:51 IST - modules.opstra_option_loader - INFO - Login successful
+2025-10-07 12:54:54 IST - modules.opstra_option_loader - INFO - Selecting expiry: 07OCT2025
+2025-10-07 12:54:57 IST - modules.opstra_option_loader - WARNING - 'All Strikes' button not found
+2025-10-07 12:54:57 IST - modules.opstra_option_loader - INFO - Extracted 87 rows from option chain
+2025-10-07 12:54:57 IST - modules.opstra_option_loader - INFO - Option chain saved: logs\20251007-option_chain_07OCT2025_all.csv
+2025-10-07 12:55:00 IST - modules.opstra_option_loader - INFO - Quote: 25177.45, Rounded: 25200
+2025-10-07 12:55:00 IST - modules.opstra_option_loader - INFO - Match found at row 47: StrikePrice 25200.0
+2025-10-07 12:55:00 IST - modules.opstra_option_loader - INFO - Option chain loaded at 2025-10-07 08:25:00 (took 82.09 seconds)
+2025-10-07 12:55:02 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:55:02 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:55:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 12:55:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 12:55:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:55:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:56:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:56:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:56:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:56:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:56:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:57:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:57:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:57:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:57:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 12:57:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 12:58:02 IST - modules.opstra_option_loader - INFO - Attempt 1 to fetch option chain for 14OCT2025
+2025-10-07 12:58:04 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-10-07 12:58:16 IST - modules.opstra_option_loader - INFO - Login successful
+2025-10-07 12:59:55 IST - modules.opstra_option_loader - WARNING - 'All Strikes' button not found
+2025-10-07 12:59:55 IST - modules.opstra_option_loader - INFO - Extracted 92 rows from option chain
+2025-10-07 12:59:55 IST - modules.opstra_option_loader - INFO - Option chain saved: logs\20251007-option_chain_14OCT2025_all.csv
+2025-10-07 12:59:58 IST - modules.opstra_option_loader - INFO - Quote: 25174.95, Rounded: 25150
+2025-10-07 12:59:58 IST - modules.opstra_option_loader - INFO - Match found at row 51: StrikePrice 25150.0
+2025-10-07 12:59:58 IST - modules.opstra_option_loader - INFO - Option chain loaded at 2025-10-07 08:29:58 (took 116.39 seconds)
+2025-10-07 13:00:00 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:00:10 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:00:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:00:33 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 13:00:33 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:00:33 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 13:00:33 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:00:33 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:00:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:00:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:00:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:00:53 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:01:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:01:33 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:01:46 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:01:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:02:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:02:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:02:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:02:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:03:03 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:03:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:03:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:03:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:04:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:04:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:04:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:04:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:04:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:05:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:05:35 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 13:05:35 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:05:35 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 13:05:35 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:05:35 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:05:36 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:05:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:05:46 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:05:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:06:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:06:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:06:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:06:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:07:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:07:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:07:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:07:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:07:43 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:08:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:08:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:08:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:08:46 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:08:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:09:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:09:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:09:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:09:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:09:53 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:10:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:10:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:10:35 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 13:10:35 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:10:35 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 13:10:35 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:10:35 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:10:36 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:10:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:10:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:11:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:11:13 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:11:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:11:44 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:11:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:12:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:12:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:12:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:12:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:13:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:13:23 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:13:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:13:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:14:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:14:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:14:43 IST - modules.strategy_ibbm_actual - INFO - Should enter: False
+2025-10-07 13:14:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:14:53 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:15:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:15:33 IST - modules.payoff_graph - INFO - Processing 5 positions from AMIYA RANJAN ROUT
+2025-10-07 13:15:33 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:15:33 IST - modules.payoff_graph - INFO - Total positions: 5
+2025-10-07 13:15:33 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:15:33 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:15:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:15:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Monitoring minute entry triggered at 13:15:45.087242
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Should enter: True
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - === Running Strategy Cycle ===
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - === Running Strategy Cycle ===
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25197.75, MA12=25173.57, Trend=UP
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Starting position taking process
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Strategy 'IBBM Intraday' set before order placement
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Getting expiry dates from dropdown, today is 2025-10-07
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Other weekday detected, selecting next week expiry: 2025-10-14
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Selecting options for expiry: 14-OCT-2025
+2025-10-07 13:15:45 IST - modules.strategy_ibbm_actual - INFO - Looking for options in strike range: 25000 to 25400, premium range: 70.0 to 100.0
+2025-10-07 13:15:54 IST - modules.strategy_ibbm_actual - INFO - Selected CE: NIFTY14OCT25C25300 (Strike=25300.0, Premium=85.95)
+2025-10-07 13:15:54 IST - modules.strategy_ibbm_actual - INFO - Selected PE: NIFTY14OCT25P25200 (Strike=25200.0, Premium=95.20)
+2025-10-07 13:15:54 IST - modules.strategy_ibbm_actual - INFO - Placing SELL order for CE: NIFTY14OCT25C25300
+2025-10-07 13:15:54 IST - modules.strategy_ibbm_actual - INFO - Placing order: SELL NIFTY14OCT25C25300 (token: 42693)
+2025-10-07 13:15:54 IST - modules.strategy_ibbm_actual - INFO - Order placed successfully: S NIFTY14OCT25C25300
+2025-10-07 13:15:56 IST - modules.strategy_ibbm_actual - INFO - Placing SELL order for PE: NIFTY14OCT25P25200
+2025-10-07 13:15:56 IST - modules.strategy_ibbm_actual - INFO - Placing order: SELL NIFTY14OCT25P25200 (token: 42690)
+2025-10-07 13:15:57 IST - modules.strategy_ibbm_actual - INFO - Order placed successfully: S NIFTY14OCT25P25200
+2025-10-07 13:15:57 IST - modules.strategy_ibbm_actual - INFO - Waiting for positions to be updated in broker system...
+2025-10-07 13:16:02 IST - modules.strategy_ibbm_actual - INFO - Registered IBBM strategy positions with PositionManager
+2025-10-07 13:16:02 IST - modules.strategy_ibbm_actual - INFO - Validating positions after order placement
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Found PE position: NIFTY14OCT25P25200 @ 112.35
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Found CE position: NIFTY14OCT25C25300 @ 85.05
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Both CE and PE positions validated successfully
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Positions opened: CE=NIFTY14OCT25C25300 (Entry=85.05, SL=102.10), PE=NIFTY14OCT25P25200 (Entry=112.35, SL=134.85)
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 13:16:03 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25197.30, MA12=25173.53, Trend=UP
+2025-10-07 13:16:04 IST - modules.strategy_ibbm_actual - INFO - PE trailing SL updated to step 1: 105.40
+2025-10-07 13:16:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:20:33 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:20:33 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:20:33 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:20:33 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:20:33 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:20:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:25:33 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:25:33 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:25:33 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:25:33 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:25:33 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:25:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:27:38 IST - modules.api_status - WARNING - API went OFFLINE: Timeout after 5 seconds
+2025-10-07 13:28:02 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:30:36 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:34:22 IST - modules.position_manager - INFO - Current NIFTY spot price: 25179.1
+2025-10-07 13:34:22 IST - modules.position_manager - INFO - Assigned strategy IBBM Intraday to NIFTY14OCT25C25300
+2025-10-07 13:34:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:34:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:35:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:35:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:35:36 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:35:36 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:35:36 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:35:36 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:35:36 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:35:37 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:35:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:36:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:36:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:36:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:37:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:37:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:38:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:38:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:38:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:39:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:39:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:39:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:40:04 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:40:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:40:40 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:40:40 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:40:40 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:40:40 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:40:40 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:40:41 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:40:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:41:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:41:44 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:42:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:42:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:42:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:43:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:43:34 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:43:54 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:44:14 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:44:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:44:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:45:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:45:39 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:45:39 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:45:39 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:45:39 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:45:39 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:45:40 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - === DEBUG STRATEGY FLOW ===
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Current time: 2025-10-07 13:45:43.306804+05:30
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Strategy state: ACTIVE
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - CE Position: {'symbol': 'NIFTY14OCT25C25300', 'token': '42693', 'ltp': 85.6, 'entry_price': 85.05, 'initial_sl': 102.1, 'current_sl': 102.1, 'sl_hit': False, 'max_profit_price': 85.05, 'trailing_step': 0, 'real_entered': True, 'order_id': None}
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - PE Position: {'symbol': 'NIFTY14OCT25P25200', 'token': '42690', 'ltp': 95.8, 'entry_price': 112.35, 'initial_sl': 134.85, 'current_sl': 105.4, 'sl_hit': False, 'max_profit_price': 95.8, 'trailing_step': 1, 'real_entered': True, 'order_id': None}
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Market data - Close: 25197.30078125, MA12: 25173.533528645832, Trend: up
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - === END DEBUG ===
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25214.05, MA12=25191.03, Trend=UP
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 13:45:43 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25214.05, MA12=25191.03, Trend=UP
+2025-10-07 13:45:44 IST - modules.strategy_ibbm_actual - INFO - PE trailing SL updated to step 2: 103.95
+2025-10-07 13:45:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:46:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:46:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:46:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:47:20 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:47:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:48:02 IST - modules.opstra_option_loader - INFO - Attempt 1 to fetch option chain for 14OCT2025
+2025-10-07 13:48:05 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-10-07 13:50:05 IST - modules.opstra_option_loader - ERROR - Attempt 1 failed: HTTPConnectionPool(host='localhost', port=54030): Read timed out. (read timeout=120)
+2025-10-07 13:52:05 IST - modules.opstra_option_loader - INFO - Retrying in 10 seconds...
+2025-10-07 13:52:15 IST - modules.opstra_option_loader - INFO - Attempt 2 to fetch option chain for 14OCT2025
+2025-10-07 13:52:18 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-10-07 13:52:35 IST - modules.opstra_option_loader - INFO - Login successful
+2025-10-07 13:54:11 IST - modules.opstra_option_loader - WARNING - 'All Strikes' button not found
+2025-10-07 13:54:11 IST - modules.opstra_option_loader - INFO - Extracted 92 rows from option chain
+2025-10-07 13:54:11 IST - modules.opstra_option_loader - INFO - Option chain saved: logs\20251007-option_chain_14OCT2025_all.csv
+2025-10-07 13:54:15 IST - modules.opstra_option_loader - INFO - Quote: 25203.55, Rounded: 25200
+2025-10-07 13:54:15 IST - modules.opstra_option_loader - INFO - Match found at row 52: StrikePrice 25200.0
+2025-10-07 13:54:15 IST - modules.opstra_option_loader - INFO - Option chain loaded at 2025-10-07 09:24:15 (took 373.53 seconds)
+2025-10-07 13:54:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:54:29 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:54:29 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:54:29 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:54:29 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:54:29 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:54:30 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:54:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:54:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:55:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 13:55:45 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 13:55:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:56:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:56:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:56:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:57:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:57:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:58:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:58:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:58:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:59:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 13:59:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:00:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:00:16 IST - modules.position_manager - INFO - Cleaned up 1 inactive strategy mappings
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:00:36 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:00:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:01:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:01:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:02:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:02:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:02:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:03:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:03:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:03:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:04:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:04:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:04:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:05:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:05:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:05:37 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:05:37 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:05:37 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:05:37 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:05:37 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:05:38 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:05:45 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:06:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:06:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:07:05 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:07:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:07:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:08:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:08:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:08:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:09:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:10:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:11:06 IST - modules.position_manager - ERROR - Error getting current positions: ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))
+2025-10-07 14:11:06 IST - modules.position_manager - ERROR - Error checking position activity: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//PositionBook (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B74D0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:06 IST - modules.position_manager - ERROR - Error checking position activity: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//PositionBook (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B5E50>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:06 IST - modules.position_manager - ERROR - Error processing client AMIYA RANJAN ROUT: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//PositionBook (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B5950>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\util\connection.py", line 72, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 962, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 1042, in _validate_conn
+    conn.connect()
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connection.py", line 363, in connect
+    self.sock = conn = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x000002A1E00B5950>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\urllib3\util\retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//PositionBook (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B5950>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\position_manager.py", line 181, in update_all_clients_mtm
+    positions = client.get_positions() or []
+                ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\NorenRestApiPy\NorenApi.py", line 1035, in get_positions
+    res = requests.post(url, data=payload)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\requests\adapters.py", line 700, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//PositionBook (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B5950>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:07 IST - modules.price_chart - ERROR - LTP fetch error for token 42687: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E29B4ED0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:07 IST - modules.price_chart - ERROR - LTP fetch error for token 42690: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E29B6ED0>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:07 IST - modules.payoff_graph - ERROR - Failed to fetch spot price: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1E00B5C50>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:07 IST - modules.api_status - WARNING - API went OFFLINE: Connection error
+2025-10-07 14:11:07 IST - modules.price_chart - ERROR - LTP fetch error for token 42687: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1DFDCEA90>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:07 IST - modules.price_chart - ERROR - LTP fetch error for token 42690: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1DFDCF790>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:12 IST - modules.price_chart - ERROR - LTP fetch error for token 42687: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1DFDCE350>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:12 IST - modules.price_chart - ERROR - LTP fetch error for token 42690: HTTPSConnectionPool(host='api.shoonya.com', port=443): Max retries exceeded with url: /NorenWClientTP//GetQuotes (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x000002A1DFDCDF50>: Failed to establish a new connection: [Errno 11001] getaddrinfo failed'))
+2025-10-07 14:11:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:11:35 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-07 14:11:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:12:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:12:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:12:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:13:25 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:13:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:14:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:14:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:14:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:15:15 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:15:33 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:15:33 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:15:33 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:15:33 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:15:33 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:15:34 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:15:35 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:15:47 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 14:15:47 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25217.85, MA12=25201.55, Trend=UP
+2025-10-07 14:15:47 IST - modules.strategy_ibbm_actual - INFO - Fetching market data for ^NSEI
+2025-10-07 14:15:47 IST - modules.strategy_ibbm_actual - INFO - Market data: Close=25217.85, MA12=25201.55, Trend=UP
+2025-10-07 14:15:55 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:16:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:16:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:17:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:17:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:17:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:18:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:18:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:19:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:19:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:20:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:20:35 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:20:35 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:20:35 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:20:35 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:20:35 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:20:37 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:20:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:21:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:21:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:22:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:22:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:23:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:23:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:24:20 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:24:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:25:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:25:34 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:25:34 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:25:34 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:25:34 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:25:34 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:25:35 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:25:40 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:26:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:26:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:26:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:27:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:27:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:28:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:28:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:29:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:29:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:30:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:30:51 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:30:51 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:30:51 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:30:51 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:30:51 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:30:52 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:30:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:31:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:31:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:32:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:32:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:33:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:33:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:34:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:34:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:35:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:35:48 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:35:48 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:35:48 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:35:48 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:35:48 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:35:49 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:35:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:36:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:36:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:37:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:37:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:38:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:38:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:39:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:39:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:40:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:40:47 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:40:47 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:40:47 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:40:47 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:40:47 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:40:48 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:41:00 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:41:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:41:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:42:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:42:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:42:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:43:26 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:43:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:44:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:44:46 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:45:06 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:45:34 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:45:34 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:45:34 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:45:34 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:45:34 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:45:36 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:45:38 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - === DEBUG STRATEGY FLOW ===
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - Current time: 2025-10-07 14:45:55.602620+05:30
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - Strategy state: ACTIVE
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - CE Position: {'symbol': 'NIFTY14OCT25C25300', 'token': '42693', 'ltp': 89.8, 'entry_price': 85.05, 'initial_sl': 102.1, 'current_sl': 102.1, 'sl_hit': False, 'max_profit_price': 85.05, 'trailing_step': 0, 'real_entered': True, 'order_id': None}
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - PE Position: {'symbol': 'NIFTY14OCT25P25200', 'token': '42690', 'ltp': 88.0, 'entry_price': 112.35, 'initial_sl': 134.85, 'current_sl': 103.95, 'sl_hit': False, 'max_profit_price': 86.6, 'trailing_step': 2, 'real_entered': True, 'order_id': None}
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - Market data - Close: 25217.849609375, MA12: 25201.549967447918, Trend: up
+2025-10-07 14:45:55 IST - modules.strategy_ibbm_actual - INFO - === END DEBUG ===
+2025-10-07 14:45:56 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:46:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:46:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:47:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:47:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:48:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:48:36 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:48:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:49:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:49:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:50:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:50:52 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:50:52 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:50:52 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:50:52 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:50:52 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:50:54 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:50:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:51:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:51:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:52:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:52:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:53:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:53:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:53:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:54:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:54:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:55:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:55:49 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 14:55:49 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 14:55:49 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 14:55:49 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 14:55:49 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 14:55:50 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 14:55:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:56:29 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:56:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:57:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:57:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:58:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:58:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:58:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:59:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:59:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 14:59:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:00:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:00:49 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:00:49 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:00:49 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:00:49 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:00:49 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 15:00:50 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 15:00:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:01:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:01:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:02:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:02:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:03:08 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:03:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:03:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:04:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:04:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:05:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:05:42 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:05:42 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:05:42 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:05:42 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:05:42 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 15:05:43 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 15:05:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:06:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:06:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:06:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:07:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:07:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:08:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:08:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:09:22 IST - modules.opstra_option_loader - INFO - Attempt 1 to fetch option chain for 14OCT2025
+2025-10-07 15:09:26 IST - modules.opstra_option_loader - INFO - Logging into Opstra...
+2025-10-07 15:09:39 IST - modules.opstra_option_loader - INFO - Login successful
+2025-10-07 15:10:40 IST - modules.opstra_option_loader - INFO - Selecting expiry: 14OCT2025
+2025-10-07 15:10:43 IST - modules.opstra_option_loader - WARNING - 'All Strikes' button not found
+2025-10-07 15:10:43 IST - modules.opstra_option_loader - INFO - Extracted 40 rows from option chain
+2025-10-07 15:10:43 IST - modules.opstra_option_loader - INFO - Option chain saved: logs\20251007-option_chain_14OCT2025_all.csv
+2025-10-07 15:10:47 IST - modules.opstra_option_loader - INFO - Quote: 25107.8, Rounded: 25100
+2025-10-07 15:10:47 IST - modules.opstra_option_loader - INFO - Match found at row 20: StrikePrice 25100.0
+2025-10-07 15:10:47 IST - modules.opstra_option_loader - INFO - Option chain loaded at 2025-10-07 10:40:47 (took 85.27 seconds)
+2025-10-07 15:10:51 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 15:11:18 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 15:11:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:12:02 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:12:29 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:12:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:13:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:13:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:14:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:14:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:15:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:15:43 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:15:43 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:15:43 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:15:43 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:15:43 IST - modules.payoff_graph - INFO - Strangle identified: PE 25200.0 @ 112.35, CE 25200.0 @ 88.30, Units: 75
+2025-10-07 15:15:44 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-07 15:15:45 IST - modules.strategy_ibbm_actual - INFO - Exiting all positions: End of trading day
+2025-10-07 15:15:45 IST - modules.strategy_ibbm_actual - INFO - Exiting CE: NIFTY14OCT25C25300
+2025-10-07 15:15:45 IST - modules.strategy_ibbm_actual - INFO - Placing order: BUY NIFTY14OCT25C25300 (token: 42693)
+2025-10-07 15:15:46 IST - modules.strategy_ibbm_actual - INFO - Order placed successfully: B NIFTY14OCT25C25300
+2025-10-07 15:15:46 IST - modules.strategy_ibbm_actual - INFO - Exiting PE: NIFTY14OCT25P25200
+2025-10-07 15:15:46 IST - modules.strategy_ibbm_actual - INFO - Placing order: BUY NIFTY14OCT25P25200 (token: 42690)
+2025-10-07 15:15:47 IST - modules.strategy_ibbm_actual - INFO - Order placed successfully: B NIFTY14OCT25P25200
+2025-10-07 15:15:47 IST - modules.strategy_ibbm_actual - INFO - All positions exited successfully
+2025-10-07 15:15:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:16:02 IST - modules.position_manager - INFO - Current NIFTY spot price: 25100.9
+2025-10-07 15:16:02 IST - modules.position_manager - INFO - Assigned strategy IBBM Intraday to NIFTY14OCT25C25300
+2025-10-07 15:16:16 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:16:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:16:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:17:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:17:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:17:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:18:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:18:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:18:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:19:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:19:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:19:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:19:57 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:20:17 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:20:34 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:20:34 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:20:34 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:20:34 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:20:34 IST - modules.payoff_graph - WARNING - Need both CE and PE positions for strangle. Found CE: 0, PE: 0
+2025-10-07 15:20:37 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:20:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:21:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:21:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:21:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:22:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:22:27 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:22:47 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:23:07 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:23:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:23:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:24:08 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:24:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:24:48 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:25:08 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:25:28 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:25:50 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:25:50 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:25:50 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:25:50 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:25:50 IST - modules.payoff_graph - WARNING - Need both CE and PE positions for strangle. Found CE: 0, PE: 0
+2025-10-07 15:25:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:26:18 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:26:38 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:26:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:27:18 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:27:38 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:27:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:28:18 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:28:38 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:28:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:29:18 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:29:38 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:29:58 IST - modules.position_manager - INFO - Starting positions update
+2025-10-07 15:30:36 IST - modules.payoff_graph - INFO - Processing 6 positions from AMIYA RANJAN ROUT
+2025-10-07 15:30:36 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-07 15:30:36 IST - modules.payoff_graph - INFO - Total positions: 6
+2025-10-07 15:30:36 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-07 15:30:36 IST - modules.payoff_graph - WARNING - Need both CE and PE positions for strangle. Found CE: 0, PE: 0
+2025-10-07 15:31:00 IST - root - INFO - === STARTING APPLICATION CLEANUP ===
+2025-10-07 15:31:00 IST - root - INFO - Stopping API Status Monitor
+2025-10-07 15:31:00 IST - root - ERROR - Error during cleanup: 'ApiStatus' object has no attribute 'stop_monitoring'
+2025-10-07 15:31:00 IST - root - INFO - === APPLICATION EXITED NORMALLY ===

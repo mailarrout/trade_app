@@ -492,9 +492,9 @@ class IBBMStrategy:
         current_time = ISTTimeUtils.current_time()
 
         # 1. End of day exit logic
-        if (current_time >= EOD_EXIT_TIME and self.state in ['VIRTUAL', 'WAIT_FOR_MAIN', 'ACTIVE']):
-            self._exit_all_positions(reason="End of trading day")
-            return
+        # if (current_time >= EOD_EXIT_TIME and self.state in ['VIRTUAL', 'WAIT_FOR_MAIN', 'ACTIVE']):
+        #     self._exit_all_positions(reason="End of trading day")
+        #     return
 
         # 2. Strategy entry logic
         if (TRADING_START_TIME <= current_time <= TRADING_END_TIME and 
@@ -936,38 +936,41 @@ class IBBMStrategy:
             logger.error(f"_validate_active_positions_exist error: {e}\n{traceback.format_exc()}")
 
     def _get_current_expiry(self):
+        """Get current or next week expiry based on today and dropdown list"""
         try:
             today = datetime.now().date()
             expiry_dates = []
+            logger.info(f"Getting expiry dates from dropdown, today is {today}")
             
-            if hasattr(self.ui, 'ExpiryListDropDown'):
-                logger.info(f"Getting expiry dates from dropdown, today is {today}")
-                for i in range(self.ui.ExpiryListDropDown.count()):
-                    expiry_str = self.ui.ExpiryListDropDown.itemText(i)
-                    try:
-                        expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
-                        if expiry_date >= today:
-                            expiry_dates.append(expiry_date)
-                            logger.debug(f"Found valid expiry date: {expiry_date}")
-                    except ValueError:
-                        logger.warning(f"Could not parse expiry date: {expiry_str}")
-                        continue
-            else:
-                # Fallback: calculate next Thursday
-                days_ahead = 3 - today.weekday()  # 3 = Thursday
-                if days_ahead <= 0:  # Target day already happened this week
-                    days_ahead += 7
-                next_thursday = today + timedelta(days_ahead)
-                expiry_dates.append(next_thursday)
-                logger.info(f"Using calculated expiry: {next_thursday}")
+            for i in range(self.ui.ExpiryListDropDown.count()):
+                expiry_str = self.ui.ExpiryListDropDown.itemText(i)
+                try:
+                    expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
+                    if expiry_date >= today:
+                        expiry_dates.append(expiry_date)
+                        logger.debug(f"Found valid expiry date: {expiry_date}")
+                except ValueError:
+                    logger.warning(f"Could not parse expiry date: {expiry_str}")
+                    continue
                     
             if not expiry_dates:
-                logger.error("No valid expiry dates found")
+                logger.error("No valid expiry dates found in dropdown")
                 return None
                 
             expiry_dates.sort()
-            selected_expiry = expiry_dates[0]  # Always use nearest expiry
-            logger.info(f"Selected expiry: {selected_expiry}")
+            weekday = today.weekday()
+            
+            if weekday in [2, 3]:  # Wed, Thu
+                selected_expiry = expiry_dates[0]
+                logger.info(f"Wednesday/Thursday detected, selecting current week expiry: {selected_expiry}")
+            else:
+                if len(expiry_dates) > 1:
+                    selected_expiry = expiry_dates[1]
+                    logger.info(f"Other weekday detected, selecting next week expiry: {selected_expiry}")
+                else:
+                    logger.warning("No next week expiry available, using current week")
+                    selected_expiry = expiry_dates[0]
+                    
             return selected_expiry
             
         except Exception as e:

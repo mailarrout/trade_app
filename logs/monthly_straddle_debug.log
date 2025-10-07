@@ -15385,3 +15385,55 @@ ValueError: time data 'nan' does not match format '%Y-%m-%d'
 2025-10-04 09:43:06,257 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
 2025-10-04 09:44:25,280 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
 2025-10-04 09:44:25,281 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 10:12:28,826 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 10:12:28,828 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 10:14:52,835 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 10:14:52,838 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 10:15:57,245 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 10:15:57,246 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 10:21:01,633 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 10:21:01,635 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-04 13:23:15,578 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-04 13:23:15,578 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-05 10:36:29,328 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-05 10:36:29,328 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 04:44:59,417 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 04:44:59,451 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 04:48:38,934 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 04:48:38,934 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 05:27:15,309 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 05:27:15,309 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 05:45:54,954 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 05:45:54,956 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 05:51:12,144 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 05:51:12,144 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 05:56:28,730 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 05:56:28,730 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 06:06:00,057 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 06:06:00,058 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 06:26:20,617 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 06:26:20,617 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 07:42:08,604 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 07:42:08,607 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 08:00:57,244 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 08:00:57,244 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 08:55:18,467 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 08:55:18,469 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 09:27:45,205 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 09:27:45,205 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 09:36:07,470 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 09:36:07,470 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 09:40:27,736 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 09:40:27,736 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 11:14:19,466 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 11:14:19,466 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 12:56:32,236 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 12:56:32,238 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 13:59:22,504 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 13:59:22,504 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-06 17:57:43,378 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-06 17:57:43,394 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-07 04:45:29,141 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-07 04:45:29,160 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)
+2025-10-07 08:20:43,036 - INFO - modules.strategy_monthly_straddle - Initializing MonthlyStraddleStrategy
+2025-10-07 08:20:43,050 - INFO - modules.strategy_monthly_straddle - Strategy initialized and timer started (30s interval)

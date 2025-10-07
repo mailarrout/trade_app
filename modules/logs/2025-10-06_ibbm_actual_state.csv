@@ -1,0 +1,17 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-10-06 09:57:15,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 10:15:54,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 10:21:12,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 10:26:28,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 10:36:00,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 10:56:20,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 12:12:08,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 12:30:57,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 13:25:18,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 13:57:45,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 14:06:07,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 14:10:27,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 15:44:19,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 17:26:32,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 18:29:22,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-06 22:27:43,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0

@@ -297,9 +297,9 @@ class IntradayStraddleStrategy:
     def _check_and_execute_strategy(self):
         now = ISTTimeUtils.current_time()
         
-        if (now.hour == TRADING_END_TIME.hour and now.minute == TRADING_END_TIME.minute) and self.state in ['VIRTUAL', 'ACTIVE']:
-            self._exit_all_positions(reason="EOD Exit")
-            return
+        # if (now.hour == TRADING_END_TIME.hour and now.minute == TRADING_END_TIME.minute) and self.state in ['VIRTUAL', 'ACTIVE']:
+        #     self._exit_all_positions(reason="EOD Exit")
+        #     return
 
         if self.state == "WAITING" and TRADING_START_TIME <= now <= TRADING_END_TIME and now.minute == VIRTUAL_ENTRY_MINUTE:
             logger.info("Virtual entry minute hit -> prepare virtual straddle")

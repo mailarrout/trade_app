@@ -354,8 +354,8 @@ class PayoffGraphTab(QWidget):
             self._draw_empty_chart("Error updating graph")
 
     def _draw_payoff_chart(self, spot, price_range, payoff_total, lower_be, upper_be, max_profit,
-                  put_strike, put_premium, call_strike, call_premium, total_units,
-                  ce_adjustment, pe_adjustment):
+                put_strike, put_premium, call_strike, call_premium, total_units,
+                ce_adjustment, pe_adjustment):
         """Draw the payoff chart with adjustment points and strategy spot"""
         try:
             self.ax.clear()
@@ -376,7 +376,7 @@ class PayoffGraphTab(QWidget):
             self.ax.axvline(spot, color='red', linestyle='-', linewidth=2, 
                         label=f'Current Spot: {spot:.0f}')
             
-            # Strategy spot line (thin pink line) - ADDED THIS
+            # Strategy spot line (thin pink line)
             if hasattr(self, 'strategy_spot_price') and self.strategy_spot_price is not None:
                 self.ax.axvline(self.strategy_spot_price, color="#FCFCFC", linestyle='-', 
                             linewidth=1, alpha=0.8, label=f'Strategy Spot: {self.strategy_spot_price:.0f}')
@@ -406,6 +406,19 @@ class PayoffGraphTab(QWidget):
             
             # Set Y-axis limits
             self.ax.set_ylim(y_min, y_max)
+            
+            # Set X-axis limits to show spot ±1000
+            x_min = spot - 1000
+            x_max = spot + 1000
+            self.ax.set_xlim(x_min, x_max)
+            
+            # Set x-axis ticks at reasonable intervals (every 200 points)
+            x_ticks = np.arange(x_min, x_max + 1, 200)
+            self.ax.set_xticks(x_ticks)
+            
+            # Format x-axis labels as actual prices (24056, 24256, 24456, etc.)
+            x_tick_labels = [f'{tick:.0f}' for tick in x_ticks]
+            self.ax.set_xticklabels(x_tick_labels)
             
             # Legend - increased rows to accommodate both spot prices
             legend = self.ax.legend(facecolor='#002B36', edgecolor='white', 

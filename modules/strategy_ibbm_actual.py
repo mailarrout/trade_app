@@ -30,7 +30,7 @@ ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
 # EOD_EXIT_TIME = dt_time(23, 59)      # Don't auto-exit during testing
 # ENTRY_MINUTES = list(range(0, 60))   # Allow entry ANY minute
 
-ENTRY_MODE_9_45_ONLY = True  # Set to True for 9:45 AM only, False for any monitoring minute
+ENTRY_MODE_9_45_ONLY = False  # Set to True for 9:45 AM only, False for any monitoring minute
 
 MONITORING_MINUTES = [15, 45]
 
@@ -57,7 +57,7 @@ ALLOW_REENTRY_AFTER_STOP = True
 
 # Market Data Constants
 YFINANCE_SYMBOL = "^NSEI"
-DATA_PERIOD = "1d"
+DATA_PERIOD = "2d"
 DATA_INTERVAL = "5m"
 MA_WINDOW = 12
 STRIKE_RANGE = 200
@@ -147,9 +147,10 @@ class IBBMStrategy:
             # Attempt recovery BEFORE starting timers
             recovery_success = self._try_recover_from_state_file()
             
-            if not recovery_success:
+            if not recovery_success or self.state == "WAITING":
                 # Create initial state file for fresh start
-                self._log_state("WAITING", "Fresh start - no recovery data")
+                self._log_state("WAITING", "Fresh start - first run of the day")
+                logger.info("Strategy starting in WAITING state - ready for first entry")
 
             # Start timers AFTER recovery
             try:
@@ -219,98 +220,140 @@ class IBBMStrategy:
     # ===== Recovery & State Management =====
     @safe_log("recovery")
     def _try_recover_from_state_file(self):
-        """Recover strategy state from CSV file"""
+        """Recover strategy state from CSV file - FIXED FOR FRESH START"""
         try:
-            # === ADD CLIENT CHECK ===
-            if not self.client_manager:
-                logger.warning("Cannot recover - client manager not available")
-                return False
-            # === END CLIENT CHECK ===
-            
+            # === FIRST: Check if state file even exists ===
             if not os.path.exists(self.current_state_file):
-                logger.info("No state file found for today; starting fresh.")
-                return False
+                logger.info("No state file found for today - FRESH START")
+                self.state = "WAITING"
+                self._reset_all_positions()
+                return False  # This is NOT recovery - it's fresh start
 
+            # === SECOND: Check if file has valid data ===
             df = pd.read_csv(self.current_state_file)
             if df.empty:
-                logger.info("State file empty for today.")
+                logger.info("State file empty for today - FRESH START")
+                self.state = "WAITING"
+                self._reset_all_positions()
                 return False
 
             last = df.iloc[-1]
             last_status = str(last.get('status', 'WAITING')).strip()
-            logger.info(f"Recovered last status from file: {last_status}")
+            logger.info(f"Found state file with status: {last_status}")
 
-            # Check broker positions for ACTIVE/STOPPED_OUT states
-            if last_status in ['ACTIVE', 'STOPPED_OUT']:
-                broker_positions = self._get_broker_positions()
+            # === THIRD: Only consider it recovery if we have ACTIVE positions ===
+            if last_status == 'ACTIVE':
+                # Check if we have valid position data in the file
                 ce_sym = last.get('ce_symbol', None)
                 pe_sym = last.get('pe_symbol', None)
-                found_ce = False
-                found_pe = False
-
-                if broker_positions:
-                    try:
-                        if ce_sym and not pd.isna(ce_sym):
-                            ce_sym_str = str(ce_sym).strip()
-                            found_ce = any(bp.get('tsym', '') == ce_sym_str for bp in broker_positions)
-                        if pe_sym and not pd.isna(pe_sym):
-                            pe_sym_str = str(pe_sym).strip()
-                            found_pe = any(bp.get('tsym', '') == pe_sym_str for bp in broker_positions)
-                    except Exception as e:
-                        logger.error(f"Error checking broker positions: {e}")
-                        found_ce = found_pe = False
-
-                if not found_ce and not found_pe:
-                    if ALLOW_REENTRY_AFTER_STOP:
-                        logger.info("No broker positions detected -> resetting to WAITING")
-                        self._reset_all_positions()
+                
+                # Both positions should have valid symbols for true recovery
+                if (ce_sym and not pd.isna(ce_sym) and str(ce_sym).strip() and
+                    pe_sym and not pd.isna(pe_sym) and str(pe_sym).strip()):
+                    
+                    logger.info(f"Valid recovery data found: CE={ce_sym}, PE={pe_sym}")
+                    
+                    # === CLIENT CHECK ===
+                    if not self.client_manager:
+                        logger.warning("Cannot recover - client manager not available")
                         self.state = "WAITING"
-                        self._log_state("WAITING", "Reset - no broker positions found")
-                        return True
-                    else:
-                        logger.info("No broker positions detected -> remain STOPPED_OUT")
                         self._reset_all_positions()
-                        self.state = "STOPPED_OUT"
-                        self._log_state("STOPPED_OUT", "No broker positions - staying STOPPED_OUT")
-                        return True
+                        return False
+                    
+                    # Check broker positions for ACTIVE state
+                    broker_positions = self._get_broker_positions()
+                    found_ce = False
+                    found_pe = False
 
-            # Recover position data
-            self.state = last_status
+                    if broker_positions:
+                        try:
+                            ce_sym_str = str(ce_sym).strip()
+                            pe_sym_str = str(pe_sym).strip()
+                            found_ce = any(bp.get('tsym', '') == ce_sym_str for bp in broker_positions)
+                            found_pe = any(bp.get('tsym', '') == pe_sym_str for bp in broker_positions)
+                        except Exception as e:
+                            logger.error(f"Error checking broker positions: {e}")
+                            found_ce = found_pe = False
 
-            for leg in ['ce', 'pe']:
-                try:
-                    sym = last.get(f'{leg}_symbol', None)
-                    if pd.notna(sym) and str(sym).strip():
-                        self.positions[leg]['symbol'] = str(sym).strip()
-                        self.positions[leg]['entry_price'] = float(last.get(f'{leg}_entry_price', 0.0))
-                        self.positions[leg]['ltp'] = float(last.get(f'{leg}_ltp', self.positions[leg]['entry_price']))
-                        self.positions[leg]['initial_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
-                        self.positions[leg]['current_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
-                        self.positions[leg]['real_entered'] = True
-                        self.positions[leg]['trailing_step'] = int(last.get(f'{leg}_trailing_step', 0))
+                    if found_ce and found_pe:
+                        # Both positions found in broker - proceed with recovery
+                        logger.info("Both positions found in broker - recovering ACTIVE state")
                         
-                        token = self._get_token_from_symbol(self.positions[leg]['symbol'])
-                        if token:
-                            self.positions[leg]['token'] = token
+                        # Recover position data
+                        self.state = last_status
+
+                        for leg in ['ce', 'pe']:
+                            try:
+                                sym = last.get(f'{leg}_symbol', None)
+                                if pd.notna(sym) and str(sym).strip():
+                                    self.positions[leg]['symbol'] = str(sym).strip()
+                                    self.positions[leg]['entry_price'] = float(last.get(f'{leg}_entry_price', 0.0))
+                                    self.positions[leg]['ltp'] = float(last.get(f'{leg}_ltp', self.positions[leg]['entry_price']))
+                                    self.positions[leg]['initial_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                                    self.positions[leg]['current_sl'] = float(last.get(f'{leg}_sl_price', 0.0))
+                                    self.positions[leg]['real_entered'] = True
+                                    self.positions[leg]['trailing_step'] = int(last.get(f'{leg}_trailing_step', 0))
+                                    
+                                    token = self._get_token_from_symbol(self.positions[leg]['symbol'])
+                                    if token:
+                                        self.positions[leg]['token'] = token
+                                        
+                                    logger.info(f"Recovered {leg.upper()} main: {self.positions[leg]['symbol']}")
+                            except Exception as e:
+                                logger.debug(f"Failed to recover main leg {leg} from file: {e}")
+
+                        # Recover market data
+                        try:
+                            self.current_close = float(last.get('nifty_price', 0.0))
+                            self.current_ma12 = float(last.get('nifty_ma12', 0.0))
+                            self.current_trend = last.get('trend', 'unknown')
+                            self.previous_trend = self.current_trend
+                        except Exception as e:
+                            logger.debug(f"Failed to recover market data: {e}")
+
+                        self._log_state("RECOVERED", f"Successfully recovered ACTIVE state")
+                        return True
+                        
+                    else:
+                        # Positions not found in broker - reset to WAITING
+                        logger.warning("State file claims ACTIVE but positions not found in broker - FRESH START")
+                        if ALLOW_REENTRY_AFTER_STOP:
+                            logger.info("ALLOW_REENTRY_AFTER_STOP=True -> resetting to WAITING")
+                            self.state = "WAITING"
+                            self._reset_all_positions()
+                            self._log_state("WAITING", "Reset - positions not found in broker")
+                            return False
+                        else:
+                            logger.info("ALLOW_REENTRY_AFTER_STOP=False -> staying STOPPED_OUT")
+                            self.state = "STOPPED_OUT"
+                            self._reset_all_positions()
+                            self._log_state("STOPPED_OUT", "Positions not found - staying STOPPED_OUT")
+                            return True
                             
-                        logger.info(f"Recovered {leg.upper()} main: {self.positions[leg]['symbol']}")
-                except Exception as e:
-                    logger.debug(f"Failed to recover main leg {leg} from file: {e}")
-
-            # Recover market data
-            try:
-                self.current_close = float(last.get('nifty_price', 0.0))
-                self.current_ma12 = float(last.get('nifty_ma12', 0.0))
-                self.current_trend = last.get('trend', 'unknown')
-                self.previous_trend = self.current_trend
-            except Exception as e:
-                logger.debug(f"Failed to recover market data: {e}")
-
-            self._log_state("RECOVERED", f"Successfully recovered state: {self.state}")
-            return True
+                else:
+                    logger.warning("State file claims ACTIVE but has no valid positions - FRESH START")
+                    self.state = "WAITING"
+                    self._reset_all_positions()
+                    return False
+                    
+            elif last_status in ['COMPLETED', 'STOPPED_OUT']:
+                logger.info(f"Previous strategy was {last_status} - waiting for manual restart or next day")
+                self.state = last_status
+                self._reset_all_positions()  # Clear any position data
+                return True  # This is valid recovery of completed state
+                
+            else:
+                # WAITING or any other state - treat as fresh start
+                logger.info(f"State file exists but status is {last_status} - FRESH START")
+                self.state = "WAITING"
+                self._reset_all_positions()
+                return False
 
         except Exception as e:
             logger.error(f"State file recovery failed: {e}")
+            # On any error, default to fresh start
+            self.state = "WAITING"
+            self._reset_all_positions()
             return False
 
     def _is_symbol_in_pos(self, symbol: str, broker_pos: dict) -> bool:
@@ -496,9 +539,9 @@ class IBBMStrategy:
             self.debug_strategy_flow()
 
         # 1. End of day exit logic
-        if (current_time >= EOD_EXIT_TIME and self.state == "ACTIVE"):
-            self._exit_all_positions(reason="End of trading day")
-            return
+        # if (current_time >= EOD_EXIT_TIME and self.state == "ACTIVE"):
+        #     self._exit_all_positions(reason="End of trading day")
+        #     return
 
         # 2. Regular monitoring for active positions - check for trend changes
         if ((current_time.minute in MONITORING_MINUTES) and 
@@ -624,14 +667,19 @@ class IBBMStrategy:
                             interval=DATA_INTERVAL, progress=False, auto_adjust=True)
             
             if len(data) == 0:
-                logger.error("No data returned from yfinance")
+                logger.error("No data returned from yfinance - checking internet connection")
                 return False
                 
-            if len(data) < MA_WINDOW:
-                logger.error(f"Insufficient data points for MA{MA_WINDOW} calculation. Got {len(data)}, need {MA_WINDOW}")
-                return False
+            # FIX: Calculate MA with available data points
+            available_points = len(data)
+            if available_points < MA_WINDOW:
+                logger.warning(f"Insufficient data points for MA{MA_WINDOW}. Got {available_points}, using available data")
+                # Use available data points for calculation
+                ma_window = available_points
+            else:
+                ma_window = MA_WINDOW
             
-            data[f'MA{MA_WINDOW}'] = data['Close'].rolling(window=MA_WINDOW).mean()
+            data[f'MA{MA_WINDOW}'] = data['Close'].rolling(window=ma_window).mean()
             last_row = data.iloc[-1]
             
             # Extract scalar values from the Series
@@ -644,6 +692,8 @@ class IBBMStrategy:
         except Exception as e:
             logger.error(f"Market data fetch failed: {str(e)}")
             return False
+
+
 
     # ===== Entry Logic =====
     def _take_positions(self) -> bool:
@@ -812,38 +862,41 @@ class IBBMStrategy:
             return False
 
     def _get_current_expiry(self):
+        """Get current or next week expiry based on today and dropdown list"""
         try:
             today = datetime.now().date()
             expiry_dates = []
+            logger.info(f"Getting expiry dates from dropdown, today is {today}")
             
-            if hasattr(self.ui, 'ExpiryListDropDown'):
-                logger.info(f"Getting expiry dates from dropdown, today is {today}")
-                for i in range(self.ui.ExpiryListDropDown.count()):
-                    expiry_str = self.ui.ExpiryListDropDown.itemText(i)
-                    try:
-                        expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
-                        if expiry_date >= today:
-                            expiry_dates.append(expiry_date)
-                            logger.debug(f"Found valid expiry date: {expiry_date}")
-                    except ValueError:
-                        logger.warning(f"Could not parse expiry date: {expiry_str}")
-                        continue
-            else:
-                # Fallback: calculate next Thursday
-                days_ahead = 3 - today.weekday()  # 3 = Thursday
-                if days_ahead <= 0:  # Target day already happened this week
-                    days_ahead += 7
-                next_thursday = today + timedelta(days_ahead)
-                expiry_dates.append(next_thursday)
-                logger.info(f"Using calculated expiry: {next_thursday}")
+            for i in range(self.ui.ExpiryListDropDown.count()):
+                expiry_str = self.ui.ExpiryListDropDown.itemText(i)
+                try:
+                    expiry_date = datetime.strptime(expiry_str, "%d-%b-%Y").date()
+                    if expiry_date >= today:
+                        expiry_dates.append(expiry_date)
+                        logger.debug(f"Found valid expiry date: {expiry_date}")
+                except ValueError:
+                    logger.warning(f"Could not parse expiry date: {expiry_str}")
+                    continue
                     
             if not expiry_dates:
-                logger.error("No valid expiry dates found")
+                logger.error("No valid expiry dates found in dropdown")
                 return None
                 
             expiry_dates.sort()
-            selected_expiry = expiry_dates[0]  # Always use nearest expiry
-            logger.info(f"Selected expiry: {selected_expiry}")
+            weekday = today.weekday()
+            
+            if weekday in [2, 3]:  # Wed, Thu
+                selected_expiry = expiry_dates[0]
+                logger.info(f"Wednesday/Thursday detected, selecting current week expiry: {selected_expiry}")
+            else:
+                if len(expiry_dates) > 1:
+                    selected_expiry = expiry_dates[1]
+                    logger.info(f"Other weekday detected, selecting next week expiry: {selected_expiry}")
+                else:
+                    logger.warning("No next week expiry available, using current week")
+                    selected_expiry = expiry_dates[0]
+                    
             return selected_expiry
             
         except Exception as e:
@@ -853,6 +906,12 @@ class IBBMStrategy:
     # ===== Option Selection =====
     @safe_log("Option selection failed")
     def _select_options(self, expiry_date) -> Tuple[Optional[tuple], Optional[tuple]]:
+        # === ADD CLIENT VALIDATION ===
+        client = self._get_primary_client()
+        if not client:
+            logger.error("No client available for option selection - cannot proceed")
+            return None, None
+        
         expiry_str = expiry_date.strftime("%d-%b-%Y").upper()
         logger.info(f"Selecting options for expiry: {expiry_str}")
         
@@ -956,11 +1015,11 @@ class IBBMStrategy:
             
             # Determine order type based on action
             if action.upper() == 'SELL':
-                order_type = 'SELL'
+                order_type = 'S'
                 product_type = ORDER_PRODUCT_TYPE
             else:  # BUY
-                order_type = 'BUY'
-                product_type = 'I'  # Intraday for buy back
+                order_type = 'B'
+                product_type = ORDER_PRODUCT_TYPE
             
             # Place order
             order_result = client.place_order(
@@ -1107,10 +1166,23 @@ class IBBMStrategy:
 
     # ===== Broker Communication =====
     def _get_primary_client(self):
-        if self.client_manager and hasattr(self.client_manager, 'get_primary_client'):
-            return self.client_manager.get_primary_client()
-        logger.warning("Client manager not ready")
-        return None
+        """Get primary client - consistent with PositionManager"""
+        try:
+            if (self.client_manager and 
+                hasattr(self.client_manager, 'clients') and 
+                self.client_manager.clients and 
+                len(self.client_manager.clients) > 0):
+                
+                # Return the client object (third element in tuple)
+                client = self.client_manager.clients[0][2]
+                logger.debug(f"Primary client retrieved: {self.client_manager.clients[0][0]}")
+                return client
+            else:
+                logger.warning("No clients available in _get_primary_client")
+                return None
+        except Exception as e:
+            logger.error(f"Error getting primary client: {str(e)}")
+            return None
 
     def _get_broker_positions(self):
         try:
@@ -1118,14 +1190,14 @@ class IBBMStrategy:
             if not client:
                 return []
                 
-            positions = client.positions()
+            positions = client.get_positions()  # ✅ Correct method name
             if positions and isinstance(positions, list):
                 return positions
             return []
         except Exception as e:
             logger.error(f"Error getting broker positions: {str(e)}")
             return []
-
+        
     def _get_token_from_symbol(self, symbol: str) -> Optional[str]:
         try:
             if not os.path.exists(NFO_SYMBOLS_FILE):

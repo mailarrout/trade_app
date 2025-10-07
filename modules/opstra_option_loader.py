@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # -------------------- SETTINGS -------------------- #
 USE_WEBSITE_DEFAULT = True  # True = fetch from Opstra, False = load CSV for testing
 USERNAME = "amiya000@gmail.com"
-PASSWORD = "HcdD+rw7T*P@2xs"
+PASSWORD = "7FgrPsNV.tbUrTv"
 
 class OpstraOptionLoader:
     def __init__(self, ui, client_manager, use_website=None):

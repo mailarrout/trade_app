@@ -1,0 +1,3 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-10-05 15:06:29,WAITING,Fresh start - no recovery data,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-05 15:06:44,RECOVERED,Successfully recovered state: WAITING,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0

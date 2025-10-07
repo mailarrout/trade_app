@@ -1,0 +1,150 @@
+2025-10-05 15:06:07 IST - root - INFO - Application starting - Logging to logs\2025-10-05_app.log (Mode: INFO)
+2025-10-05 15:06:07 IST - root - INFO - Logging timezone: IST (Asia/Kolkata)
+2025-10-05 15:06:07 IST - root - INFO - Successfully imported TradingUI
+2025-10-05 15:06:15 IST - root - INFO - Successfully imported ClientManager
+2025-10-05 15:06:15 IST - root - INFO - Successfully imported PositionManager
+2025-10-05 15:06:15 IST - root - INFO - Successfully imported OptionLoader
+2025-10-05 15:06:17 IST - root - INFO - Successfully imported OpstraOptionLoader
+2025-10-05 15:06:19 IST - root - INFO - Successfully imported IBBMStrategy
+2025-10-05 15:06:19 IST - root - INFO - Successfully imported IntradayStraddleStrategy
+2025-10-05 15:06:19 IST - root - INFO - Successfully imported MonthlyStraddleStrategy
+2025-10-05 15:06:19 IST - root - INFO - Successfully imported ApiStatus
+2025-10-05 15:06:19 IST - root - INFO - Successfully imported GraphPlotTab
+2025-10-05 15:06:21 IST - root - INFO - Successfully imported PayoffGraphTab
+2025-10-05 15:06:21 IST - root - INFO - === APPLICATION STARTING ===
+2025-10-05 15:06:21 IST - root - INFO - === INITIALIZING TRADING APPLICATION ===
+2025-10-05 15:06:21 IST - root - INFO - Creating QApplication instance
+2025-10-05 15:06:21 IST - root - INFO - Loading Trading UI
+2025-10-05 15:06:21 IST - modules.interface_loader - INFO - Loading UI from Dashboard.ui file
+2025-10-05 15:06:22 IST - modules.interface_loader - INFO - UI loaded successfully at 2025-10-05 15:06:21 IST
+2025-10-05 15:06:22 IST - root - INFO - Trading UI loaded successfully
+2025-10-05 15:06:22 IST - root - INFO - Setting up UI logging
+2025-10-05 15:06:22 IST - root - INFO - UI logging initialized successfully
+2025-10-05 15:06:22 IST - root - INFO - Initializing core managers
+2025-10-05 15:06:22 IST - root - INFO - Creating ClientManager instance
+2025-10-05 15:06:22 IST - modules.client_manager - INFO - ClientManager initialized at 2025-10-05 15:06:22 IST
+2025-10-05 15:06:22 IST - root - INFO - ClientManager initialized
+2025-10-05 15:06:22 IST - root - INFO - Creating PositionManager instance
+2025-10-05 15:06:22 IST - modules.position_manager - INFO - Initializing PositionManager
+2025-10-05 15:06:22 IST - modules.position_manager - INFO - Loading strategy mappings from: 2025-10-04_strategy_mapping.csv
+2025-10-05 15:06:22 IST - modules.position_manager - INFO - Loaded 2 strategy mappings from 2025-10-04_strategy_mapping.csv
+2025-10-05 15:06:22 IST - modules.position_manager - INFO - PositionManager initialization completed
+2025-10-05 15:06:22 IST - root - INFO - PositionManager initialized
+2025-10-05 15:06:22 IST - root - INFO - Creating OptionLoader instance
+2025-10-05 15:06:22 IST - modules.option_loader - INFO - OptionLoader initialized at 2025-10-05 15:06:22 IST
+2025-10-05 15:06:22 IST - root - INFO - OptionLoader initialized
+2025-10-05 15:06:22 IST - root - INFO - Wiring managers to UI
+2025-10-05 15:06:22 IST - root - INFO - Managers wired to UI successfully
+2025-10-05 15:06:22 IST - root - INFO - Initializing background services
+2025-10-05 15:06:22 IST - root - INFO - Starting API Status Monitor
+2025-10-05 15:06:23 IST - modules.api_status - INFO - API came ONLINE (response: 200)
+2025-10-05 15:06:23 IST - modules.api_status - INFO - API status monitoring started
+2025-10-05 15:06:23 IST - root - INFO - API Status Monitor started
+2025-10-05 15:06:23 IST - root - INFO - Creating OpstraOptionLoader instance
+2025-10-05 15:06:23 IST - modules.opstra_option_loader - INFO - OpstraOptionLoader initialized
+2025-10-05 15:06:23 IST - root - INFO - OpstraOptionLoader initialized
+2025-10-05 15:06:23 IST - root - INFO - Initializing graph tabs
+2025-10-05 15:06:23 IST - root - INFO - Creating GraphPlotTab instance
+2025-10-05 15:06:23 IST - modules.price_chart - INFO - Initializing GraphPlotTab
+2025-10-05 15:06:23 IST - modules.price_chart - INFO - GraphPlotTab initialized successfully
+2025-10-05 15:06:23 IST - root - INFO - GraphPlotTab initialized
+2025-10-05 15:06:23 IST - root - INFO - Creating PayoffGraphTab instance
+2025-10-05 15:06:23 IST - modules.payoff_graph - INFO - Initializing PayoffGraphTab - Simplified Version
+2025-10-05 15:06:23 IST - modules.payoff_graph - INFO - Embedding matplotlib canvas into PayOffGraph QFrame
+2025-10-05 15:06:23 IST - modules.payoff_graph - INFO - Connected CalculateAdjustmentPointQPushButton
+2025-10-05 15:06:23 IST - modules.payoff_graph - INFO - Started payoff graph update timer (10 seconds)
+2025-10-05 15:06:23 IST - root - INFO - PayoffGraphTab initialized
+2025-10-05 15:06:23 IST - root - INFO - Scheduled payoff calculation
+2025-10-05 15:06:23 IST - root - INFO - Attempting auto-load of clients
+2025-10-05 15:06:23 IST - modules.interface_loader - INFO - Client loading initiated at 15:06:23 IST
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - Starting client loading process
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - Attempting to login 1 clients
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - SUCCESS: AMIYA RANJAN ROUT logged in successfully at 15:06:23 IST
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - Successfully loaded 1/1 clients in 0.45 seconds
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - Initiating margin details retrieval after successful login
+2025-10-05 15:06:23 IST - modules.client_manager - INFO - Retrieving margin details for 1 clients
+2025-10-05 15:06:24 IST - modules.client_manager - INFO - SUCCESS: Margin details retrieved for AMIYA RANJAN ROUT
+2025-10-05 15:06:24 IST - modules.client_manager - INFO - Created new margin details file: 2025-10-05-day_available_margin_detl.csv with 1 clients
+2025-10-05 15:06:24 IST - modules.interface_loader - INFO - Client loading successful, starting position updates
+2025-10-05 15:06:24 IST - modules.position_manager - INFO - Starting auto-refresh timer
+2025-10-05 15:06:24 IST - modules.position_manager - INFO - Starting positions update
+2025-10-05 15:06:29 IST - modules.interface_loader - INFO - Clients, positions and MTM loaded successfully
+2025-10-05 15:06:29 IST - modules.interface_loader - INFO - Loading expiry dates...
+2025-10-05 15:06:29 IST - modules.client_manager - INFO - Starting expiry dates loading process
+2025-10-05 15:06:29 IST - modules.client_manager - INFO - Loaded 5 expiry dates in 0.30 seconds
+2025-10-05 15:06:29 IST - modules.interface_loader - INFO - Expiry dates loaded in 0.30 seconds
+2025-10-05 15:06:29 IST - modules.interface_loader - INFO - Client loading process completed in 6.19 seconds
+2025-10-05 15:06:29 IST - root - INFO - Clients auto-loaded successfully
+2025-10-05 15:06:29 IST - root - INFO - Initializing trading strategies
+2025-10-05 15:06:29 IST - root - INFO - Creating IBBMStrategy instance
+2025-10-05 15:06:29 IST - modules.strategy_ibbm_actual - INFO - Initializing IBBMStrategy
+2025-10-05 15:06:29 IST - modules.strategy_ibbm_actual - INFO - No state file found for today; starting fresh.
+2025-10-05 15:06:29 IST - modules.strategy_ibbm_actual - INFO - IBBMStrategy initialized successfully; state=WAITING
+2025-10-05 15:06:29 IST - root - INFO - IBBMStrategy initialized successfully
+2025-10-05 15:06:29 IST - root - INFO - Creating IntradayStraddleStrategy instance
+2025-10-05 15:06:29 IST - modules.strategy_intraday_straddle - INFO - No intraday straddle state file to recover.
+2025-10-05 15:06:29 IST - modules.strategy_intraday_straddle - INFO - IntradayStraddleStrategy initialized; state=WAITING
+2025-10-05 15:06:29 IST - root - INFO - Stopped strategy_timer for Intraday Straddle
+2025-10-05 15:06:29 IST - root - INFO - Stopped monitor_timer for Intraday Straddle
+2025-10-05 15:06:29 IST - root - INFO - Intraday Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-05 15:06:29 IST - root - INFO - IntradayStraddleStrategy initialized successfully
+2025-10-05 15:06:29 IST - root - INFO - Creating MonthlyStraddleStrategy instance
+2025-10-05 15:06:29 IST - modules.strategy_monthly_straddle - INFO - Initializing MonthlyStraddleStrategy
+2025-10-05 15:06:29 IST - modules.strategy_monthly_straddle - INFO - Strategy initialized and timer started (30s interval)
+2025-10-05 15:06:29 IST - root - INFO - Stopped strategy_timer for Monthly Straddle
+2025-10-05 15:06:29 IST - root - INFO - Monthly Straddle strategy COMPLETELY STOPPED - no auto-run activity
+2025-10-05 15:06:29 IST - root - INFO - MonthlyStraddleStrategy initialized successfully
+2025-10-05 15:06:29 IST - root - INFO - Setting position manager references for strategies
+2025-10-05 15:06:29 IST - root - INFO - Current strategy set to: IBBM Intraday
+2025-10-05 15:06:29 IST - root - INFO - IBBM auto-run enabled: True
+2025-10-05 15:06:29 IST - root - INFO - Intraday Straddle auto-run enabled: False
+2025-10-05 15:06:29 IST - root - INFO - Monthly Straddle auto-run enabled: False
+2025-10-05 15:06:29 IST - root - INFO - Setting up UI signal connections
+2025-10-05 15:06:29 IST - root - INFO - Strategy combobox populated with all strategies
+2025-10-05 15:06:29 IST - root - INFO - Connected LoadOpstraPushButton
+2025-10-05 15:06:29 IST - root - INFO - Connected strategy execution controls
+2025-10-05 15:06:29 IST - root - INFO - IBBM auto-run enabled - strategy handles its own execution
+2025-10-05 15:06:29 IST - root - INFO - UI signal connections setup completed
+2025-10-05 15:06:29 IST - root - INFO - Application will auto-close at 2025-10-05 15:31:00 IST
+2025-10-05 15:06:29 IST - root - INFO - Scheduling strategy state recovery
+2025-10-05 15:06:29 IST - root - INFO - Strategy recovery scheduled for 15 seconds after startup
+2025-10-05 15:06:29 IST - root - INFO - === TRADING APPLICATION INITIALIZED SUCCESSFULLY ===
+2025-10-05 15:06:29 IST - root - INFO - UI displayed at 2025-10-05 15:06:29 IST
+2025-10-05 15:06:29 IST - root - INFO - === APPLICATION RUNNING ===
+2025-10-05 15:06:29 IST - root - INFO - Start time: 2025-10-05 15:06:29 IST
+2025-10-05 15:06:29 IST - modules.payoff_graph - INFO - Client set to: AMIYA RANJAN ROUT (ShoonyaApiPy)
+2025-10-05 15:06:30 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-05 15:06:30 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-05 15:06:30 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-05 15:06:30 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-05 15:06:30 IST - modules.payoff_graph - INFO - Strangle identified: PE 24750.0 @ 71.90, CE 25150.0 @ 55.35, Units: 75
+2025-10-05 15:06:30 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:06:30 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:06:31 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-05 15:06:32 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:06:32 IST - modules.payoff_graph - ERROR - No strategy spot price available
+2025-10-05 15:06:44 IST - root - INFO - === ATTEMPTING STRATEGY STATE RECOVERY ===
+2025-10-05 15:06:44 IST - root - INFO - Attempting recovery for: IBBM Intraday
+2025-10-05 15:06:44 IST - root - INFO - Calling attempt_recovery for IBBM Intraday
+2025-10-05 15:06:44 IST - modules.strategy_ibbm_actual - INFO - Attempting IBBM strategy recovery
+2025-10-05 15:06:44 IST - modules.strategy_ibbm_actual - INFO - Recovered last status from file: WAITING
+2025-10-05 15:06:44 IST - modules.strategy_ibbm_actual - INFO - IBBM strategy recovered from state file
+2025-10-05 15:06:44 IST - root - INFO - Recovery for IBBM Intraday: SUCCESS
+2025-10-05 15:06:44 IST - root - INFO - Skipping recovery for Intraday Straddle - auto-run disabled
+2025-10-05 15:06:44 IST - root - INFO - Skipping recovery for Monthly Straddle - auto-run disabled
+2025-10-05 15:06:44 IST - root - INFO - === STRATEGY RECOVERY COMPLETED ===
+2025-10-05 15:11:25 IST - modules.payoff_graph - INFO - Processing 2 positions from AMIYA RANJAN ROUT
+2025-10-05 15:11:25 IST - modules.payoff_graph - INFO - === ALL POSITIONS DUMP ===
+2025-10-05 15:11:25 IST - modules.payoff_graph - INFO - Total positions: 2
+2025-10-05 15:11:25 IST - modules.payoff_graph - INFO - === END POSITIONS DUMP ===
+2025-10-05 15:11:25 IST - modules.payoff_graph - INFO - Strangle identified: PE 24750.0 @ 71.90, CE 25150.0 @ 55.35, Units: 75
+2025-10-05 15:11:25 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:11:26 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:11:26 IST - modules.payoff_graph - INFO - Payoff graph updated successfully
+2025-10-05 15:14:32 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:14:32 IST - modules.payoff_graph - ERROR - No strategy spot price available
+2025-10-05 15:14:36 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:14:36 IST - modules.payoff_graph - ERROR - No strategy spot price available
+2025-10-05 15:14:40 IST - modules.payoff_graph - WARNING - Strategy mapping file not found: C:\Users\HP\OneDrive\Desktop\Shoonya\trade_app\modules\logs\2025-10-05_strategy_mapping.csv
+2025-10-05 15:14:40 IST - modules.payoff_graph - ERROR - No strategy spot price available
+2025-10-05 15:14:50 IST - root - INFO - === APPLICATION EXITED NORMALLY ===

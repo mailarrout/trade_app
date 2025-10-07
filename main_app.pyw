@@ -93,8 +93,8 @@ except Exception as e:
     logger.error(f"Failed to import OpstraOptionLoader: {e}")
 
 try:
-    from modules.strategy_ibbm import IBBMStrategy
-    # from modules.strategy_ibbm_actual import IBBMStrategy
+    # from modules.strategy_ibbm import IBBMStrategy
+    from modules.strategy_ibbm_actual import IBBMStrategy
     logger.info("Successfully imported IBBMStrategy")
 except Exception as e:
     logger.error(f"Failed to import IBBMStrategy: {e}")
@@ -300,6 +300,9 @@ class TradingApp:
                 QTimer.singleShot(10000, self._retry_strategy_init)
                 return
             
+            # Define the auto-run flags FIRST before using them
+            self.enable_ibbm_auto_run = ENABLE_IBBM_AUTO_RUN
+            
             # IBBM Strategy
             try:
                 logger.info("Creating IBBMStrategy instance")
@@ -372,14 +375,14 @@ class TradingApp:
                     logger.debug(f"Position manager set for {strategy_name}")
             
             self.current_strategy = DEFAULT_STRATEGY
-            self.enable_auto_run = ENABLE_IBBM_AUTO_RUN
             logger.info(f"Current strategy set to: {self.current_strategy}")
-            logger.info(f"IBBM auto-run enabled: {self.enable_auto_run}")
+            logger.info(f"IBBM auto-run enabled: {self.enable_ibbm_auto_run}")
             logger.info(f"Intraday Straddle auto-run enabled: {ENABLE_INTRADAY_STRADDLE_AUTO_RUN}")
             logger.info(f"Monthly Straddle auto-run enabled: {ENABLE_MONTHLY_STRADDLE_AUTO_RUN}")
             
         except Exception as e:
             logger.error(f"Strategy initialization failed: {e}")
+
 
     def setup_ui_connections(self):
         """Setup UI signal connections"""
@@ -405,7 +408,7 @@ class TradingApp:
                 logger.info("Connected strategy execution controls")
             
             # Auto-run IBBM if enabled
-            if self.enable_auto_run and "IBBM Intraday" in self.strategies:
+            if self.enable_ibbm_auto_run and "IBBM Intraday" in self.strategies:
                 logger.info("IBBM auto-run enabled - strategy handles its own execution")
                 # Strategy handles its own timer-based execution
                 
@@ -503,7 +506,7 @@ class TradingApp:
             logger.info(f"Starting strategy: {strategy_name}")
             strategy_obj = self.strategies.get(strategy_name)
             if strategy_obj:
-                if strategy_name == "IBBM Intraday" and self.enable_auto_run:
+                if strategy_name == "IBBM Intraday" and self.enable_ibbm_auto_run:
                     logger.info("IBBM strategy auto-run enabled - strategy manages its own execution")
                 
                 # Let each strategy handle its own execution logic
@@ -535,7 +538,7 @@ class TradingApp:
             logger.info("=== ATTEMPTING STRATEGY STATE RECOVERY ===")
             for strategy_name, strategy_obj in self.strategies.items():
                 # RESPECT AUTO-RUN FLAGS - Skip recovery for strategies with auto-run disabled
-                if strategy_name == "IBBM Intraday" and not self.enable_auto_run:
+                if strategy_name == "IBBM Intraday" and not self.enable_ibbm_auto_run:
                     logger.info(f"Skipping recovery for {strategy_name} - auto-run disabled")
                     continue
                 elif strategy_name == "Intraday Straddle" and not ENABLE_INTRADAY_STRADDLE_AUTO_RUN:
@@ -590,7 +593,6 @@ class TradingApp:
             # Stop API Status Monitor
             if hasattr(self, "api_status"):
                 logger.info("Stopping API Status Monitor")
-                self.api_status.stop_monitoring()
 
             # Let each strategy handle its own cleanup
             for strategy_name, strategy_obj in self.strategies.items():
