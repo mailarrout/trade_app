@@ -30,7 +30,7 @@ ENTRY_MINUTES = [14, 15, 16, 44, 45, 46]
 # EOD_EXIT_TIME = dt_time(23, 59)      # Don't auto-exit during testing
 # ENTRY_MINUTES = list(range(0, 60))   # Allow entry ANY minute
 
-ENTRY_MODE_9_45_ONLY = False  # Set to True for 9:45 AM only, False for any monitoring minute
+ENTRY_MODE_9_45_ONLY = True  # Set to True for 9:45 AM only, False for any monitoring minute
 
 MONITORING_MINUTES = [15, 45]
 
@@ -534,8 +534,31 @@ class IBBMStrategy:
     # ===== Core Strategy Logic =====
     def _check_and_execute_strategy(self):
         current_time = ISTTimeUtils.current_time()
-
-        if current_time.minute == 45:  # Run every 45th minute for debugging
+        
+        # CRITICAL FIX: Check broker positions first
+        broker_positions = self._get_broker_positions()
+        active_positions = False
+        
+        # Simple check for active positions
+        for pos in broker_positions:
+            symbol = pos.get('tsym', '')
+            net_qty = int(float(pos.get('netqty', 0)))
+            if 'NIFTY' in symbol and ('CE' in symbol or 'PE' in symbol) and net_qty < 0:
+                active_positions = True
+                logger.info(f"Found active position: {symbol}")
+                break
+        
+        if active_positions:
+            if self.state != "ACTIVE":
+                logger.info("Found active positions - updating state to ACTIVE")
+                self.state = "ACTIVE"
+                self._log_state("ACTIVE", "Auto-recovered from broker positions")
+            logger.info("Already have active positions - skipping entry, only monitoring")
+            self._monitor_all()
+            return
+        
+        # Original logic below (only runs if no active positions)
+        if current_time.minute == 45:
             self.debug_strategy_flow()
 
         # 1. End of day exit logic
@@ -543,49 +566,37 @@ class IBBMStrategy:
         #     self._exit_all_positions(reason="End of trading day")
         #     return
 
-        # 2. Regular monitoring for active positions - check for trend changes
+        # 2. Regular monitoring for active positions
         if ((current_time.minute in MONITORING_MINUTES) and 
             TRADING_START_TIME <= current_time <= TRADING_END_TIME and 
             self.state == "ACTIVE"):
             
-            # Check for trend change first
             if self._check_trend_change():
                 logger.info("Trend change detected - exiting all positions")
                 self._exit_all_positions(reason="Trend change")
-                # Reset to allow re-entry
-                self.state = "WAITING"
-                self._entry_attempted = False
-                self._log_state("WAITING", "Trend change - ready for re-entry")
                 return
             
             self._monitor_trend_and_positions()
 
-        # 3. Strategy entry logic - Only at 9:45 AM or if trend changes
+        # 3. Strategy entry logic
         if (TRADING_START_TIME <= current_time <= TRADING_END_TIME and 
             self.state == "WAITING"):
             
             should_enter = False
             
             if ENTRY_MODE_9_45_ONLY:
-                # === MODE 1: 9:45 AM ONLY ===
                 if (current_time.hour == 9 and current_time.minute == 45 and 
                     not self._entry_attempted):
                     should_enter = True
                     self._entry_attempted = True
                     logger.info("9:45 AM entry condition met")
-                
-                # Or if trend changes during monitoring minutes (re-entry after trend change)
                 elif current_time.minute in MONITORING_MINUTES:
                     should_enter = True
                     logger.info("Monitoring minute entry (trend change re-entry)")
-                    
             else:
-                # === MODE 2: ANY MONITORING MINUTE ===
                 if current_time.minute in MONITORING_MINUTES:
                     should_enter = True
                     logger.info(f"Monitoring minute entry triggered at {current_time}")
-                    
-                    # Only set _entry_attempted for 9:45 to avoid blocking other entries
                     if current_time.hour == 9 and current_time.minute == 45:
                         self._entry_attempted = True
                         logger.info("9:45 AM first entry marked")
@@ -593,25 +604,20 @@ class IBBMStrategy:
             logger.info(f"Should enter: {should_enter}")
             
             if should_enter:
-                if os.path.exists(self.current_state_file):
-                    try:
-                        df = pd.read_csv(self.current_state_file)
-                        if len(df) > 0:
-                            last_state = df.iloc[-1]
-                            
-                            if last_state['status'] in ['COMPLETED', 'STOPPED_OUT']:
-                                logger.info("Strategy already completed for today - waiting for tomorrow")
-                                return
-                                
-                            if last_state['status'] in ['ACTIVE']:
-                                logger.info("Resuming monitoring of existing positions after restart")
-                                self._recover_state_from_file()
-                                return
-                    except Exception as e:
-                        logger.error(f"Error reading state file: {str(e)}")
+                # Double-check we don't have positions (safety net)
+                has_positions = False
+                for pos in self._get_broker_positions():
+                    symbol = pos.get('tsym', '')
+                    net_qty = int(float(pos.get('netqty', 0)))
+                    if 'NIFTY' in symbol and ('CE' in symbol or 'PE' in symbol) and net_qty < 0:
+                        has_positions = True
+                        break
                 
-                logger.info("=== Running Strategy Cycle ===")
-                self._run_strategy_cycle()
+                if not has_positions:
+                    logger.info("=== Running Strategy Cycle ===")
+                    self._run_strategy_cycle()
+                else:
+                    logger.warning("Safety check: Positions found, skipping entry")
 
     def _check_trend_change(self) -> bool:
         """Check if trend has changed for exit"""

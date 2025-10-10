@@ -1,0 +1,23 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-10-08 11:36:42,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 11:40:29,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 11:45:50,ACTIVE,Positions opened with 20% SL,25035.099609375,25052.158528645832,down,NIFTY14OCT25C25100,93.2,93.15,111.85,0,NIFTY14OCT25P25000,81.65,82.9,98.0,0
+2025-10-08 12:03:26,RECOVERED,Successfully recovered ACTIVE state,25035.099609375,25052.158528645832,unknown,NIFTY14OCT25C25100,93.2,93.15,111.85,0,NIFTY14OCT25P25000,81.65,82.9,98.0,0
+2025-10-08 12:08:44,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 12:09:23,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 12:13:01,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 12:31:23,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 12:33:06,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 12:45:24,ACTIVE,Positions opened with 20% SL,25040.099609375,25037.516927083332,up,NIFTY14OCT25C25100,93.78,94.05,112.55,0,NIFTY14OCT25P25000,79.92,79.05,95.95,0
+2025-10-08 13:02:06,RECOVERED,Successfully recovered ACTIVE state,25040.099609375,25037.51692708333,unknown,NIFTY14OCT25C25100,93.78,94.05,112.55,0,NIFTY14OCT25P25000,79.92,79.05,95.95,0
+2025-10-08 13:24:37,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:25:41,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:28:03,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:29:39,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:30:19,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:34:43,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:36:13,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:41:41,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:47:01,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:56:57,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-08 13:56:57,COMPLETED,Manually marked completed,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0.

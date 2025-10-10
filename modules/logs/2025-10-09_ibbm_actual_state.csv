@@ -1,0 +1,9 @@
+timestamp,status,comments,nifty_price,nifty_ma12,trend,ce_symbol,ce_entry_price,ce_ltp,ce_sl_price,ce_trailing_step,pe_symbol,pe_entry_price,pe_ltp,pe_sl_price,pe_trailing_step
+2025-10-09 01:45:18,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-09 01:50:12,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-09 09:08:54,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-09 09:17:48,WAITING,Fresh start - first run of the day,0.0,0.0,unknown,,0.0,0.0,0.0,0,,0.0,0.0,0.0,0
+2025-10-09 09:46:10,ACTIVE,Positions opened with 20% SL,25064.349609375,25065.599934895832,down,NIFTY14OCT25C25100,92.05,94.95,110.5,0,NIFTY14OCT25P25050,83.0,80.75,99.6,0
+2025-10-09 09:56:06,RECOVERED,Successfully recovered ACTIVE state,25064.349609375,25065.599934895832,unknown,NIFTY14OCT25C25100,92.05,94.95,110.5,0,NIFTY14OCT25P25050,83.0,80.75,99.6,0
+2025-10-09 10:15:27,ACTIVE,Positions opened with 20% SL,25038.900390625,25068.229329427082,down,NIFTY14OCT25C25100,92.05,86.5,110.5,0,NIFTY14OCT25P25050,83.0,86.95,99.6,0
+2025-10-09 10:45:08,COMPLETED,All positions exited: Trend change,25101.900390625,25070.0126953125,unknown,NIFTY14OCT25C25100,92.05,87.85,110.5,0,NIFTY14OCT25P25050,83.0,85.5,99.6,0

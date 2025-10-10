@@ -505,16 +505,18 @@ class PayoffGraphTab(QWidget):
             logger.error(f"Error stopping timer: {e}")
 
     def update_adjustment_points_distance(self):
-        """Calculate and display points to CE/PE adjustment from strategy spot"""
+        """Calculate and display points to CE/PE adjustment from current spot"""
         try:
-            # Get strategy spot price for calculations
-            strategy_spot = self.get_strategy_spot_price()
-            if strategy_spot is None:
-                logger.debug("No strategy spot available for distance calculation")
+            # Get current spot price for distance calculations
+            spot = self.fetch_spot_price()
+            if spot is None:
+                logger.debug("No current spot available for distance calculation")
                 return
 
-            # Store strategy spot for chart marking
-            self.strategy_spot_price = strategy_spot
+            # Get strategy spot price for chart display (preserve this)
+            strategy_spot = self.get_strategy_spot_price()
+            if strategy_spot is not None:
+                self.strategy_spot_price = strategy_spot  # Keep this for chart drawing
 
             # Get adjustment values from UI
             ce_adj_text = self.ui.CESellingAdjustment.text().strip()
@@ -527,9 +529,9 @@ class PayoffGraphTab(QWidget):
                 ce_adj = float(ce_adj_text)
                 pe_adj = float(pe_adj_text)
                 
-                # Calculate distances FROM STRATEGY SPOT
-                points_to_ce = strategy_spot - ce_adj  # Positive if strategy spot > CE adj
-                points_to_pe = pe_adj - strategy_spot  # Positive if PE adj > strategy spot
+                # Calculate distances FROM CURRENT SPOT (your requested change)
+                points_to_ce = spot - ce_adj  # Positive if current spot > CE adj
+                points_to_pe = pe_adj - spot  # Positive if PE adj > current spot
                 
                 # Update the label
                 self.ui.AdjPointsFromSpot.setText(
@@ -540,7 +542,7 @@ class PayoffGraphTab(QWidget):
                 pass
                 
         except Exception as e:
-            logger.error(f"Error updating adjustment distances: {e}")     
+            logger.error(f"Error updating adjustment distances: {e}")
 
     def get_strategy_spot_price(self):
         """Get spot price from strategy mapping CSV for the latest active position"""
@@ -579,46 +581,4 @@ class PayoffGraphTab(QWidget):
         except Exception as e:
             logger.error(f"Error reading strategy spot price: {e}")
             return None
-
-    def update_adjustment_points_distance(self):
-        """Calculate and display points to CE/PE adjustment from spot"""
-        try:
-            # Get current spot price AND strategy spot price
-            current_spot = self.fetch_spot_price()
-            strategy_spot = self.get_strategy_spot_price()
-            
-            # Use strategy spot if available, otherwise current spot
-            spot = strategy_spot if strategy_spot is not None else current_spot
-            if spot is None:
-                return
-
-            # Store strategy spot for chart marking
-            self.strategy_spot_price = strategy_spot
-
-            # Get adjustment values from UI
-            ce_adj_text = self.ui.CESellingAdjustment.text().strip()
-            pe_adj_text = self.ui.PESellingAdjustment.text().strip()
-            
-            if not ce_adj_text or not pe_adj_text:
-                return
-                
-            try:
-                ce_adj = float(ce_adj_text)
-                pe_adj = float(pe_adj_text)
-                
-                # Calculate distances
-                points_to_ce = spot - ce_adj  # Positive if spot > CE adj
-                points_to_pe = pe_adj - spot  # Positive if PE adj > spot
-                
-                # Update the label
-                self.ui.AdjPointsFromSpot.setText(
-                    f"{points_to_ce:.0f} Points to CE Adjustment and {points_to_pe:.0f} Points to PE Adjustment"
-                )
-                
-                source = "Strategy" if strategy_spot else "Live"
-                
-            except ValueError:
-                pass
-                
-        except Exception as e:
-            logger.error(f"Error updating adjustment distances: {e}")               
+          

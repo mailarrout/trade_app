@@ -1,8 +1,7 @@
-# position_manager.py (refactored)
 import os
 import logging
 from PyQt5.QtGui import QColor, QFont
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QObject, pyqtSignal,QThread  
 from datetime import datetime, time
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QPushButton, QInputDialog, QMenu
 import pandas as pd
@@ -11,8 +10,78 @@ from pytz import timezone
 IST = timezone('Asia/Kolkata')
 logger = logging.getLogger(__name__)
 
-class PositionManager:
-    # --- Constants / configuration ---
+
+class PositionUpdateWorker(QThread):
+    finished = pyqtSignal(list, float, float, float, int)
+    error = pyqtSignal(str)
+    
+    def __init__(self, position_manager, filter_mode="all"):
+        super().__init__()
+        self.position_manager = position_manager
+        self.filter_mode = filter_mode
+        
+    def run(self):
+        try:
+            if not self.position_manager._validate_clients():
+                self.error.emit("No clients available")
+                return
+                
+            client_name, client_id, primary_client = self.position_manager.client_manager.clients[0]
+            positions = self.position_manager._fetch_positions(filter_mode=self.filter_mode)
+            
+            if positions is None:
+                self.error.emit("Failed to fetch positions")
+                return
+                
+            rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty = self.position_manager._process_positions(positions, primary_client)
+            
+            self.finished.emit(rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty)
+            
+        except Exception as e:
+            self.error.emit(f"Position update failed: {str(e)}")
+
+class ClientMTMWorker(QThread):
+    finished = pyqtSignal()
+    error = pyqtSignal(str)
+    
+    def __init__(self, position_manager):
+        super().__init__()
+        self.position_manager = position_manager
+        
+    def run(self):
+        try:
+            if not self.position_manager._validate_clients():
+                self.error.emit("No clients available")
+                return
+                
+            self.position_manager.ui.AllClientsTable.setRowCount(0)
+            successful_updates = 0
+
+            for row, (name, client_id, client) in enumerate(self.position_manager.client_manager.clients):
+                try:
+                    positions = client.get_positions() or []
+                    mtm, pnl = self.position_manager._calculate_client_mtm_pnl(positions)
+
+                    self.position_manager._update_client_row_signal.emit(row, name, mtm, pnl)
+                    successful_updates += 1
+
+                except Exception as e:
+                    logger.error(f"Error processing client {name}: {str(e)}", exc_info=True)
+                    continue
+
+            log_msg = f"Updated {successful_updates}/{len(self.position_manager.client_manager.clients)} client MTMs"
+            self.position_manager.ui.log_message("MTM", log_msg)
+            self.finished.emit()
+            
+        except Exception as e:
+            self.error.emit(f"Client MTM update failed: {str(e)}")
+
+
+class PositionManager(QObject):  # CHANGE THIS LINE
+    # === ADD THESE SIGNALS ===
+    _update_client_row_signal = pyqtSignal(int, str, float, float)
+    
+    # --- Your existing constants ---
     MAX_TOTAL_SELL_QTY = 900
     DEFAULT_TARGET = 30000.0
     DEFAULT_SL = -30000.0
@@ -21,16 +90,26 @@ class PositionManager:
     MARKET_OPEN = time(9, 15)
     MARKET_CLOSE = time(15, 30)
 
-    # Strategies and buckets (define once)
     STRATEGIES_INTRADAY = ["IBBM Intraday", "Intraday Straddle", "Intraday Strangle", "Strategy920AM"]
     STRATEGIES_MONTHLY = ["Monthly Strangle", "Monthly Straddle"]
-    STRATEGIES_KEEP = STRATEGIES_MONTHLY  # explicit alias for readability
-
+    STRATEGIES_KEEP = STRATEGIES_MONTHLY
+    strategy_popup_needed = pyqtSignal(str, str, int)
 
     def __init__(self, ui, client_manager):
+        # CHANGE: Call QObject constructor
+        super().__init__()
+        
         logger.info("Initializing PositionManager")
         self.ui = ui
         self.client_manager = client_manager
+
+        logger.debug("DEBUG: Initializing Target/SL fields with defaults")
+        self.ui.TargetQEdit.setText(str(self.DEFAULT_TARGET))
+        self.ui.SLQLine.setText(str(abs(self.DEFAULT_SL)))
+    
+
+        # Connect the signal
+        self._update_client_row_signal.connect(self._update_client_row)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.auto_refresh)
@@ -54,6 +133,18 @@ class PositionManager:
         self.ui.PositionTable.setContextMenuPolicy(Qt.CustomContextMenu)
 
         logger.info("PositionManager initialization completed")
+        self.strategy_popup_needed.connect(self._handle_strategy_popup)
+
+    def _update_client_row(self, row, name, mtm, pnl):
+        """Thread-safe method to update client MTM table"""
+        self.ui.AllClientsTable.insertRow(row)
+        items = [
+            self._create_table_item(name, bold=True),
+            self._create_table_item(f"{mtm:+,.2f}", color='green' if mtm >= 0 else 'red'),
+            self._create_table_item(f"{pnl:+,.2f}", color='green' if pnl >= 0 else 'red')
+        ]
+        for col, item in enumerate(items):
+            self.ui.AllClientsTable.setItem(row, col, item)
 
     # -------------------------
     # Timer / update lifecycle
@@ -94,6 +185,9 @@ class PositionManager:
 
             self.update_positions()
             self.update_all_clients_mtm()
+            
+            # Save comprehensive strategy mapping with current positions
+            self._save_strategy_mapping()
 
             current_time = update_time.time()
             if self._enable_market_close_exit and time(15, 20) <= current_time <= time(15, 21) and not self._exit_triggered:
@@ -112,96 +206,76 @@ class PositionManager:
     # -------------------------
     # Top-level operations
     # -------------------------
-    def update_positions(self):
-        """Main method to refresh positions and update UI/table."""
+    def _on_positions_update_complete(self, rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty):
+        """Handle completed position update in main thread"""
         try:
-            logger.info("Starting positions update")
-            if not self._validate_clients():
-                return
-
-            client_name, client_id, primary_client = self.client_manager.clients[0]
-            logger.debug(f"Using primary client: {client_name}")
-
-            target, sl = self._get_target_sl_values()
-            if target is None or sl is None:
-                return
-
-            positions = self._fetch_positions(filter_mode="all")  # fetch all positions once
-            if positions is None:
-                return
-
-            # Run cleanup at top of hour during market hours (optimized)
-            if self._is_market_hours():
-                current_minute = datetime.now(IST).minute
-                if current_minute == 0:
-                    cleaned_count = self.cleanup_strategy_mappings_with_positions(positions)
-                    if cleaned_count > 0:
-                        self.ui.log_message("Cleanup", f"Removed {cleaned_count} inactive strategy mappings")
-
-            rows_data, total_mtm, total_pnl, total_raw_mtm, total_sell_qty = self._process_positions(positions, primary_client)
-
             if total_sell_qty > self.MAX_TOTAL_SELL_QTY:
                 self._handle_trade_limit_violation(total_sell_qty)
                 return
 
+            # Update UI in main thread
             self._update_positions_table(rows_data)
 
             current_mtm = total_mtm + total_pnl
             self.update_mtm_display(current_mtm, total_raw_mtm)
 
             log_msg = f"Positions updated - Valid: {len(rows_data)}, MTM: {total_mtm:.2f}, PnL: {total_pnl:.2f}"
-            self.ui.log_message(client_name, log_msg)
+            self.ui.log_message("System", log_msg)
 
             self.save_positions_to_csv(rows_data)
 
             if self._is_market_hours():
-                self.ui.statusBar().showMessage(f"Positions updated for {client_id} ({len(rows_data)} valid)", 5000)
+                self.ui.statusBar().showMessage(f"Positions updated ({len(rows_data)} valid)", 5000)
             else:
-                self.ui.statusBar().showMessage(f"Viewing positions (outside market hours) - {client_id} ({len(rows_data)} valid)", 5000)
+                self.ui.statusBar().showMessage(f"Viewing positions (outside market hours) - ({len(rows_data)} valid)", 5000)
 
             if self._is_market_hours() and (not hasattr(self, '_exited_all') or not self._exited_all):
-                self._check_exit_conditions(current_mtm, target, sl)
+                target, sl = self._get_target_sl_values()
+                if target and sl:
+                    self._check_exit_conditions(current_mtm, target, sl)
 
         except Exception as e:
-            error_msg = f"Position update failed: {str(e)}"
+            error_msg = f"Position update completion failed: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            self.ui.log_message("PositionError", error_msg)
+
+    def _on_positions_update_error(self, error_msg):
+        """Handle position update errors"""
+        logger.error(error_msg)
+        self.ui.log_message("PositionError", error_msg)
+        self.ui.statusBar().showMessage("Position update failed", 5000)
+
+
+    def update_positions(self):
+        """Main method to refresh positions using background thread"""
+        try:
+            # logger.info("Starting positions update in background thread")
+            
+            # Show loading indicator
+            self.ui.statusBar().showMessage("Updating positions...")
+            
+            # Create and start worker thread
+            self.position_worker = PositionUpdateWorker(self, "all")
+            self.position_worker.finished.connect(self._on_positions_update_complete)
+            self.position_worker.error.connect(self._on_positions_update_error)
+            self.position_worker.start()
+            
+        except Exception as e:
+            error_msg = f"Position update setup failed: {str(e)}"
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("PositionError", error_msg)
 
     def update_all_clients_mtm(self):
-        """Updates summary MTM table for all configured clients."""
+        """Updates summary MTM table for all configured clients using threading"""
         try:
-            if not self._validate_clients():
-                return
-
-            self.ui.AllClientsTable.setRowCount(0)
-            successful_updates = 0
-
-            for row, (name, client_id, client) in enumerate(self.client_manager.clients):
-                try:
-                    positions = client.get_positions() or []
-                    mtm, pnl = self._calculate_client_mtm_pnl(positions)
-
-                    self.ui.AllClientsTable.insertRow(row)
-                    items = [
-                        self._create_table_item(name, bold=True),
-                        self._create_table_item(f"{mtm:+,.2f}", color='green' if mtm >= 0 else 'red'),
-                        self._create_table_item(f"{pnl:+,.2f}", color='green' if pnl >= 0 else 'red')
-                    ]
-
-                    for col, item in enumerate(items):
-                        self.ui.AllClientsTable.setItem(row, col, item)
-
-                    successful_updates += 1
-
-                except Exception as e:
-                    logger.error(f"Error processing client {name}: {str(e)}", exc_info=True)
-                    continue
-
-            log_msg = f"Updated {successful_updates}/{len(self.client_manager.clients)} client MTMs"
-            self.ui.log_message("MTM", log_msg)
-
+            logger.info("Starting client MTM update in background thread")
+            self.client_mtm_worker = ClientMTMWorker(self)
+            self.client_mtm_worker.finished.connect(lambda: logger.info("Client MTM update completed"))
+            self.client_mtm_worker.error.connect(lambda msg: self.ui.log_message("MTMError", msg))
+            self.client_mtm_worker.start()
+            
         except Exception as e:
-            error_msg = f"Client MTM update failed: {str(e)}"
+            error_msg = f"Client MTM update setup failed: {str(e)}"
             logger.error(error_msg, exc_info=True)
             self.ui.log_message("MTMError", error_msg)
 
@@ -269,8 +343,6 @@ class PositionManager:
     def _extract_position_data(self, pos, client, symbol):
         token = str(pos.get("token", ""))
 
-        # Determine CE/PE roughly based on symbol characters (original logic kept)
-        
         # Better CE/PE detection using dname field
         dname = pos.get("dname", "").strip()
         if dname.endswith('PE'):
@@ -364,8 +436,7 @@ class PositionManager:
                 # If TokenHidden field is stored as a QTableWidgetItem, ensure it's the hidden col
                 self.ui.PositionTable.setItem(row_idx, col, item)
 
-            if row_data["has_action"]:
-                self._add_exit_button(row_idx, row_data)
+            self._add_exit_button(row_idx, row_data)
 
     def _create_table_items(self, row_data):
         """Create table items for a row"""
@@ -420,20 +491,37 @@ class PositionManager:
         item.setForeground(QColor("green") if value > 0 else QColor("red") if value < 0 else QColor("black"))
 
     def _add_exit_button(self, row_idx, row_data):
-        """Add exit button for a position row"""
+        """Add exit button for a position row - greyed out when net_qty == 0"""
         btn = QPushButton("Exit", self.ui.PositionTable)
-        btn.setStyleSheet("""
-            QPushButton {
-                background-color: #ff6666;
-                color: white;
-                border: none;
-                padding: 5px;
-                border-radius: 3px;
-            }
-            QPushButton:hover {
-                background-color: #ff4444;
-            }
-        """)
+        
+        net_qty = row_data["net_qty"]
+        is_active = net_qty != 0
+        
+        if is_active:
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #ff6666;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                    border-radius: 3px;
+                }
+                QPushButton:hover {
+                    background-color: #ff4444;
+                }
+            """)
+        else:
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                    border-radius: 3px;
+                }
+            """)
+            btn.setEnabled(False)
+        
         client_name = self.client_manager.clients[0][0] if self.client_manager.clients else ""
         btn.clicked.connect(
             lambda _, n=client_name, s=row_data["symbol"]: self.exit_all_positions(client_name=n, symbol=s)
@@ -469,7 +557,7 @@ class PositionManager:
                     pos_symbol = pos.get("tsym", "")
                     pos_token = str(pos.get("token", ""))
 
-                    strategy = self.get_strategy_for_position(pos_symbol, pos_token)
+                    strategy = self.get_strategy_for_position(pos_symbol, pos_token, net_qty)
                     strategy_name = strategy.get('strategy_name', '') if isinstance(strategy, dict) else str(strategy)
 
                     # Skip monthly strategies we keep
@@ -575,16 +663,27 @@ class PositionManager:
         try:
             target_text = self.ui.TargetQEdit.text().strip()
             sl_text = self.ui.SLQLine.text().strip()
+            
+            # DEBUG: Print what we're getting
+            logger.debug(f"DEBUG: Target field value: '{target_text}'")
+            logger.debug(f"DEBUG: SL field value: '{sl_text}'")
 
-            target = float(target_text) if target_text else self.DEFAULT_TARGET
-            sl = -abs(float(sl_text)) if sl_text else self.DEFAULT_SL
-
-            # if blanks, populate UI with defaults (keeps original behaviour)
+            # Set defaults if empty
             if not target_text:
-                self.ui.TargetQEdit.setText(str(target))
+                logger.debug("DEBUG: Target field is empty, setting default")
+                self.ui.TargetQEdit.setText(str(self.DEFAULT_TARGET))
+                target_text = str(self.DEFAULT_TARGET)
+                
             if not sl_text:
-                self.ui.SLQLine.setText(str(abs(sl)))
+                logger.debug("DEBUG: SL field is empty, setting default") 
+                self.ui.SLQLine.setText(str(abs(self.DEFAULT_SL)))
+                sl_text = str(abs(self.DEFAULT_SL))
 
+            # Convert to numbers
+            target = float(target_text)
+            sl = -abs(float(sl_text))
+
+            logger.debug(f"DEBUG: Final values - Target: {target}, SL: {sl}")
             return target, sl
 
         except ValueError as e:
@@ -670,43 +769,43 @@ class PositionManager:
 
         return item
 
+
+    def _handle_strategy_popup(self, symbol, token, net_qty):
+        """Handle strategy popup in main thread"""
+        try:
+            strategy = self.prompt_strategy_selection(symbol, token)
+            if strategy and strategy != "Update Required":
+                # Update positions to reflect the new strategy
+                self.update_positions()
+        except Exception as e:
+            logger.error(f"Strategy popup failed: {str(e)}")
+
     # -------------------------
     # Strategy mapping & persistence
     # -------------------------
     def get_strategy_for_position(self, symbol, token, net_qty=0):
-        """
-        Return assigned strategy name or 'Position Not Active' / 'Update Required' string.
-        If position active and unassigned -> prompt user (original behavior).
-        """
-        logger.debug(f"get_strategy_for_position called - symbol: {symbol}, token: {token}, net_qty: {net_qty}")
+        logger.debug(f"get_strategy_for_position - symbol: {symbol}, token: {token}, net_qty: {net_qty}")
 
         if not symbol or not token:
             return ""
 
-        # verify active
-        if not self._is_position_active(symbol, token):
-            logger.debug(f"Position {symbol} not active at broker - skipping strategy assignment")
-            return "Position Not Active"
-
         strategy = self._get_strategy_from_mapping(symbol, token)
-        logger.debug(f"Strategy from mapping: {strategy}")
-
-        if not strategy and net_qty != 0:
-            logger.debug("No strategy found for active position, prompting user")
-            return self.prompt_strategy_selection(symbol, token)
-
-        logger.debug(f"Returning strategy: {strategy}")
-        return strategy
+        
+        # Check if we have a valid strategy
+        has_valid_strategy = strategy and strategy.strip() and strategy != "Update Required"
+        
+        if has_valid_strategy:
+            logger.debug(f"Returning previously assigned strategy: {strategy}")
+            return strategy
+        
+        # Use signal instead of direct popup call
+        logger.debug(f"Emitting popup signal for {symbol}")
+        self.strategy_popup_needed.emit(symbol, token, net_qty)
+        return "Update Required"  # Temporary return
 
     def _get_strategy_from_mapping(self, symbol, token):
         if not symbol or not token:
             logger.debug(f"Symbol or token is empty - symbol: {symbol}, token: {token}")
-            return ""
-
-        current_positions = self._get_current_positions_symbols()
-        logger.debug(f"Current positions from broker: {current_positions}")
-        if symbol not in current_positions:
-            logger.debug(f"SYMBOL NOT FOUND - {symbol} not in current positions")
             return ""
 
         key = self._get_symbol_token_key(symbol, token)
@@ -721,10 +820,12 @@ class PositionManager:
         return f"{symbol}_{token}"
 
     def prompt_strategy_selection(self, symbol, token):
+        from PyQt5.QtWidgets import QApplication
+        QApplication.processEvents()
         try:
             strategies = [
                 "IBBM Intraday", "General", "Intraday Strangle",
-                "Intraday Straddle", "Strategy920AM", "Monthly Strangle",
+                "Intraday Straddle", "Monthly Strangle",
                 "Monthly Straddle", "Manual Entry", "Other"
             ]
 
@@ -794,8 +895,11 @@ class PositionManager:
             return 0.0
 
     def _save_strategy_mapping(self):
-        """Persist current _strategy_symbol_token_map to CSV (logs directory)."""
+        """Persist current _strategy_symbol_token_map to CSV"""
         try:
+            logger.info("=== SAVE STRATEGY MAPPING CALLED ===")
+            logger.info(f"Mapping entries to save: {len(self._strategy_symbol_token_map)}")
+            
             main_app_dir = os.path.dirname(os.path.abspath(__file__))
             logs_dir = os.path.join(main_app_dir, "logs")
             os.makedirs(logs_dir, exist_ok=True)
@@ -803,20 +907,34 @@ class PositionManager:
             current_date = datetime.now(IST).strftime('%Y-%m-%d')
             self._strategy_mapping_file = f"{current_date}_strategy_mapping.csv"
             mapping_file = os.path.join(logs_dir, self._strategy_mapping_file)
+            
+            logger.info(f"Save path: {mapping_file}")
 
             mapping_data = []
             current_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
 
-            for key, strategy_data in self._strategy_symbol_token_map.items():
-                parts = key.rsplit('_', 1)
-                if len(parts) == 2:
-                    symbol, token = parts
+            # Get current active positions to ensure we capture all of them
+            active_positions = self._get_current_active_positions()
+            active_symbols_tokens = set()
+            
+            # First, add all active positions (even if no strategy assigned yet)
+            for pos in active_positions:
+                symbol = pos.get("tsym", "")
+                token = str(pos.get("token", ""))
+                net_qty = int(float(pos.get("netqty", 0)))
+                
+                if symbol and token and net_qty != 0:
+                    active_symbols_tokens.add(f"{symbol}_{token}")
+                    
+                    key = f"{symbol}_{token}"
+                    strategy_data = self._strategy_symbol_token_map.get(key, {})
+                    
                     if isinstance(strategy_data, dict):
-                        strategy_name = strategy_data.get('strategy_name', '')
+                        strategy_name = strategy_data.get('strategy_name', 'Update Required')
                         spot_price = strategy_data.get('spot_price', 0.0)
                         timestamp = strategy_data.get('timestamp', current_time)
                     else:
-                        strategy_name = strategy_data
+                        strategy_name = 'Update Required'
                         spot_price = 0.0
                         timestamp = current_time
 
@@ -826,21 +944,57 @@ class PositionManager:
                         'strategy': strategy_name,
                         'spot_price': spot_price,
                         'assigned_date': timestamp,
-                        'status': 'Active'
+                        'status': 'Active',
+                        'net_qty': net_qty,
+                        'save_time': current_time
                     })
+                    # logger.info(f"Saving: {symbol} -> {strategy_name} (Qty: {net_qty})")
+
+            # Also include any historical mappings that might not be active now but were assigned today
+            for key, strategy_data in self._strategy_symbol_token_map.items():
+                if key not in active_symbols_tokens:
+                    parts = key.rsplit('_', 1)
+                    if len(parts) == 2:
+                        symbol, token = parts
+                        if isinstance(strategy_data, dict):
+                            strategy_name = strategy_data.get('strategy_name', '')
+                            spot_price = strategy_data.get('spot_price', 0.0)
+                            timestamp = strategy_data.get('timestamp', current_time)
+                        else:
+                            strategy_name = strategy_data
+                            spot_price = 0.0
+                            timestamp = current_time
+
+                        # Only include if it was assigned today
+                        if timestamp.startswith(current_date):
+                            mapping_data.append({
+                                'symbol': symbol,
+                                'token': token,
+                                'strategy': strategy_name,
+                                'spot_price': spot_price,
+                                'assigned_date': timestamp,
+                                'status': 'Inactive',
+                                'net_qty': 0,
+                                'save_time': current_time
+                            })
+                            logger.info(f"Saving (historical): {symbol} -> {strategy_name}")
 
             if mapping_data:
-                columns = ['symbol', 'token', 'strategy', 'spot_price', 'assigned_date', 'status']
+                columns = ['symbol', 'token', 'strategy', 'spot_price', 'assigned_date', 'status', 'net_qty', 'save_time']
                 df = pd.DataFrame(mapping_data, columns=columns)
                 df.to_csv(mapping_file, index=False, mode='w')
+                logger.info(f"SAVED {len(mapping_data)} mappings to {mapping_file}")
+            else:
+                logger.warning("No mapping data to save")
 
-                log_msg = f"Saved {len(mapping_data)} strategy mappings"
-                self.ui.log_message("Strategy", log_msg)
+            log_msg = f"Saved {len(mapping_data)} strategy mappings"
+            self.ui.log_message("Strategy", log_msg)
+            
+            logger.info("=== SAVE STRATEGY MAPPING COMPLETED ===")
 
         except Exception as e:
-            error_msg = f"Failed to save strategy mapping: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            self.ui.log_message("StrategyError", error_msg)
+            logger.error(f"Save strategy mapping FAILED: {str(e)}", exc_info=True)
+            self.ui.log_message("StrategyError", f"Failed to save strategy mapping: {str(e)}")
 
     def _load_strategy_mapping(self):
         mapping = {}
@@ -1163,7 +1317,7 @@ class PositionManager:
                 token = pos.get("token", "")
                 net_qty = int(pos.get("net_qty", 0))
 
-                strategy_value = self.get_strategy_for_position(symbol, token)
+                strategy_value = self.get_strategy_for_position(symbol, token, net_qty)
                 # If dict, fetch name
                 if isinstance(strategy_value, dict):
                     strategy_value = strategy_value.get('strategy_name', '')
